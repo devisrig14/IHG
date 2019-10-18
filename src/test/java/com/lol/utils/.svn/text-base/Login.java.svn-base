@@ -1,0 +1,143 @@
+package test.java.com.hp.fc.usa.nmc.na.utils;
+
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+import test.java.com.hp.fc.usa.nmc.na.tests.TestExecutor;
+
+
+public class Login extends TestExecutor{
+	
+	public WebDriver driver = null;
+	
+	public Login(WebDriver driver){
+		this.driver = driver;
+	}
+
+	public boolean isLoggedInUser(String userName){
+		
+		List<WebElement> elements =driver.findElements(By.id("UnitTestNavi"));
+		//System.out.println("elements size "+elements.size());
+		if(elements.size()>0){
+			String userLoggedIn = common.getObjectById("top_bar").getText().trim().replace("User:", "").replace("Log Out", "").replace("Logout", "").trim();
+			//System.out.println("username is "+userLoggedIn);
+			return userName.equals(userLoggedIn);
+		}
+		return false;
+		
+	}
+	
+	public boolean asAdmin(){
+		return doLogin("admin", "password");
+	}
+	
+	public boolean loginAsUser(String username){
+		return doLogin(username, common.getDefaultPassword());
+	}
+	
+	public boolean loginAsNewUser(String username){
+		
+		return doLogin(username, common.getNewPassword());
+		
+	}
+	public boolean loginAsUser(String username, String password){
+		return doLogin(username, password);
+	}
+	
+	public boolean loginInvalidAdminUserPassword(){
+		return doLogin("admin", "password1");
+	}
+	
+	public boolean loginInvalidUserPassword(String userName){
+		return doLogin(userName, "password");
+	}
+	
+	//Reset the password when new user logs in
+    public boolean resetPassword(String username) throws InterruptedException{
+		
+		// Check if login. If login then logout and continue to login with the given username and password.
+				if(isLoggedIn){
+					logOut();
+					//return;
+				}
+		String password=common.getDefaultPassword();
+		String newPassword=common.getNewPassword();
+		common.getObjectByClass("login_name").sendKeys(username);
+		common.getObjectByClass("login_password").sendKeys(password);
+		common.getObjectByName("loginbutton").click();
+		
+		if(common.isElementExist(By.className("login_error"))){
+			
+		  String resetPasswordMsg=driver.findElement(By.className("login_error")).getText().toString().trim();
+		  System.out.println(resetPasswordMsg);
+		   
+		  common.getObjectByName("j_username").sendKeys(username);
+		  common.getObjectByName("j_oldpassword").sendKeys(password);
+		  common.getObjectByName("j_newpassword").sendKeys(newPassword);
+		  common.getObjectByName("j_confirmnewpassword").sendKeys(newPassword);
+		  common.getObjectByName("submitbutton").click();
+		  Thread.sleep(5000L);
+		  common.getObjectByClass("login_name").sendKeys(username);
+		  common.getObjectByClass("login_password").sendKeys(newPassword);
+		  common.getObjectByName("loginbutton").click();
+		}
+		try{
+			String displayedUserName = driver.findElement(By.id("top_bar")).getText();
+			
+			if(displayedUserName.substring(displayedUserName.indexOf(":")+1,displayedUserName.indexOf("Log")-1).trim().equals(username)){
+				isLoggedIn = true;
+				return true;
+			}else{
+				isLoggedIn = false;
+				return false;
+			}
+		}catch(Throwable t){
+			isLoggedIn = false;
+			return false;
+		}
+	}
+    
+	// Does a login which login the user and doesnt reports he error and toggles the isLoggedIn variable to true or false.
+	private boolean doLogin(String username, String password){
+		
+		// Check if login. If login then logout and continue to login with the given username and password.
+		if(isLoggedIn){
+			logOut();
+			//return;
+		}
+		
+		// Login to NA with username and password
+	    common.getObjectByClass("login_name").sendKeys(username);
+		common.getObjectByClass("login_password").sendKeys(password);
+		common.getObjectByName("loginbutton").click();
+				
+		// Check the user logged in by checking at the user at the top right corner. Didnt call getObjectByID as it will also report error if the element is not present.
+		try{
+			String displayedUserName = driver.findElement(By.id("top_bar")).getText();
+			
+			if(displayedUserName.substring(displayedUserName.indexOf(":")+1,displayedUserName.indexOf("Log")-1).trim().equals(username)){
+				isLoggedIn = true;
+				return true;
+			}else{
+				isLoggedIn = false;
+				return false;
+			}
+		}catch(Throwable t){
+			isLoggedIn = false;
+			System.out.println("==LOG IN FAILED =" + username);
+			return false;
+		}
+	}
+	
+	public void logOut(){
+		if(isLoggedIn){
+			common.getObjectByClass("logout_button").click();
+			isLoggedIn=false;   // Divesh- added to resolve the login functionality issue caused by new Security enhancement - 4th Nov 2014
+		}
+	}
+	
+	
+}

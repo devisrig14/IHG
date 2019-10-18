@@ -1,0 +1,208 @@
+package test.java.com.hp.fc.usa.nmc.na.tests;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.testng.Assert;
+import org.testng.AssertJUnit;
+import org.testng.Reporter;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Listeners;
+import org.testng.annotations.Test;
+
+import test.java.com.hp.fc.usa.nmc.na.listener.GenerateCustomReport;
+import test.java.com.hp.fc.usa.nmc.na.pages.AdminSettings_UserAuthentication;
+import test.java.com.hp.fc.usa.nmc.na.pages.EditDevicePage;
+import test.java.com.hp.fc.usa.nmc.na.pages.SearchFor_Users_Listing_Page;
+import test.java.com.hp.fc.usa.nmc.na.pages.EventsSearchPage;
+import test.java.com.hp.fc.usa.nmc.na.pages.UsersListingPage;
+import test.java.com.hp.fc.usa.nmc.na.pages.UsersSearchPage;
+import test.java.com.hp.fc.usa.nmc.na.utils.Common;
+
+@Listeners(GenerateCustomReport.class)
+public class Event_Search extends TestExecutor
+{
+	WebElement table=null;
+	List<WebElement> rows = null;
+	String SearchWith;
+	
+	@BeforeMethod(enabled = true, groups = {"BAT", "ART"})
+	public void startTest() throws IOException, InterruptedException{
+		initialize();
+		
+		driver.get("http://"+System.getProperty("naIpAddress"));
+		
+		if(common.checkExistenceOfOverridelink())
+		{
+			common.getObjectById("overridelink").click();
+			Thread.sleep(3000);			
+		}
+		//driver.navigate().to("javascript:document.getElementById('overridelink').click();");
+		
+		login.loginAsUser("admin");
+		if(!isLoggedIn){
+			System.out.println("Invalid Username/password");
+			Assert.assertTrue( false,"Not able to login to NA Server");
+			// report error
+		}
+		driver.manage().window().maximize();
+		
+	}
+	
+	
+	@Test(enabled = true, groups = {"ART"})
+	public void Events_Search_HostName_Contains() 
+	{
+		Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+		Reporter.log("===============Start User_Search_hostName_Contains========================"+"<br>");
+				
+		String[] str = common.getDeviceIPs(1,true,false);
+		System.out.println(str[0]);	
+		String deviceIp = str[0];
+		common.goToDevice(deviceIp);
+		DeviceNavigate.Edit.editDevice();
+		EditDevicePage EditDevicePage = new EditDevicePage();
+		String hostName = EditDevicePage.getHostnameFromEditPage();
+		System.out.println(hostName);
+		
+		System.out.println("Searching for hostName");
+		this.completeSearchWith_hostName("contains", hostName);	
+		
+		
+		
+		Reporter.log("===============End User_Search_hostName_Contains========================"+"<br>");
+	}
+	
+	
+
+//*************************************************************** Helper Methods*****************************************************************************	
+	
+	
+	public void completeSearchWith_hostName(String OperationName, String hostName) 
+	{
+		
+		Reporter.log("Case 1: Searching with entire String"+"<br>");
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{	
+		Assert.assertTrue(this.hostName_Helper(OperationName, hostName, hostName), "Specified User not seen in the 'Search Results' page, when searched with entire String'");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+			{	
+				Assert.assertFalse(this.hostName_Helper(OperationName, hostName, hostName), "Specified User seen in the 'Search Results' page, when searched with entire String'");
+			}
+			
+		
+		Reporter.log("Case 2: Searching with 'wildcards'"+"<br>");		
+		String searchCriteria_wildcards = hostName.substring(0, 1) + "*";
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+		Assert.assertTrue(this.hostName_Helper(OperationName, searchCriteria_wildcards, hostName), "Specified User not seen in the 'Search Results' page, when searched with 'wildcards'");
+		} else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("equals"))
+		{
+			Assert.assertFalse(this.hostName_Helper(OperationName, searchCriteria_wildcards, hostName), "Specified User seen in the 'Search Results' page, when searched with 'wildcards'");
+		}
+		Reporter.log("Case 3: Searching with 'upper case characters'"+"<br>");
+		String searchCriteria_upperCase = hostName.toUpperCase();
+		
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+		Assert.assertTrue(this.hostName_Helper(OperationName, searchCriteria_upperCase, hostName), "Specified User not seen in the 'Search Results' page, when searched with 'upper case characters'");
+		} else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+			{
+			Assert.assertFalse(this.hostName_Helper(OperationName, searchCriteria_upperCase, hostName), "Specified User seen in the 'Search Results' page, when searched with 'upper case characters'");
+			}
+		
+		Reporter.log("Case 4: Searching with 'lower case characters'"+"<br>");
+		String searchCriteria_lowerCase = hostName.toLowerCase();
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+		Assert.assertTrue(this.hostName_Helper(OperationName, searchCriteria_lowerCase, hostName), "Specified User not seen in the 'Search Results' page, when searched with 'lower case characters'");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertFalse(this.hostName_Helper(OperationName, searchCriteria_lowerCase, hostName), "Specified User seen in the 'Search Results' page, when searched with 'lower case characters'");
+		}
+		
+		Reporter.log("Case 5: Searching with 'alphanumeric'"+"<br>");
+		
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+		Assert.assertTrue(this.hostName_Helper(OperationName, hostName, hostName), "Specified User not seen in the 'Search Results' page, when searched with 'alphanumeric''");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertFalse(this.hostName_Helper(OperationName, hostName, hostName), "Specified User seen in the 'Search Results' page, when searched with 'alphanumeric''");
+		}
+		
+		Reporter.log("Case 6: Searching with 'only numeric'"+"<br>");
+		String searchCriteria_onlyNumeric = hostName.replaceAll("[^0-9]", "");
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+		Assert.assertTrue(this.hostName_Helper(OperationName, searchCriteria_onlyNumeric, hostName), "Specified User not seen in the 'Search Results' page, when searched with 'only numeric'");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("equals")||OperationName.equalsIgnoreCase("matches"))
+		{
+			Assert.assertFalse(this.hostName_Helper(OperationName, searchCriteria_onlyNumeric, hostName), "Specified User seen in the 'Search Results' page, when searched with 'only numeric'");
+		}
+		Reporter.log("Case 7: Searching with 'null'"+"<br>");
+		String searchCriteria_null = "null";
+		if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertTrue(this.hostName_Helper(OperationName, searchCriteria_null, hostName), "Specified User not seen in the 'Search Results' page, when searched with 'null'");
+		}else if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+			Assert.assertFalse(this.hostName_Helper(OperationName, searchCriteria_null, hostName), "Specified User not seen in the 'Search Results' page, when searched with 'null'");
+		}
+		
+		Reporter.log("Case 8: Searching with 'html tag'"+"<br>");
+		String searchCriteria_html = "<html>";	
+		if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertTrue(this.hostName_Helper(OperationName, searchCriteria_html, hostName), "Specified User not seen in the 'Search Results' page, when searched with 'html tag'");
+		}else if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+			Assert.assertFalse(this.hostName_Helper(OperationName, searchCriteria_html, hostName), "Specified User not seen in the 'Search Results' page, when searched with 'html tag'");
+		}
+	}
+	
+	public boolean hostName_Helper(String OperationName, String searchCriteria, String hostName) 
+	{
+		Navigate.Reports.SearchFor.Events();
+		WebElement table = common.getObjectByXpath("//table[@ class='table_form_standard']");
+		EventsSearchPage EventsSearchPage = new EventsSearchPage();
+		common.uncheckAllCheckboxes(table);		
+		EventsSearchPage.hostNameCheckBox.click();
+		common.sleep(3000);		
+		EventsSearchPage.hostNameOperationName.sendKeys(OperationName);
+		EventsSearchPage.hostNameValue.sendKeys(searchCriteria);
+		common.search();
+		Assert.assertTrue(common.checkTitleContains("Event Search Results"), "'Event Search Results' page is not seen");
+		/*SearchFor_Users_Listing_Page SearchFor_Users_Listing_Page = new SearchFor_Users_Listing_Page();
+		boolean ExistanceOfUser = SearchFor_Users_Listing_Page.checkForExistanceOfUserInSearchResults(hostName);*/
+		String tableXpath = "//table[@class = 'TableBorder']";
+		return common.checkForExistenceOfAnElementInTable(tableXpath, "Host Name", hostName);
+		
+	}
+	
+	
+	
+
+	
+	  @AfterMethod(enabled = false, groups = {"BAT", "ART"})
+	  public void logout()
+	  {
+	  	try {
+			login.logOut();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	  
+	  	driver.quit();
+	  	
+	  	
+	  }
+
+	  
+}

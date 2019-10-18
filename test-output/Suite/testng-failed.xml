@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite guice-stage="DEVELOPMENT" name="Failed suite [Suite]">
+  <test name="Test(failed)">
+    <classes>
+      <class name="com.lol.tests.TC_SL">
+        <methods>
+          <include name="startTest"/>
+          <include name="launch"/>
+          <include name="S9_Order"/>
+        </methods>
+      </class> <!-- com.lol.tests.TC_SL -->
+      <class name="com.lol.tests.TC_ST">
+        <methods>
+          <include name="startTest"/>
+          <include name="launch"/>
+          <include name="teartown"/>
+          <include name="start"/>
+        </methods>
+      </class> <!-- com.lol.tests.TC_ST -->
+    </classes>
+  </test> <!-- Test(failed) -->
+</suite> <!-- Failed suite [Suite] -->

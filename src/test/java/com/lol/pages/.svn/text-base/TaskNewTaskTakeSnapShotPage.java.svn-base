@@ -1,0 +1,10 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import org.openqa.selenium.WebElement;
+
+public class TaskNewTaskTakeSnapShotPage extends Page{
+
+	public WebElement serial = common.getObjectById("Serial");
+	public WebElement parallel = common.getObjectById("Parallel"); 
+	public WebElement taskName=common.getObjectByName("taskName");
+}

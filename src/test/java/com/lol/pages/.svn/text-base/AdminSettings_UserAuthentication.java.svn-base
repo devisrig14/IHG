@@ -1,0 +1,41 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.testng.AssertJUnit;
+
+public class AdminSettings_UserAuthentication extends Page{
+	
+
+	public WebElement maxConsecutiveUserLoginFailuresTextBox = common.getObjectByName("security/max_consecutive_user_login_failures");
+	public WebElement saveButton = common.getObjectByXpath("//input[@value='Save' and @class='FormButton']");
+	
+	public WebElement minimumUserPasswordLength = common.getObjectByName("security/min_user_password_length");
+	
+	
+
+
+	// change the value of 'Maximum Consecutive Login Failures' field to specified value
+	public void setMaximumConsecutiveLoginFailures(String numberOfAttempts)
+	{		
+		maxConsecutiveUserLoginFailuresTextBox.clear();
+		maxConsecutiveUserLoginFailuresTextBox.sendKeys(numberOfAttempts);
+		saveButton.click();
+		AssertJUnit.assertTrue(common.pageInfoBoxContains("Setting values have been saved."));
+						
+	}
+	
+	// change the value of 'Minimum User Password Length' field to specified value
+	public void minimumUserPasswordLength(String PasswordLength)
+	{		
+		minimumUserPasswordLength.clear();
+		minimumUserPasswordLength.sendKeys(PasswordLength);
+		saveButton.click();
+		AssertJUnit.assertTrue(common.pageInfoBoxContains("Setting values have been saved."));
+						
+	}
+	
+
+}

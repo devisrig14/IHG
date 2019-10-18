@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/repos/hpsw-sdo-nnm/!svn/ver/201139/nnm/nms-naqa/trunk/nms-na-selenium/src/test/java/input
+END
+importCustomResouceIdsInvalidStatus.csv
+K 25
+svn:wc:ra_dav:version-url
+V 134
+/svn/repos/hpsw-sdo-nnm/!svn/ver/201909/nnm/nms-naqa/trunk/nms-na-selenium/src/test/java/input/importCustomResouceIdsInvalidStatus.csv
+END
+Devices.xml
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/repos/hpsw-sdo-nnm/!svn/ver/201139/nnm/nms-naqa/trunk/nms-na-selenium/src/test/java/input/Devices.xml
+END
+importCustomResouceIds.csv
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/svn/repos/hpsw-sdo-nnm/!svn/ver/201907/nnm/nms-naqa/trunk/nms-na-selenium/src/test/java/input/importCustomResouceIds.csv
+END
+ImportResouceIdsCustom.csv
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/svn/repos/hpsw-sdo-nnm/!svn/ver/201910/nnm/nms-naqa/trunk/nms-na-selenium/src/test/java/input/ImportResouceIdsCustom.csv
+END
+Common.xml
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/repos/hpsw-sdo-nnm/!svn/ver/201139/nnm/nms-naqa/trunk/nms-na-selenium/src/test/java/input/Common.xml
+END
+importCustomResouceIdsInvalidColumn.csv
+K 25
+svn:wc:ra_dav:version-url
+V 134
+/svn/repos/hpsw-sdo-nnm/!svn/ver/201908/nnm/nms-naqa/trunk/nms-na-selenium/src/test/java/input/importCustomResouceIdsInvalidColumn.csv
+END
+Import3ResouceIds.csv
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/svn/repos/hpsw-sdo-nnm/!svn/ver/201906/nnm/nms-naqa/trunk/nms-na-selenium/src/test/java/input/Import3ResouceIds.csv
+END

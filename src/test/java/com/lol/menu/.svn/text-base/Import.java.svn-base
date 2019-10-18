@@ -1,0 +1,71 @@
+package test.java.com.hp.fc.usa.nmc.na.menu;
+
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+public class Import {
+
+	WebDriver driver = null;
+	NewTasks parentMenu = null;
+	WebElement table=null;
+	List<WebElement> rows = null;
+	
+	public Import(WebDriver driver, NewTasks parentMenu){
+		this.driver = driver;
+		this.parentMenu = parentMenu;
+	}
+	
+	public void ResouceIdentity(){
+		try{
+			navigateToSubItem("Resource Identities");
+		}catch(Exception e){
+			navigateToSubItem("Resource Identities");
+		}
+	}
+	
+	private void navigateToSubItem(String navigateSubItem){
+		
+		// Navigate to Administrative settings and click on the respective submenu. Implemented this way as calling for Admin doesnt work.
+		
+		driver.findElement(By.xpath("//div[@id='dijit_PopupMenuBarItem_1']")).click();
+		table = driver.findElement(By.xpath("html/body/div[3]/table"));
+		rows = table.findElements(By.tagName("tr"));
+		//System.out.println(rows.size());
+		
+		for(int i =0;i<rows.size();i++){
+			System.out.println("hi : "+i+" -- "+rows.get(i).getText().trim());
+			if(rows.get(i).getText().trim().equals("New Tasks")){
+				//System.out.println("html/body/div[3]/table/tbody/tr["+(i+1)+"]/td[2]");
+					driver.findElement(By.xpath("html/body/div[3]/table/tbody/tr["+(i+1)+"]/td[2]")).click();
+					break;
+				}
+		}
+		
+		table = driver.findElement(By.xpath("html/body/div[4]/table"));
+		rows = table.findElements(By.tagName("tr"));
+		System.out.println(rows.size());
+		for(int i =0;i<rows.size();i++){
+			//System.out.println("subtable : "+i+" : "+rows.get(i).getText());
+			if(rows.get(i).getText().equals("Import")){
+				//System.out.println("html/body/div[4]/table/tbody/tr["+(i+1)+"]/td[2]");
+					driver.findElement(By.xpath("html/body/div[4]/table/tbody/tr["+(i+1)+"]/td[2]")).click();
+					break;
+				}
+		}
+		
+		table = driver.findElement(By.xpath("html/body/div[5]/table"));
+		rows = table.findElements(By.tagName("tr"));
+		System.out.println(rows.size());
+		for(int i =0;i<rows.size();i++){
+			//System.out.println("subtable : "+i+" : "+rows.get(i).getText());
+			if(rows.get(i).getText().equals(navigateSubItem)){
+				//System.out.println("html/body/div[4]/table/tbody/tr["+(i+1)+"]/td[2]");
+					driver.findElement(By.xpath("html/body/div[5]/table/tbody/tr["+(i+1)+"]/td[2]")).click();
+					break;
+				}
+		}
+	}
+}

@@ -1,0 +1,17 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import org.openqa.selenium.WebElement;
+
+public class NewDeviceGroup extends Page{
+
+	public WebElement groupName = common.getObjectByName("deviceGroupName");
+	public WebElement description = common.getObjectByName("comments");
+	public String owner = "managerUserID";
+	public String site = "deviceGroup1ID";
+	public WebElement sharingPublic = common.getObjectById("sharing_public");
+	public WebElement sharingPrivate = common.getObjectById("sharing_private");
+	public String parentDeviceGroup = "parentGroupID";
+	public WebElement deviceGroupStatic = common.getObjectById("device_group_static");
+	public WebElement deviceGroupDynamic = common.getObjectById("device_group_dynamic");
+	
+}

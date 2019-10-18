@@ -1,0 +1,47 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.testng.Reporter;
+
+public class SearchFor_Users_Page extends Page{
+	public WebElement table = common.getObjectByXpath("//table[@ class='table_form_standard']");	
+	List<WebElement> rows = null;
+	List<WebElement> checkBoxes = null;
+	
+	public WebElement firstNameOperationName = common.getObjectByName("expressions[0].operationName");
+	public WebElement firstNameValue = common.getObjectByName("expressions[0].values");
+	public WebElement firstNameCheckBox = common.getObjectByName("expressions[0].checked");
+	
+	public WebElement lastNameOperationName = common.getObjectByName("expressions[1].operationName");
+	public WebElement lastNameValue = common.getObjectByName("expressions[1].values");
+	public WebElement lastNameCheckBox = common.getObjectByName("expressions[1].checked");
+	
+	public WebElement userNameOperationName = common.getObjectByName("expressions[2].operationName");
+	public WebElement userNameValue = common.getObjectByName("expressions[2].values");
+	public WebElement userNameCheckBox = common.getObjectByName("expressions[2].checked");
+	
+	public WebElement emailAddressOperationName = common.getObjectByName("expressions[3].operationName");
+	public WebElement emailAddressValue = common.getObjectByName("expressions[3].values");
+	public WebElement emailAddressCheckBox = common.getObjectByName("expressions[3].checked");
+	
+	public WebElement AAAUserNameOperationName = common.getObjectByName("expressions[4].operationName");
+	public WebElement AAAUserNameValue = common.getObjectByName("expressions[4].values");
+	public WebElement AAAUserNameCheckBox = common.getObjectByName("expressions[4].checked");
+	
+	public WebElement commentsOperationName = common.getObjectByName("expressions[5].operationName");
+	public WebElement commentsValue = common.getObjectByName("expressions[5].values");
+	public WebElement commentsCheckBox = common.getObjectByName("expressions[5].checked");
+	
+	public WebElement MemberOfUserGroupOperationName = common.getObjectByName("expressions[6].values");
+	
+	public String partitionAvailableList = "partitionExpressions[0].values";	
+	//public WebElement csv = common.getObjectById("html/text/ViewAsCSV");	
+	
+
+
+			
+	
+}

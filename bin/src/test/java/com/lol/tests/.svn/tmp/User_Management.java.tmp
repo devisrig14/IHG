@@ -1,0 +1,542 @@
+package test.java.com.hp.fc.usa.nmc.na.tests;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.testng.Assert;
+import org.testng.AssertJUnit;
+import org.testng.Reporter;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Listeners;
+import org.testng.annotations.Test;
+
+import test.java.com.hp.fc.usa.nmc.na.listener.GenerateCustomReport;
+import test.java.com.hp.fc.usa.nmc.na.pages.AdminSettings_UserAuthentication;
+import test.java.com.hp.fc.usa.nmc.na.pages.UsersListingPage;
+import test.java.com.hp.fc.usa.nmc.na.pages.UsersSearchPage;
+import test.java.com.hp.fc.usa.nmc.na.utils.Common;
+
+@Listeners(GenerateCustomReport.class)
+public class User_Management extends TestExecutor
+{
+	WebElement table=null;
+	List<WebElement> rows = null;
+	
+	@BeforeMethod(enabled = true, groups = {"BAT", "ART"})
+	public void startTest() throws IOException, InterruptedException{
+		initialize();
+		
+		driver.get("http://"+System.getProperty("naIpAddress"));
+		
+		if(common.checkExistenceOfOverridelink())
+		{
+			common.getObjectById("overridelink").click();
+			Thread.sleep(3000);			
+		}
+		//driver.navigate().to("javascript:document.getElementById('overridelink').click();");
+		
+		login.loginAsUser("admin");
+		if(!isLoggedIn){
+			System.out.println("Invalid Username/password");
+			Assert.assertTrue( false,"Not able to login to NA Server");
+			// report error
+		}
+		driver.manage().window().maximize();
+		
+	}
+	
+	// To check Newly created User with the group 'Administrator' is having access to 'New User' menu
+	@Test(enabled = true, groups = {"BAT"})
+	public void New_Admin_User() throws InterruptedException 
+	{
+		Reporter.log("ALM Global ID For this test Case: QCTP1B236430"+"<br>");
+		Reporter.log("===============Start New_Admin_User========================"+"<br>");
+		
+		Reporter.log("Step 1 : Create New User with the group 'Administrator'"+"<br>");
+		String newUser = NAUtils.addUser(new String[]{"Administrator"});
+				
+		Reporter.log("Step 2 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newUser);
+				
+		Reporter.log("Step 3 : login As New User"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newUser));
+		
+		Reporter.log("Step 4 : Navigate > Admin > new User"+"<br>");
+		Navigate.Admin.newUser();
+		
+		Reporter.log("Step 5 : check if the page title contains 'new User' or not? :: Expected should be seen"+"<br>");
+		Assert.assertTrue(common.checkTitleContains("New User"), "Title Doesn't contain 'New User'");	
+		
+		Reporter.log("===============End New_Admin_User========================"+"<br>");
+	}
+	
+	
+	// To check Newly created User with the group 'Power User' is not having access to 'New User' menu & having access to 'Device Password Rules' menu
+	@Test(enabled = true, groups = {"ART"})
+	public void New_Power_User() throws InterruptedException 
+	{
+		Reporter.log("ALM Global ID For this test Case: QCTP1B236419"+"<br>");
+		Reporter.log("===============Start New_Power_User========================"+"<br>");
+		
+		Reporter.log("Step 1 : Create New User with the group 'Power User'"+"<br>");
+		String newUser = NAUtils.addUser(new String[]{"Power User"});
+				
+		Reporter.log("Step 2 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newUser);
+				
+		Reporter.log("Step 3 : login As New User"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newUser));
+		
+		Reporter.log("Step 4 : Navigate > Admin > new User"+"<br>");
+		Navigate.Admin.newUser();
+		
+		Reporter.log("Step 5 : check if the page title contains 'new User' or not? :: Expected should not be seen"+"<br>");
+		Assert.assertFalse(common.checkTitleContains("New User"), "Title contains 'New User'");
+		
+		Reporter.log("Step 6 : Navigate > Devices > DeviceTools > Device Password Rules"+"<br>");
+		Navigate.Devices.DeviceTools.DevicePasswordRules();
+		
+		Reporter.log("Step 7 : check if the page title contains 'Device Password Rules' or not? :: Expected should be seen"+"<br>");
+		Assert.assertTrue(common.checkTitleContains("Device Password Rules"), "Title Doesn't contain 'Device Password Rules'");	
+		
+		Reporter.log("===============End New_Power_User========================"+"<br>");
+	}
+	
+	// To check Newly created User with the group 'Full Access User' is not having access to 'Device Password Rules' menu
+	@Test(enabled = true, groups = {"ART"})
+	public void New_Full_User() throws InterruptedException 
+	{
+		Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+		Reporter.log("===============Start New_Full_User========================"+"<br>");
+		
+		Reporter.log("Step 1 : Create New User with the group 'Full Access User'"+"<br>");
+		String newUser = NAUtils.addUser(new String[]{"Full Access User"});
+				
+		Reporter.log("Step 2 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newUser);
+				
+		Reporter.log("Step 3 : login As New User"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newUser));		
+	
+		Reporter.log("Step 4 : Navigate > Devices > DeviceTools > Device Password Rules"+"<br>");
+		Navigate.Devices.DeviceTools.DevicePasswordRules();
+		
+		Reporter.log("Step 5 : check if the page title contains 'Device Password Rules' or not? :: Expected not should be seen"+"<br>");
+		Assert.assertFalse(common.checkTitleContains("Device Password Rules"), "Title contain 'Device Password Rules'");	
+		
+		Reporter.log("===============End New_Full_User========================"+"<br>");
+	}	
+	
+	
+	// To check Newly created User with the group 'Limited Access User' is having access to 'Users' menu & not having access to 'Device Password Rules' menu
+	@Test(enabled = true, groups = {"ART"})
+	public void New_Limited_User() throws InterruptedException 
+	{
+		Reporter.log("ALM Global ID For this test Case:  QCTP1B236432"+"<br>");
+		Reporter.log("===============Start New_Limited_User========================"+"<br>");
+		
+		Reporter.log("Step 1 : Create New User with the group 'Limited Access User'"+"<br>");
+		String newUser = NAUtils.addUser(new String[]{"Limited Access User"});
+				
+		Reporter.log("Step 2 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newUser);
+				
+		Reporter.log("Step 3 : login As New User"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newUser));
+		
+		Reporter.log("Step 4 : Navigate > Admin > Users"+"<br>");
+		Navigate.Admin.users();
+		
+		Reporter.log("Step 5 : check if the page title contains 'All Users' or not? :: Expected should be seen"+"<br>");
+		try {
+			Assert.assertTrue(common.checkTitleContains("All Users"));
+		} catch (AssertionError e) {
+			Reporter.log("Title Doesn't contains 'All Users'"+e+"<br>");
+			Assert.fail("",e);
+		}
+		
+		Reporter.log("Step 6 : Navigate > Devices > DeviceTools > Device Password Rules"+"<br>");
+		Navigate.Devices.DeviceTools.DevicePasswordRules();
+		
+		Reporter.log("Step 7 : check if the page title contains 'Device Password Rules' or not? :: Expected should not be seen"+"<br>");
+		try {
+			Assert.assertFalse(common.checkTitleContains("Device Password Rules"));
+		} catch (AssertionError e) {
+			Reporter.log("Title contain 'Device Password Rules'"+e+"<br>");
+			Assert.fail("",e);
+		}
+				
+		Reporter.log("===============End New_Limited_User========================"+"<br>");
+	}
+	
+	// Check Deletion of an Newly Created User
+	@Test(enabled = true, groups = {"BAT"})
+	public void Delete_User() throws InterruptedException 
+	{
+		Reporter.log("ALM Global ID For this test Case: QCTP1B236429"+"<br>");
+		Reporter.log("===============Start Delete_User========================"+"<br>");
+		
+		
+		Reporter.log("Step 1 : Create New User with the group 'Limited Access User'"+"<br>");
+		String newUser = NAUtils.addUser(new String[]{"Limited Access User"});
+			
+		
+		Reporter.log("Step 2 : Delete User with the name : "+newUser+"<br>");
+		UsersListingPage UsersListingPage = new UsersListingPage();		
+		UsersListingPage.deleteUser(newUser);	
+				
+			
+		Reporter.log("===============End Delete_User========================"+"<br>");
+	}
+	
+	// Edit Profile of an Newly Created User
+	@Test(enabled = true, groups = {"ART"})
+	public void Edit_User_Profile() throws InterruptedException 
+	{
+		Reporter.log("ALM Global ID For this test Case: QCTP1B236420"+"<br>");
+		Reporter.log("===============Start Edit_User_Profile========================"+"<br>");
+		
+		
+		Reporter.log("Step 1 : Create New User with the group 'Limited Access User'"+"<br>");
+		String newUser = NAUtils.addUser(new String[]{"Limited Access User"});
+				
+		Reporter.log("Step 2 : Edit User with the name : "+newUser+" and update the Username"+"<br>");
+		UsersListingPage UsersListingPage = new UsersListingPage();		
+		UsersListingPage.editUser(newUser, newUser+"_New",true,false,false,false);
+					
+		Reporter.log("===============End Edit_User_Profile========================"+"<br>");
+	}
+	
+	// Verifies when the maximum consecutive login failures is reached user is disabled
+	@Test(enabled = true, groups = {"ART"})
+	public void Login_Failure_Count() throws InterruptedException 
+	{
+		Reporter.log("ALM Global ID For this test Case: QCTP1B236433"+"<br>");
+		Reporter.log("===============Start Login_Failure_Count========================"+"<br>");
+		
+		Reporter.log("Step 1 : Navigate > Admin > AdminSettings > User Authentication > Set value of 'Maximum Consecutive Login Failures' as 3 > Save "+"<br>");
+		Navigate.Admin.AdminSettings.UserAuthentication();
+		AdminSettings_UserAuthentication AdminSettings_UserAuthentication = new AdminSettings_UserAuthentication();
+		AdminSettings_UserAuthentication.setMaximumConsecutiveLoginFailures("3");
+					
+		Reporter.log("Step 2 : Create New User with the group 'Limited Access User'"+"<br>");
+		String newUser = NAUtils.addUser(new String[]{"Limited Access User"});
+		
+		Reporter.log("Step 3 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newUser);
+				
+		Reporter.log("Step 4 : login As New User"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newUser));
+		
+		Reporter.log("Step 5 : Try to login As New User(with Wrong Password) for 3 times"+"<br>");
+		 for (int i = 0; i < 3; ++i)
+         {
+			 login.loginAsUser(newUser, "password2");
+			 try {
+				Assert.assertTrue(common.getObjectByXpath("//span[@ class='login_error']").getText().trim().equals("Username or password are invalid."), "User can login using wrong password");
+			} catch (AssertionError e) {
+				Reporter.log("User can login using wrong password. User Name: "+newUser+"<br>");
+				Assert.fail("",e);
+			}
+	     }
+		 
+		 Reporter.log("Step 6 : Try to login As New User(with Wrong Password) for the 4th time"+"<br>");
+		 login.loginAsUser(newUser, "password2");
+		 try {
+			Assert.assertTrue(common.getObjectByXpath("//span[@ class='login_error']").getText().trim().equals("User account is disabled."), "User account is not yet disabled.");
+		} catch (AssertionError e) {
+			Reporter.log("User account is not yet disabled."+"<br>");
+			Assert.fail("",e);
+		}
+		
+		Reporter.log("Step 7 : login As Admin User"+"<br>");
+		login.loginAsUser("admin");
+		 
+		Reporter.log("Step 8 : Navigate > Admin > AdminSettings > User Authentication > Re-Set value of 'Maximum Consecutive Login Failures' as 0 > Save "+"<br>");
+		Navigate.Admin.AdminSettings.UserAuthentication();
+		AdminSettings_UserAuthentication AdminSettings_UserAuthentication1 = new AdminSettings_UserAuthentication();
+		AdminSettings_UserAuthentication1.setMaximumConsecutiveLoginFailures("0");
+			
+		Reporter.log("===============End Login_Failure_Count========================"+"<br>");
+	}
+	
+	//Verifies user search by username, usergroup, first name and last name
+	@Test(enabled = true, groups = {"ART"})
+	public void Search_User() 
+	{
+		Reporter.log("ALM Global ID For this test Case: QCTP1B236421"+"<br>");
+		Reporter.log("===============Start Search_User========================"+"<br>");
+		
+		Reporter.log("Step 1 : Create New User with the group 'Limited Access User'"+"<br>");
+			
+		String userName = common.generateRandomString();
+		String firstName = common.generateRandomString();
+		String lastName = common.generateRandomString();
+		
+		userName = NAUtils.addUser(userName, "password", firstName, lastName, new String[]{"Limited Access User"}, null);
+		
+		Reporter.log("Step 2: Reports > SearchFor > Users > Search by first name "+"<br>");
+        Navigate.Reports.SearchFor.Users();
+        UsersSearchPage UsersSearchPage = new UsersSearchPage();
+        UsersSearchPage.FirstNameOperationName.sendKeys("contains");
+        UsersSearchPage.FirstNameValue.sendKeys(firstName);
+        common.search();
+        
+        Reporter.log("Step 3: Verify if the User with the Firstname "+firstName+" is seen or not?"+"<br>");
+        String expectedUsername = userName+"("+firstName+" "+lastName+")";             
+        Reporter.log("Expected Username to be visible :  "+expectedUsername+"<br>");
+                
+        String actualUsername = driver.findElement(By.xpath("//td[contains(text(), '"+expectedUsername+"')]")).getText().trim();
+        Reporter.log("Actual Username visible :  "+actualUsername+"<br>");
+        
+        Assert.assertEquals(actualUsername, expectedUsername);
+        
+		Reporter.log("Step 4: Reports > SearchFor > Users > Search by last Name "+"<br>");
+        Navigate.Reports.SearchFor.Users(); 
+        UsersSearchPage UsersSearchPage1 = new UsersSearchPage();
+        UsersSearchPage1.LastNameOperationName.sendKeys("contains");
+        UsersSearchPage1.LastNameValue.sendKeys(lastName);
+        common.search();
+        
+        Reporter.log("Step 5: Verify if the User with the Lastname "+lastName+" is seen or not?"+"<br>");
+                    
+        Reporter.log("Expected Username to be visible :  "+expectedUsername+"<br>");                
+        String actualUsername1 = driver.findElement(By.xpath("//td[contains(text(), '"+expectedUsername+"')]")).getText().trim();
+        Reporter.log("Actual Username visible :  "+actualUsername1+"<br>");
+        
+        Assert.assertEquals(actualUsername, expectedUsername);
+        
+		Reporter.log("Step 6: Reports > SearchFor > Users > Search by UserName "+"<br>");
+        Navigate.Reports.SearchFor.Users();  
+        UsersSearchPage UsersSearchPage2 = new UsersSearchPage();
+        UsersSearchPage2.UserNameOperationName.sendKeys("contains");
+        UsersSearchPage2.UserNameValue.sendKeys(userName);
+        common.search();
+        
+        Reporter.log("Step 7: Verify if the User with the User Name "+userName+" is seen or not?"+"<br>");
+                    
+        Reporter.log("Expected Username to be visible :  "+expectedUsername+"<br>");                
+        String actualUsername2 = driver.findElement(By.xpath("//td[contains(text(), '"+expectedUsername+"')]")).getText().trim();
+        Reporter.log("Actual Username visible :  "+actualUsername2+"<br>");
+        
+        Assert.assertEquals(actualUsername, expectedUsername);
+        
+		Reporter.log("Step 8: Reports > SearchFor > Users > Search by UserGroup "+"<br>");
+        Navigate.Reports.SearchFor.Users();
+        UsersSearchPage UsersSearchPage3 = new UsersSearchPage();
+        UsersSearchPage3.UserGroupOperationName.sendKeys("Limited Access User");
+        common.search();
+        
+        Reporter.log("Step 9: Verify if the User with the User Name "+userName+" is seen or not?"+"<br>");
+                    
+        Reporter.log("Expected Username to be visible :  "+expectedUsername+"<br>");                
+        String actualUsername3 = driver.findElement(By.xpath("//td[contains(text(), '"+expectedUsername+"')]")).getText().trim();
+        Reporter.log("Actual Username visible :  "+actualUsername3+"<br>");
+        
+        Assert.assertEquals(actualUsername, expectedUsername);        
+        
+        Reporter.log("===============End Search_User========================"+"<br>");
+	}
+	
+	//Verifies that a user with password below the minimum requirement length can not be created
+	@Test(enabled = true, groups = {"ART"})
+	public void Small_Large_User_Password() throws InterruptedException 
+	{
+		Reporter.log("ALM Global ID For this test Case: QCTP1B236422"+"<br>");
+		Reporter.log("===============Start Small_Large_User_Password========================"+"<br>");
+		
+		Reporter.log("Step 1 : Navigate > Admin > AdminSettings > User Authentication > Set value of 'Minimum User Password Length' as 1 > Save "+"<br>");
+		Navigate.Admin.AdminSettings.UserAuthentication();
+		AdminSettings_UserAuthentication AdminSettings_UserAuthentication = new AdminSettings_UserAuthentication();
+		AdminSettings_UserAuthentication.minimumUserPasswordLength("1");
+					
+		Reporter.log("Step 2 : Create New User with the with the password lenth as 1"+"<br>");
+		String userName = common.generateRandomString();
+		String firstName = common.generateRandomString();
+		String lastName = common.generateRandomString();
+		
+		userName = NAUtils.addUser(userName, "p", firstName, lastName, new String[]{"Limited Access User"}, null);
+		
+		Reporter.log("Step 3 : Create New User with the with the password lenth as 30"+"<br>");
+		String userName2 = common.generateRandomString();
+		String firstName2 = common.generateRandomString();
+		String lastName2 = common.generateRandomString();
+		
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 30; ++i)
+        sb.append('p');
+		System.out.println(sb.toString());
+		
+		userName2 = NAUtils.addUser(userName2, sb.toString(), firstName2, lastName2, new String[]{"Limited Access User"}, null);
+		
+		Reporter.log("Step 4 : Navigate > Admin > AdminSettings > User Authentication > Set value of 'Minimum User Password Length' as 5 > Save "+"<br>");
+		Navigate.Admin.AdminSettings.UserAuthentication();
+		AdminSettings_UserAuthentication AdminSettings_UserAuthentication1 = new AdminSettings_UserAuthentication();
+		AdminSettings_UserAuthentication1.minimumUserPasswordLength("5");
+					
+		Reporter.log("Step 5 : Try to create New User with the password lenth as 4 and verify the error message"+"<br>");
+		String userName3 = common.generateRandomString();
+		String firstName3 = common.generateRandomString();
+		String lastName3 = common.generateRandomString();
+		
+		userName = NAUtils.addUser(userName3, "pppp", firstName3, lastName3, new String[]{"Limited Access User"}, null);
+		
+		Assert.assertTrue(common.pageAlert3BoxContains("Unable to save user"), "Error Message not seen after adding the User");
+		
+		Reporter.log("===============End Small_Large_User_Password========================"+"<br>");
+	}
+	
+	//Verifies that a locked user can not login
+	@Test(enabled = true, groups = {"ART"})
+	public void Locked_User_Account() 
+	{
+		Reporter.log("ALM Global ID For this test Case:  QCTP1B236423"+"<br>");
+		Reporter.log("===============Start Locked_User_Account========================"+"<br>");
+		
+		Reporter.log("Step 1 : Create New User upon selecting 'Account is locked out' checkbox"+"<br>");
+		String userName = common.generateRandomString();
+		String firstName = common.generateRandomString();
+		String lastName = common.generateRandomString();
+					
+		userName = NAUtils.addUser(userName, "password", false, false, false, true, firstName, lastName, userName+"@hpna.com", new String[]{"Limited Access User"}, "Default Site", true, false, null, null, false);
+		
+		Reporter.log("Step 2 : Try to login as newly created user and verify error message :: Expected 'User account is locked out.' should be seen"+"<br>");
+		login.loginAsUser(userName);
+		
+		 try {
+			 	Assert.assertTrue(common.getObjectByXpath("//span[@ class='login_error']").getText().trim().equals("User account is locked out."), "Locked user is allowed to login");
+			 } 	catch (AssertionError e) {
+				Reporter.log("Expected error Message 'User account is locked out.' is not seen. User Name: "+userName+"<br>");
+				Assert.fail("",e);
+			}
+	     			
+		Reporter.log("===============End Locked_User_Account========================"+"<br>");
+				
+	}
+	
+	//Verifies that a disabled user is not allowed to login
+	@Test(enabled = true, groups = {"ART"})
+	public void Disabled_User() 
+	{
+		Reporter.log("ALM Global ID For this test Case:  QCTP1B236425"+"<br>");
+		Reporter.log("===============Start Disabled_User========================"+"<br>");
+		
+		Reporter.log("Step 1 : Create New User upon selecting 'Status' as 'Disabled'"+"<br>");
+		String userName = common.generateRandomString();
+		String firstName = common.generateRandomString();
+		String lastName = common.generateRandomString();
+		
+		userName = NAUtils.addUser(userName, "password", false, true, true, false, firstName, lastName, userName+"@hpna.com", new String[]{"Administrator"}, "Default Site", false, false, null, null, false);
+		
+		Reporter.log("Step 2 : Try to login as newly created user and verify error message :: Expected 'User account is disabled' should be seen"+"<br>");
+		login.loginAsUser(userName);
+		
+		 try {
+			 	Assert.assertTrue(common.getObjectByXpath("//span[@ class='login_error']").getText().trim().equals("User account is disabled."), "Disabled user is allowed to login");
+			 } 	catch (AssertionError e) {
+				Reporter.log("Expected error Message 'User account is disabled.' is not seen. User Name: "+userName+"<br>");
+				Assert.fail("",e);
+			}
+		
+		Reporter.log("===============End Disabled_User========================"+"<br>");
+	}
+	
+	//Verifies that a user created with User must change password value set, must be prompted to change his/her password at login
+	@Test(enabled = true, groups = {"ART"})
+	public void User_Must_Change_Password() throws InterruptedException 
+	{
+		Reporter.log("ALM Global ID For this test Case: QCTP1B236426"+"<br>");
+		Reporter.log("===============Start User_Must_Change_Password========================"+"<br>");
+		
+		Reporter.log("Step 1 : Create New User"+"<br>");
+		String adminUser = NAUtils.addUser(new String[]{"Administrator"});
+		
+		Reporter.log("Step 2 : Try to login as Newly created User and check if the 'Password Expired' message is displayed or not? "+"<br>");
+		Assert.assertFalse(login.loginAsUser(adminUser));
+		
+		 try {
+			 	Assert.assertTrue(common.getObjectByXpath("//span[@ class='login_error']").getText().trim().contains("Your password has expired"), "User not asked to change his expired password");
+			 } 	catch (AssertionError e) {
+				Reporter.log("Expected error Message 'Your password has expired' is not seen. User Name: "+adminUser+"<br>");
+				Assert.fail("",e);
+			}
+		 
+		driver.navigate().back();
+		 
+		Reporter.log("Step 3 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(adminUser);
+				
+		Reporter.log("Step 4 : login As New User"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(adminUser));
+		
+		
+		Reporter.log("===============End User_Must_Change_Password========================"+"<br>");
+	}
+	
+	//Verifies that a user created with 'Password never expires' is not asked to change his password at login
+	@Test(enabled = true, groups = {"ART"})
+	public void User_Password_Never_Expires() 
+	{
+		Reporter.log("ALM Global ID For this test Case: QCTP1B236427"+"<br>");
+		Reporter.log("===============Start User_Password_Never_Expires========================"+"<br>");
+		
+		Reporter.log("Step 1 : Create New User with the group 'Administrator'"+"<br>");
+		String adminUser = NAUtils.addUser(new String[]{"Administrator"});
+							
+		Reporter.log("Step 2 : Edit User > update the Username also check the checkbox 'Password never expires' > Save "+"<br>");
+		UsersListingPage UsersListingPage = new UsersListingPage();	
+		
+		UsersListingPage.editUser(adminUser, null,false,false,true,false);
+		
+		Reporter.log("Step 3 : login As New User(Password Re-set should not be prompted)"+"<br>");
+		Assert.assertTrue(login.loginAsUser(adminUser));
+			
+		Reporter.log("===============End User_Password_Never_Expires========================"+"<br>");
+	}
+	
+	@Test(enabled = true, groups = {"ART"})
+	public void Logged_On_Users() 
+	{
+		Reporter.log("ALM Global ID For this test Case: QCTP1B236428"+"<br>");
+		Reporter.log("===============Start Logged_On_Users========================"+"<br>");
+		
+		Reporter.log("Step 1 : Navigate to Admin > Logged On Users"+"<br>");
+		Navigate.Admin.LoggedOnUsers();		
+		
+		Reporter.log("Step 2 : Check if the page title contains 'Logged On Users' or not? :: Expected should be seen"+"<br>");
+		Assert.assertTrue(common.checkTitleContains("Logged On Users"), "Title Doesn't contain 'Logged On Users'");
+		
+		Reporter.log("Step 3 : Check if Logged on user name exist in the list of logged on users or not ? :: Expected: Should be seen"+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText("admin")).size()>0, "Logged on user name does not exist in the list of logged on users");
+				
+		Reporter.log("===============End Logged_On_Users========================"+"<br>");
+	}
+	
+	
+	@Test(enabled = true, groups = {"ART"})
+	public void sampleTest() 
+	{
+		Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+		Reporter.log("===============Start ========================"+"<br>");
+		
+		
+		Reporter.log("===============End ========================"+"<br>");
+	}
+	
+
+	
+	  @AfterMethod(enabled = true, groups = {"BAT", "ART"})
+	  public void logout()
+	  {
+	  	login.logOut();	  
+	  	
+	  	
+	  }
+
+	  
+}

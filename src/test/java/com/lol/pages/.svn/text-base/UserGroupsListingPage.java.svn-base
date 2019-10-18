@@ -1,0 +1,138 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.testng.Assert;
+import org.testng.Reporter;
+
+public class UserGroupsListingPage extends Page
+{
+	WebElement table =null;
+	List<WebElement> rows = null;
+	public WebElement newUserGroupLink = common.getObjectByLinkText("New User Group");
+	public WebElement usersLink = common.getObjectByLinkText("Users");
+	public WebElement userRolesPermissionsLink = common.getObjectByLinkText("User Roles & Permissions");
+		
+
+	public boolean checkEditLinkStatus(String groupName){		
+		boolean status = false;
+		table = common.getObjectByXpath("//table[@ class='TableBorder']");
+		rows = driver.findElements(By.tagName("tr"));
+		System.out.println(rows.size());
+		for(int i=3;i<rows.size();i++){
+			System.out.println(common.getObjectByXpath("//table[@ class='TableBorder']//tr["+i+"]/td[1]").getText());
+			if(common.getObjectByXpath("//table[@ class='TableBorder']//tr["+i+"]/td[1]").getText().trim().equals(groupName)){
+				if(common.getObjectByXpath("//table[@ class='TableBorder']//tr["+i+"]/td[4]/a[1]").getText().equalsIgnoreCase("Edit"))
+				{
+					status= true;
+					break;
+				}else{
+				status= false;
+				break;
+				}
+			}
+		}
+		
+		return status;
+	}
+	
+	public boolean checkDeleteLinkStatus(String groupName){				
+		boolean status = false;
+		table = common.getObjectByXpath("//table[@ class='TableBorder']");
+		rows = driver.findElements(By.tagName("tr"));
+		System.out.println(rows.size());
+		for(int i=3;i<rows.size();i++){
+			System.out.println(common.getObjectByXpath("//table[@ class='TableBorder']//tr["+i+"]/td[1]").getText());
+			if(common.getObjectByXpath("//table[@ class='TableBorder']//tr["+i+"]/td[1]").getText().trim().equals(groupName)){
+				System.out.println(common.getObjectByXpath("//table[@ class='TableBorder']//tr["+i+"]/td[4]/a[2]").getText());
+				if(common.getObjectByXpath("//table[@ class='TableBorder']//tr["+i+"]/td[4]/a[2]").getText().equalsIgnoreCase("Delete"))
+				{
+					status= true;
+					break;
+				}else{
+				status= false;
+				break;
+				}
+			}
+		}
+		
+		return status;
+	}
+	
+	public void clickEditLink(String groupName){		
+		table = common.getObjectByXpath("//table[@ class='TableBorder']");
+		rows = driver.findElements(By.tagName("tr"));
+		System.out.println(rows.size());
+		for(int i=3;i<rows.size();i++){
+			System.out.println(common.getObjectByXpath("//table[@ class='TableBorder']//tr["+i+"]/td[1]").getText());
+			if(common.getObjectByXpath("//table[@ class='TableBorder']//tr["+i+"]/td[1]").getText().trim().equals(groupName)){
+				if(common.getObjectByXpath("//table[@ class='TableBorder']//tr["+i+"]/td[4]/a[1]").getText().equalsIgnoreCase("Edit"))
+				{
+					common.getObjectByXpath("//table[@ class='TableBorder']//tr["+i+"]/td[4]/a[1]").click();
+					Assert.assertTrue(common.checkTitleContains("edit"), "Edit User Group screen not visible");				
+					break;
+				}
+			}
+		}
+		
+	}
+	
+	public void clickDeleteLink(String groupName){
+		table = common.getObjectByXpath("//table[@ class='TableBorder']");
+		rows = driver.findElements(By.tagName("tr"));
+		System.out.println(rows.size());
+		for(int i=3;i<rows.size();i++){
+			System.out.println(common.getObjectByXpath("//table[@ class='TableBorder']//tr["+i+"]/td[1]").getText());
+			if(common.getObjectByXpath("//table[@ class='TableBorder']//tr["+i+"]/td[1]").getText().trim().equals(groupName)){
+				if(common.getObjectByXpath("//table[@ class='TableBorder']//tr["+i+"]/td[4]/a[2]").getText().equalsIgnoreCase("Delete"))
+				{
+					common.getObjectByXpath("//table[@ class='TableBorder']//tr["+i+"]/td[4]/a[2]").click();
+					common.handleAlert(true);					
+					Assert.assertTrue(common.pageAlertBoxContains("Successfully deleted 1 user group(s)."), "User Group is not deleted");				
+					break;
+				}
+			}
+		}
+		
+	}
+	
+	public void clickNewUserGroup()
+	{
+		this.newUserGroupLink.click();
+		try {
+			Assert.assertTrue(common.checkTitleContains("New User Group"), "'New User Group' Page not lanuched");
+		} catch (AssertionError e) {
+			Reporter.log("'New User Group' Page not lanuched"+"<br>");
+			Assert.fail("'New User Group' Page not lanuched", e);
+		}
+	}
+	
+	public void clickUsers()
+	{
+		this.usersLink.click();
+		try {
+			Assert.assertTrue(common.checkTitleContains("All Users"), "'All Users' Page not lanuched");
+		} catch (AssertionError e) {
+			Reporter.log("'All Users' Page not lanuched"+"<br>");
+			Assert.fail("'All Users' Page not lanuched", e);
+		}
+	}
+	
+	public void clickUserRolesPermissions()
+	{
+		this.userRolesPermissionsLink.click();
+		try {
+			Assert.assertTrue(common.checkTitleContains("User Roles & Permissions"), "'User Roles & Permissions' Page not lanuched");
+		} catch (AssertionError e) {
+			Reporter.log("'User Roles & Permissions' Page not lanuched"+"<br>");
+			Assert.fail("'User Roles & Permissions' Page not lanuched", e);
+		}
+	}	
+	
+}

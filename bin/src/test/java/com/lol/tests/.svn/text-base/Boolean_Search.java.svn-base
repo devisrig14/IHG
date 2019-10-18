@@ -1,0 +1,1465 @@
+package test.java.com.hp.fc.usa.nmc.na.tests;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.testng.Assert;
+import org.testng.Reporter;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Listeners;
+import org.testng.annotations.Test;
+
+import test.java.com.hp.fc.usa.nmc.na.listener.GenerateCustomReport;
+
+
+
+
+
+
+import test.java.com.hp.fc.usa.nmc.na.listener.GenerateCustomReport;
+import test.java.com.hp.fc.usa.nmc.na.pages.AdvanceSearchPage;
+import test.java.com.hp.fc.usa.nmc.na.pages.ResourceIdentityPoolAdvanceSearchPage;
+
+@Listeners(GenerateCustomReport.class)
+public class Boolean_Search extends TestExecutor{
+	WebElement table=null;
+	List<WebElement> rows = null;
+		
+	@BeforeMethod(enabled = true, groups = {"BAT", "ART"})
+	public void startTest() throws IOException, InterruptedException{
+		initialize();
+		
+		driver.get("http://"+System.getProperty("naIpAddress"));
+		
+		if(common.checkExistenceOfOverridelink())
+		{
+			common.getObjectById("overridelink").click();
+			Thread.sleep(3000);			
+		}
+		//driver.navigate().to("javascript:document.getElementById('overridelink').click();");
+		
+		login.loginAsUser("admin");
+		if(!isLoggedIn){
+			System.out.println("Invalid Username/password");
+			Assert.assertTrue( false,"Not able to login to NA Server");
+			// report error
+		}
+		driver.manage().window().maximize();
+		
+	}
+	
+	
+	//ACL
+	
+	// ACL > Verify Conformation popup that should be displayed when we try to add more than 10 search criterias.	
+	
+	@Test(enabled = false, groups = {"ART"})
+	 public void ACL_10_Criteria(){		
+		
+		 Reporter.log("ALM Global ID For this test Case: QCTP1B235448 "+"<br>");
+		 Reporter.log("===============Start ACL_10_Criteria========================"+"<br>");
+		
+		 Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		 Navigate.Reports.AdvancedSearch();
+		 AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		 
+		 Reporter.log("Step 2 : Select 'Search For' as ACL' "+"<br>");
+		 advanceSearchPage.searchFor.sendKeys("ACL");
+		 advanceSearchPage.Pagetitle.click();		
+		 common.sleep(6000);
+		
+		 Reporter.log("Step 3 : select below criterias in Search Criteria one after other"
+		 		+ "'ACL Application' as 'Contains', 'ACL Configuration' as 'Contains','ACL Handle' as 'Contains','ACL ID' as 'Contains','ACL Type' as 'Contains','Changed By' as 'Contains','Comments' as 'Contains','Device ID' as 'equals','Device IP' as 'Contains' & 'Host Name' as 'Contains' >"+"<br>");
+	 	
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.ACLApplication, "contains", false, null);
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.ACLConfiguration, "contains", false, null);
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.ACLID, "contains", false, null);
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.ACLType, "contains", false, null);
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.Comments, "contains", false, null);
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.Handle, "contains", false, null);
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.UserName, "contains", false, null);
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.primaryIPAddress, "contains", false, null);
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.DeviceID, "equals", false, null);
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.hostName, "contains", false, null);	
+		 
+		 Reporter.log("Step 4 : Try to Add 11th Criteria  verify the conformation pop up  "+"<br>");
+		 try {
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.hostName, "contains", false, null);
+		 common.sleepInSeconds(3);
+		 } catch (AssertionError e) {
+			
+		 }	
+		Reporter.log("Step 5 : Verify Tilte ::Expected : 'Advanced Search' "+"<br>");
+		Assert.assertTrue(common.checkTitleContains("Advanced Search"),"After alert box is dismissed, Advanced Search form is not displayed");
+		
+		Reporter.log("===============End ACL_10_Criteria========================"+"<br>");
+		
+	   }
+	
+	// Search for 'ACL' >  Verify Add Criteria & Delete Criteria functionality in Advanced Search page
+	@Test(enabled = false, groups = {"BAT"})
+	public void Acl_Add_Delete_Criteria(){
+		
+		
+		
+		 Reporter.log("ALM Global ID For this test Case: QCTP1B235409 "+"<br>");
+		 Reporter.log("===============Start Acl_Add_Delete_Criteria========================"+"<br>");
+		
+		 Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		 Navigate.Reports.AdvancedSearch();		 
+		 AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		
+		 Reporter.log("Step 2 : Select 'Search For' as ACL' "+"<br>");
+		 advanceSearchPage.searchFor.sendKeys("ACL");
+		 advanceSearchPage.Pagetitle.click();
+		 common.sleep(6000);
+		 
+		 
+		 Reporter.log("Step 3 : select criterias in Search Criteria one after other 1. 'Host Name' as 'Contains', 2. 'Device IP' as 'Contains'"+"<br>"); 
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.hostName, "contains", false, null);	
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.primaryIPAddress, "contains", false, null);	
+		
+		 Reporter.log("Step 4 : Verify Boolean Expression text field contains  A and B or not? :: Expected Should be displayed  "+"<br>");
+		 Assert.assertTrue(advanceSearchPage.getBoolenEXpValue().contains("A and B"),"Boolean expression does not contain expressions A and B");
+		 
+		 Reporter.log("Step 5  : Verify impact on Boolean Expression upon Deleting 'Device IP' "+"<br>");
+		 advanceSearchPage.deleteSearchCriteria("B");		
+		 common.sleep(3000);
+		
+		 Assert.assertFalse(advanceSearchPage.getBoolenEXpValue().contains("B"),"Boolean expression contains expression B after criteria B is removed");
+		 Reporter.log("===============End Acl_Add_Delete_Criteria========================"+"<br>");	
+	}
+	
+	@Test(enabled = false, groups = {"ART"})
+	public void Acl_Boolean_Expression() throws Exception{
+		
+		
+		
+		 Reporter.log("ALM Global ID For this test Case:  "+"<br>");
+		 Reporter.log("===============Start Acl_Boolean_Expression========================"+"<br>");
+		 
+		 String deviceIP = common.GetRandomIPv4(1, 256);
+		 System.out.println(deviceIP);
+		String hostName ="lab_" +common.GetRandomString();		
+		System.out.println(hostName);
+		int[] deviceGroupIDs = new int[]{1};
+		common.addDevice(deviceIP, hostName, "Default Site", false, deviceGroupIDs);	
+		 
+		 Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		 Navigate.Reports.AdvancedSearch();		 
+		 AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		
+		 Reporter.log("Step 2 : Select 'Search For' as ACL' "+"<br>");
+		 advanceSearchPage.searchFor.sendKeys("ACL");
+		 advanceSearchPage.Pagetitle.click();
+		 common.sleep(6000);
+		 
+		 
+		 Reporter.log("Step 3 : select criterias in Search Criteria one after other 1. 'Host Name' as 'Contains', 2. 'Device IP' as 'Contains'"+"<br>"); 
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.hostName, "contains", true, "lab");	
+		 String partialDeviceIP = deviceIP.substring(0, deviceIP.lastIndexOf('.'));
+		 System.out.println("Sub String is "+partialDeviceIP);
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.primaryIPAddress, "contains", true, partialDeviceIP);	
+		
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.ACLConfiguration, "contains", false, null);
+		 
+		 Reporter.log("Step 4 : Verify Boolean Expression text field contains  A and B and Cor not? :: Expected Should be displayed  "+"<br>");
+		 Assert.assertTrue(advanceSearchPage.getBoolenEXpValue().contains("A and B and C"),"Boolean expression does not contain expressions A and B");
+		 
+		 common.sleep(2000);
+		 
+		 WebElement BoolenExpField = common.getObjectByXpath("//*[@id='criteria_table']/table/tbody/tr[4]/td/input[1]");
+		 BoolenExpField.clear();
+		 common.sleep(2000);
+		 WebElement BoolenExpField1 = common.getObjectByXpath("//*[@id='criteria_table']/table/tbody/tr[4]/td/input[1]");
+		 BoolenExpField1.sendKeys("(A and B) or C");
+		//String[] defaultSelectedFields = new String[]{"hostName","primaryIPAddress","InCompliance","ConfigPolicyName","ConfigRuleName"};
+		common.deselectOptions(advanceSearchPage.selectedFields, advanceSearchPage.defaultSelectedFields_ACL);
+		common.selectOption(advanceSearchPage.selectedFields,"Host Name");
+		common.selectOption(advanceSearchPage.selectedFields,"Device IP");
+		common.search();
+		 Assert.assertTrue(common.checkTitleContains("Results"),"Search results page is not displayed");
+		 
+		 String tableXpath = "//table[@class = 'TableBorder']";
+		 //common.pageSizeOption("All");	 
+		 Assert.assertFalse(common.checkForExistenceOfAnElementInTable(tableXpath, "Host Name", hostName), "Search results page does not contain Hostname");
+		 Assert.assertFalse(common.checkForExistenceOfAnElementInTable(tableXpath, "Device IP", deviceIP), "Search results page does not contain device with IP {0}");
+		 
+		
+		
+		 //common.checkForExistenceOfAnElementInTable(tableXpath, "Host Name", hostName);
+		
+		
+		
+		 Reporter.log("===============End Acl_Boolean_Expression========================"+"<br>");	
+	
+	}
+	
+	@Test(enabled = false, groups = {"ART"})
+	public void Acl_Customize_Output() throws Exception {
+		
+		
+		
+		 Reporter.log("ALM Global ID For this test Case:  "+"<br>");
+		 Reporter.log("===============Start Acl_Customize_Output========================"+"<br>");
+		 
+		 String deviceIP = common.GetRandomIPv4(1, 256);
+		 System.out.println(deviceIP);
+		String hostName ="lab_" +common.GetRandomString();		
+		System.out.println(hostName);
+		
+		int[] deviceGroupIDs = new int[]{1};
+		common.addDevice(deviceIP, hostName, "Default Site", false, deviceGroupIDs);	
+		 
+		 Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		 Navigate.Reports.AdvancedSearch();		 
+		 AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		
+		 Reporter.log("Step 2 : Select 'Search For' as ACL' "+"<br>");
+		 advanceSearchPage.searchFor.sendKeys("ACL");
+		 advanceSearchPage.Pagetitle.click();
+		 common.sleep(6000);
+		 
+		 
+		 Reporter.log("Step 3 : select criterias in Search Criteria one after other 1. 'Host Name' as 'Contains', 2. 'Device IP' as 'Contains'"+"<br>"); 
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.hostName, "contains", true, "lab");	
+		 String partialDeviceIP = deviceIP.substring(0, deviceIP.lastIndexOf('.'));
+		 System.out.println("Sub String is "+partialDeviceIP);
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.primaryIPAddress, "contains", true, partialDeviceIP);	
+		common.selectOption(advanceSearchPage.selectedFields,"Host Name");
+		common.selectOption(advanceSearchPage.selectedFields,"Device IP");
+		common.search();
+		 Assert.assertTrue(common.checkTitleContains("Results"),"Search results page is not displayed");
+		 
+		 String tableXpath = "//table[@class = 'TableBorder']";
+		 
+		 
+		 //common.pageSizeOption("All");	 
+		 Assert.assertFalse(common.checkForExistenceOfAnElementInTable(tableXpath, "Host Name", hostName), "Search results page does not contain Hostname");
+		 Assert.assertFalse(common.checkForExistenceOfAnElementInTable(tableXpath, "Device IP", deviceIP), "Search results page does not contain device with IP {0}");
+		 
+		
+		
+		 //common.checkForExistenceOfAnElementInTable(tableXpath, "Host Name", hostName);
+		
+		
+		
+		 Reporter.log("===============End Acl_Customize_Output========================"+"<br>");	
+	}
+	
+	@Test(enabled = false, groups = {"ART"})
+	public void Acl_Display_Results() throws Exception {
+		
+		
+		
+		 Reporter.log("ALM Global ID For this test Case:  "+"<br>");
+		 Reporter.log("===============Start Acl_Display_Results======================="+"<br>");
+		 
+		 String deviceIP = common.GetRandomIPv4(1, 256);
+		 System.out.println(deviceIP);
+		String hostName ="lab_" +common.GetRandomString();		
+		System.out.println(hostName);
+		
+		int[] deviceGroupIDs = new int[]{1};
+		common.addDevice(deviceIP, hostName, "Default Site", false, deviceGroupIDs);	
+		 
+		 Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		 Navigate.Reports.AdvancedSearch();		 
+		 AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		
+		 Reporter.log("Step 2 : Select 'Search For' as ACL' "+"<br>");
+		 advanceSearchPage.searchFor.sendKeys("ACL");
+		 advanceSearchPage.Pagetitle.click();
+		 common.sleep(6000);
+		 
+		 
+		 Reporter.log("Step 3 : select criterias in Search Criteria one after other 1. 'Host Name' as 'Contains', 2. 'Device IP' as 'Contains'"+"<br>"); 
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.hostName, "contains", true, "lab");	
+		 String partialDeviceIP = deviceIP.substring(deviceIP.lastIndexOf('.'));
+		 System.out.println("Sub String is "+partialDeviceIP);
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.primaryIPAddress, "contains", true, partialDeviceIP);	
+		 common.deselectOptions(advanceSearchPage.selectedFields, advanceSearchPage.defaultSelectedFields_ACL);
+		 common.selectOptions(advanceSearchPage.selectedFields, advanceSearchPage.SelectedFields_ACL);
+		 common.search();
+		 Assert.assertTrue(common.checkTitleContains("Results"),"Search results page is not displayed");
+		 
+		 String tableXpath = "//table[@class = 'TableBorder']";
+		 
+		 
+		 //common.pageSizeOption("All");	 
+		 Assert.assertFalse(common.checkForExistenceOfAnElementInTable(tableXpath, "Host Name", hostName), "Search results page does not contain Hostname");
+		 Assert.assertFalse(common.checkForExistenceOfAnElementInTable(tableXpath, "Device IP", deviceIP), "Search results page does not contain device with IP {0}");
+		 
+		
+		 
+		
+		 //common.checkForExistenceOfAnElementInTable(tableXpath, "Host Name", hostName);
+		
+		
+		
+		 Reporter.log("===============End Acl_Display_Results========================"+"<br>");	
+	}
+	@Test(enabled = false, groups = {"ART"})
+	public void Acl_Hostname_And_DeviceIP() throws Exception {
+		
+		
+		
+		 Reporter.log("ALM Global ID For this test Case:  "+"<br>");
+		 Reporter.log("===============Start Acl_Hostname_And_DeviceIP======================="+"<br>");
+		 
+		 String deviceIP1 = common.GetRandomIPv4(1, 256);
+		 System.out.println(deviceIP1);
+		 String deviceIP2 = common.GetRandomIPv4(1, 256);
+		 System.out.println(deviceIP2);
+		String hostName ="lab_" +common.GetRandomString();		
+		System.out.println(hostName);
+		
+		int[] deviceGroupIDs = new int[]{1};
+		common.addDevice(deviceIP1, hostName, "Default Site", false, deviceGroupIDs);	
+		common.addDevice(deviceIP2, null, "Default Site", false, deviceGroupIDs);	
+		 
+		 Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		 Navigate.Reports.AdvancedSearch();		 
+		 AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		
+		 Reporter.log("Step 2 : Select 'Search For' as ACL' "+"<br>");
+		 advanceSearchPage.searchFor.sendKeys("ACL");
+		 advanceSearchPage.Pagetitle.click();
+		 common.sleep(6000);
+		 
+		 
+		 Reporter.log("Step 3 : select criterias in Search Criteria one after other 1. 'Host Name' as 'Contains', 2. 'Device IP' as 'Contains'"+"<br>"); 
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.hostName, "contains", true, "lab");	
+		 String partialDeviceIP = deviceIP2.substring(deviceIP1.lastIndexOf('.'));
+		 System.out.println("Sub String is "+partialDeviceIP);
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.primaryIPAddress, "contains", true, partialDeviceIP);	
+		 common.deselectOptions(advanceSearchPage.selectedFields, advanceSearchPage.defaultSelectedFields_ACL);
+		 common.selectOption(advanceSearchPage.selectedFields,"Host Name");
+			common.selectOption(advanceSearchPage.selectedFields,"Device IP");
+		 common.search();
+		 Assert.assertTrue(common.checkTitleContains("Results"),"Search results page is not displayed");
+		 
+		 String tableXpath = "//table[@class = 'TableBorder']";
+		 
+		 
+		 //common.pageSizeOption("All");	 
+		 Assert.assertFalse(common.checkForExistenceOfAnElementInTable(tableXpath, "Host Name", hostName), "Search results page does not contain Hostname");
+		 Assert.assertFalse(common.checkForExistenceOfAnElementInTable(tableXpath, "Device IP", deviceIP2), "Search results page does not contain device with IP {0}");
+		 
+		
+		 
+		
+		 //common.checkForExistenceOfAnElementInTable(tableXpath, "Host Name", hostName);
+		
+		
+		
+		 Reporter.log("===============End Acl_Hostname_And_DeviceIP========================"+"<br>");	
+	}
+	
+	
+	@Test(enabled = true, groups = {"ART"})
+	public void Acl_Output_Sorting() throws Exception {
+		
+		
+		
+		 Reporter.log("ALM Global ID For this test Case:  "+"<br>");
+		 Reporter.log("===============Start Acl_Output_Sorting======================="+"<br>");
+		 
+		 String deviceIP1 = common.GetRandomIPv4(1, 256);
+		 System.out.println(deviceIP1);
+		 String deviceIP2 = common.GetRandomIPv4(1, 256);
+		 System.out.println(deviceIP2);
+		 
+		String deviceName1 ="foo_bar_"+common.GetRandomString();		
+		System.out.println(deviceName1);
+		String deviceName2 ="bar_bar_" +common.GetRandomString();		
+		System.out.println(deviceName2);
+		
+		int[] deviceGroupIDs = new int[]{1};
+		common.addDevice(deviceIP1, deviceName1, "Default Site", false, deviceGroupIDs);	
+		common.addDevice(deviceIP2, deviceName2, "Default Site", false, deviceGroupIDs);	
+		 
+		 Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		 Navigate.Reports.AdvancedSearch();		 
+		 AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		
+		 Reporter.log("Step 2 : Select 'Search For' as ACL' "+"<br>");
+		 advanceSearchPage.searchFor.sendKeys("ACL");
+		 advanceSearchPage.Pagetitle.click();
+		 common.sleep(6000);
+		 
+		 
+		 Reporter.log("Step 3 : select criterias in Search Criteria one after other 1. 'Host Name' as 'Contains', 2. 'Device IP' as 'Contains'"+"<br>"); 
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.hostName, "contains", true, "bar");	
+		
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.primaryIPAddress, "contains", true, null);	
+		 common.deselectOptions(advanceSearchPage.selectedFields, advanceSearchPage.defaultSelectedFields_ACL);
+		 common.selectOption(advanceSearchPage.selectedFields,"Host Name");
+		common.selectOption(advanceSearchPage.selectedFields,"Device IP");
+		
+		advanceSearchPage.SortResultsBy().trim().equals("Host Name");
+		 common.search();
+		 Assert.assertTrue(common.checkTitleContains("Results"),"Search results page is not displayed");
+		 
+		 String tableXpath = "//table[@class = 'TableBorder']";
+		 
+		 Assert.assertFalse(common.checkForExistenceOfAnElementInTable(tableXpath, "Device IP", deviceIP1), "Search results page does not contain Hostname");
+		 Assert.assertFalse(common.checkForExistenceOfAnElementInTable(tableXpath, "Device IP", deviceIP2), "Search results page does not contain device with IP {0}");
+		 
+			
+		 Reporter.log("===============End Acl_Output_Sorting========================"+"<br>");	
+	}
+	
+	
+	@Test(enabled = true, groups = {"ART"})
+	public void Acl_Partition_Limit() throws Exception {
+		
+		
+		
+		 Reporter.log("ALM Global ID For this test Case:  "+"<br>");
+		 Reporter.log("===============Start Acl_Output_Sorting======================="+"<br>");
+		 
+		 String deviceIP1 = common.GetRandomIPv4(1, 256);
+		 System.out.println(deviceIP1);
+		 String deviceIP2 = common.GetRandomIPv4(1, 256);
+		 System.out.println(deviceIP2);
+		 
+		 
+		 String partition1 = NAUtils.addNewSecurityPartition();
+		String deviceName1 =common.GetRandomString();		
+		System.out.println(deviceName1);
+		String deviceName2 =common.GetRandomString();		
+		System.out.println(deviceName2);
+		
+		int[] deviceGroupIDs = new int[]{1};
+		common.addDevice(deviceIP1, deviceName1, "Default Site", false, deviceGroupIDs);	
+		common.addDevice(deviceIP2, deviceName2, partition1, false, deviceGroupIDs);	
+		 
+		 Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		 Navigate.Reports.AdvancedSearch();		 
+		 AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		
+		 Reporter.log("Step 2 : Select 'Search For' as ACL' "+"<br>");
+		 advanceSearchPage.searchFor.sendKeys("ACL");
+		 advanceSearchPage.Pagetitle.click();
+		 common.sleep(6000);
+		 
+		 
+		 Reporter.log("Step 3 : select criterias in Search Criteria one after other 1. 'Host Name' as 'Contains', 2. 'Device IP' as 'Contains'"+"<br>"); 
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.hostName, "contains", true, "bar");	
+		
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.primaryIPAddress, "contains", true, null);	
+		 common.deselectOptions(advanceSearchPage.selectedFields, advanceSearchPage.defaultSelectedFields_ACL);
+		 common.selectOption(advanceSearchPage.selectedFields,"Host Name");
+		common.selectOption(advanceSearchPage.selectedFields,"Device IP");
+		
+		advanceSearchPage.SortResultsBy().trim().equals("Host Name");
+		 common.search();
+		 Assert.assertTrue(common.checkTitleContains("Results"),"Search results page is not displayed");
+		 
+		 String tableXpath = "//table[@class = 'TableBorder']";
+		 
+		 Assert.assertFalse(common.checkForExistenceOfAnElementInTable(tableXpath, "Device IP", deviceIP1), "Search results page does not contain Hostname");
+		 Assert.assertFalse(common.checkForExistenceOfAnElementInTable(tableXpath, "Device IP", deviceIP2), "Search results page does not contain device with IP {0}");
+		 
+			
+		 Reporter.log("===============End Acl_Output_Sorting========================"+"<br>");	
+	}
+	
+	@Test(enabled = false, groups = {"ART"})
+	public void Acl_Hostnamet() throws Exception {
+		
+		
+		
+		 Reporter.log("ALM Global ID For this test Case:  "+"<br>");
+		 Reporter.log("===============Start Acl_Hostname======================="+"<br>");
+		 
+		 String[] str = common.getDeviceIPs(1,true,false);
+			System.out.println(str[0]);	
+			String deviceIp = str[0];
+			common.goToDevice(deviceIp);
+				 
+		/* String deviceIP = common.GetRandomIPv4(1, 256);
+		 System.out.println(deviceIP);
+		String hostName ="lab_" +common.GetRandomString();		
+		System.out.println(hostName);
+		
+		int[] deviceGroupIDs = new int[]{1};
+		common.addDevice(deviceIP, hostName, "Default Site", false, deviceGroupIDs);	
+		 
+		 Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		 Navigate.Reports.AdvancedSearch();		 
+		 AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		
+		 Reporter.log("Step 2 : Select 'Search For' as ACL' "+"<br>");
+		 advanceSearchPage.searchFor.sendKeys("ACL");
+		 advanceSearchPage.Pagetitle.click();
+		 common.sleep(6000);
+		 
+		 
+		 Reporter.log("Step 3 : select criterias in Search Criteria one after other 1. 'Host Name' as 'Contains', 2. 'Device IP' as 'Contains'"+"<br>"); 
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.hostName, "contains", true, "lab");	
+		 String partialDeviceIP = deviceIP.substring(0, deviceIP.lastIndexOf('.'));
+		 System.out.println("Sub String is "+partialDeviceIP);
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("ACL", advanceSearchPage.primaryIPAddress, "contains", true, partialDeviceIP);	
+		common.selectOption(advanceSearchPage.selectedFields,"Host Name");
+		common.selectOption(advanceSearchPage.selectedFields,"Device IP");
+		common.search();
+		 Assert.assertTrue(common.checkTitleContains("Results"),"Search results page is not displayed");
+		 
+		 String tableXpath = "//table[@class = 'TableBorder']";
+		 
+		 
+		 //common.pageSizeOption("All");	 
+		 Assert.assertFalse(common.checkForExistenceOfAnElementInTable(tableXpath, "Host Name", hostName), "Search results page does not contain Hostname");
+		 Assert.assertFalse(common.checkForExistenceOfAnElementInTable(tableXpath, "Device IP", deviceIP), "Search results page does not contain device with IP {0}"); */
+		 
+		
+		
+		 //common.checkForExistenceOfAnElementInTable(tableXpath, "Host Name", hostName);
+		
+		
+		
+		 Reporter.log("===============End Acl_Hostname========================"+"<br>");	
+	
+	}
+	
+	//Compliance
+	
+	// Compliance > Verify Conformation popup that should be displayed when we try to add more than 10 search criterias.	
+	@Test(enabled = false, groups = {"ART"})
+	 public void Compliance_10_Criteria(){
+		
+		
+		
+	 Reporter.log("ALM Global ID For this test Case: QCTP1B235419  "+"<br>");
+	 Reporter.log("===============Start Compliance_10_Criteria========================"+"<br>");
+		
+	 Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+	 Navigate.Reports.AdvancedSearch();
+	 AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+	 
+	 Reporter.log("Step 2 : Select 'Search For' as Compliance' "+"<br>");
+	 advanceSearchPage.searchFor.sendKeys("Compliance");
+	 advanceSearchPage.Pagetitle.click();
+	 common.sleep(6000);
+	
+	 Reporter.log("Step 3 : select below criterias in Search Criteria one after other"
+	 		+ "'Compliance' as 'Any compliance state', 'Device Group' as 'Inventory','Partition' as 'Default Site','CVE,' as 'Contains','Rule Out Of Compliance Date' as 'since','Last Checked Date' as 'since','Policy Tag' as 'General Purpose','Device IP' as 'Contains' & 'Host Name' as 'Contains' >"+"<br>");
+ 	
+	 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Compliance", advanceSearchPage.hostName, "contains", false, null);
+	 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Compliance", advanceSearchPage.InCompliance, "Any compliance state", false, null);
+	 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Compliance", advanceSearchPage.DeviceGroupName, "Inventory", false, null);
+	 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Compliance", advanceSearchPage.PolicySiteList, "Default Site", false, null);	
+	 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Compliance", advanceSearchPage.hostName, "contains", false, null);
+	 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Compliance", advanceSearchPage.primaryIPAddress, "contains", false, null);
+	 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Compliance", advanceSearchPage.CVE, "contains", false, null);
+	 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Compliance", advanceSearchPage.RuleOutOfComplianceDate, "since", false, null);
+	 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Compliance", advanceSearchPage.LastModifiedDate, "since", false, null);
+	 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Compliance", advanceSearchPage.PolicyTagList, "General Purpose", false, null);
+	
+	 
+	 Reporter.log("Step 4 : Try to Add 11th Criteria  verify the conformation pop up  "+"<br>");
+	 try {
+	 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Compliance", advanceSearchPage.hostName, "contains", false, null);
+	 common.sleepInSeconds(3);
+	 } catch (AssertionError e) {
+		
+	 }	
+	Reporter.log("Step 5 : Verify Tilte ::Expected : 'Advanced Search' "+"<br>");
+	Assert.assertTrue(common.checkTitleContains("Advanced Search"),"After alert box is dismissed, Advanced Search form is not displayed");
+	
+	Reporter.log("===============End Compliance_10_Criteria========================"+"<br>");
+	}
+	
+	
+	// Search for 'Compliance' >  Verify Add Criteria & Delete Criteria functionality in Advanced Search page
+	
+	@Test(enabled = false, groups = {"ART"})
+	public void Compliance_Add_Delete_Criteria(){
+		
+		
+		
+		 Reporter.log("ALM Global ID For this test Case: QCTP1B235420 "+"<br>");
+		 Reporter.log("===============Start Compliance_Add_Delete_Criteria========================"+"<br>");
+		
+		 Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		 Navigate.Reports.AdvancedSearch();		 
+		 AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		
+		 Reporter.log("Step 2 : Select 'Search For' as Compliance' "+"<br>");
+		 advanceSearchPage.searchFor.sendKeys("Compliance");
+		 advanceSearchPage.Pagetitle.click();
+		 common.sleep(6000);
+		 
+		 
+		 Reporter.log("Step 3 : select criterias in Search Criteria one after other 1. 'Host Name' as 'Contains', 2. 'Device IP' as 'Contains'"+"<br>"); 
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Compliance", advanceSearchPage.hostName, "contains", false, null);	
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Compliance", advanceSearchPage.primaryIPAddress, "contains", false, null);	
+		
+		 Reporter.log("Step 4 : Verify Boolean Expression text field contains  A and B or not? :: Expected Should be displayed  "+"<br>");
+		 Assert.assertTrue(advanceSearchPage.getBoolenEXpValue().contains("A and B"),"Boolean expression does not contain expressions A and B");
+		 
+		 Reporter.log("Step 5  : Verify impact on Boolean Expression upon Deleting 'Device IP' "+"<br>");
+		 advanceSearchPage.deleteSearchCriteria("B");		
+		 common.sleep(3000);
+		
+ 		 Assert.assertFalse(advanceSearchPage.getBoolenEXpValue().contains("B"),"Boolean expression contains expression B after criteria B is removed");
+		 
+	
+		 Reporter.log("===============End Compliance_Add_Delete_Criteria========================"+"<br>");
+	
+	}
+	
+	
+	// Search for compliance upon selecting 'Customize Output' as 'Host Name', 'Device IP','Compliance', 'Policy', 'Rule'
+	@Test(enabled = false, groups = {"ART"})
+	public void Compliance_Display_Results(){		
+		
+		 Reporter.log("ALM Global ID For this test Case: QCTP1B235423 "+"<br>");
+		 Reporter.log("===============Start Compliance_Display_Results========================"+"<br>");
+		
+		 Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		 Navigate.Reports.AdvancedSearch();		 
+		 AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		
+		 Reporter.log("Step 2 : Select 'Search For' as Compliance' "+"<br>");
+		 advanceSearchPage.searchFor.sendKeys("Compliance");
+		 advanceSearchPage.Pagetitle.click();
+		 common.sleep(6000);
+		
+		 Reporter.log("Step 3 : select criterias in Search Criteria one after other 1. 'Host Name' as 'Contains', 2. 'Device IP' as 'Contains'"+"<br>"); 
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Compliance", advanceSearchPage.hostName, "contains", false, null);	
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Compliance", advanceSearchPage.primaryIPAddress, "contains", false, null);	
+		
+		 Reporter.log("Step 4 : Verify Boolean Expression text field contains  A and B or not? :: Expected Should be displayed  "+"<br>");
+		 Assert.assertTrue(advanceSearchPage.getBoolenEXpValue().contains("A and B"),"Boolean expression does not contain expressions A and B");
+		 
+	     common.pageSizeOption("5");
+		
+		 
+		 
+		 Reporter.log("Step 5 : Select 'Search For' as Resource Identity  & Click on 'search' "  +"<br>");		
+			common.deselectOptions(advanceSearchPage.selectedFields, advanceSearchPage.defaultSelectedFields);
+			common.selectOption(advanceSearchPage.selectedFields,"Host Name");
+			common.selectOption(advanceSearchPage.selectedFields,"Device IP");
+			common.selectOption(advanceSearchPage.selectedFields,"Compliance");
+			common.selectOption(advanceSearchPage.selectedFields,"Policy");
+			common.selectOption(advanceSearchPage.selectedFields,"Rule");
+			common.search();
+			
+			String actPageSize=common.getObjectByXpath("//select[@title='Display results in groups of']//option[@selected='']").getText().trim();
+			
+		 Reporter.log("Step 6 : Verify page size in display Results   "+"<br>");
+		 Assert.assertTrue(actPageSize.equals("5"),"Search results page size is not the same as the search page size");
+			
+		 Reporter.log("===============End Compliance_Display_Results========================"+"<br>");
+	
+	}
+	
+	
+	//Compliance > verify Reset Expression button in Advance search page
+	@Test(enabled = false, groups = {"ART"})
+	 public void Compliance_Reset_Expression(){
+		
+		
+		
+		 Reporter.log("ALM Global ID For this test Case: QCTP1B235428 "+"<br>");
+		 Reporter.log("===============Start Compliance_Display_Results========================"+"<br>");
+		
+		 Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		 Navigate.Reports.AdvancedSearch();		 
+		 AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		
+		 Reporter.log("Step 2 : Select 'Search For' as Compliance' "+"<br>");
+		 advanceSearchPage.searchFor.sendKeys("Compliance");
+		 advanceSearchPage.Pagetitle.click();
+		 common.sleep(6000);
+		 
+		 
+		 Reporter.log("Step 3 : select criterias in Search Criteria one after other 1. 'Host Name' as 'Contains', 2. 'Device IP' as 'Contains'"+"<br>"); 
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Compliance", advanceSearchPage.hostName, "contains", false, null);	
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Compliance", advanceSearchPage.primaryIPAddress, "contains", false, null);	
+		 
+/*		String BooleanExpValue= advanceSearchPage.getBoolenEXpValue();
+		BooleanExpValue="A and B";*/
+		 
+		 Reporter.log("Step 4 : Verify Boolean Expression text field contains  A and B or not? :: Expected Should be displayed  "+"<br>");
+		 Assert.assertTrue(advanceSearchPage.getBoolenEXpValue().contains("A and B"),"Boolean expression does not contain expressions A and B");
+		 
+		 advanceSearchPage.ResetExpression();
+		
+		 Reporter.log("Step 5 : Verify Boolean Expression text field contains  A and B or not? :: Expected Should be displayed  "+"<br>");
+		 Assert.assertTrue(advanceSearchPage.getBoolenEXpValue().contains("A and B"),"Boolean expression does not contain expressions A and B");
+	
+	
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	//Configuration 
+	// Search for 'Configuration' >  Verify Add Criteria & Delete Criteria functionality in Advanced Search page
+	
+	@Test(enabled = false, groups = {"ART"})
+	    public void Configuration_Add_Delete_Criteria(){
+		
+		 Reporter.log("ALM Global ID For this test Case:  QCTP1B235429 "+"<br>");
+		 Reporter.log("===============Start Configuration_Add_Delete_Criteria========================"+"<br>");
+		
+		 Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		 Navigate.Reports.AdvancedSearch();		 
+		 AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		
+		 Reporter.log("Step 2 : Select 'Search For' as Configuration' "+"<br>");
+		 advanceSearchPage.searchFor.sendKeys("Configuration");
+		 advanceSearchPage.Pagetitle.click();
+		 common.sleep(6000);		 
+		 
+		 Reporter.log("Step 3 : select criterias in Search Criteria one after other 1. 'Host Name' as 'Contains', 2. 'Device IP' as 'Contains'"+"<br>"); 
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Configuration", advanceSearchPage.hostName, "contains", false, null);	
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Configuration", advanceSearchPage.primaryIPAddress, "contains", false, null);	
+		
+		 Reporter.log("Step 4 : Verify Boolean Expression text field contains  A and B or not? :: Expected Should be displayed  "+"<br>");
+		 Assert.assertTrue(advanceSearchPage.getBoolenEXpValue().contains("A and B"),"Boolean expression does not contain expressions A and B");
+		 
+		 Reporter.log("Step 5  : Verify impact on Boolean Expression upon Deleting 'Device IP' "+"<br>");
+		 advanceSearchPage.deleteSearchCriteria("B");		
+		 common.sleep(3000);
+		
+		 Assert.assertFalse(advanceSearchPage.getBoolenEXpValue().contains("B"),"Boolean expression contains expression B after criteria B is removed");
+		 Reporter.log("===============End Configuration_Add_Delete_Criteria========================"+"<br>");
+	
+			
+		}
+	
+	// Search for Configuration upon selecting 'Customize Output' as 'Host Name', 'Device IP','Compliance', 'Policy', 'Rule'
+	@Test(enabled = false, groups = {"ART"})
+	public void Configuration_Display_Results(){		
+		
+		 Reporter.log("ALM Global ID For this test Case: QCTP1B235433  "+"<br>");
+		 Reporter.log("===============Start Compliance_Display_Results========================"+"<br>");
+		
+		 Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		 Navigate.Reports.AdvancedSearch();		 
+		 AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		
+		 Reporter.log("Step 2 : Select 'Search For' as Configuration' "+"<br>");
+		 advanceSearchPage.searchFor.sendKeys("Configuration");
+		 advanceSearchPage.Pagetitle.click();
+		 common.sleep(6000);
+		
+		 Reporter.log("Step 3 : select criterias in Search Criteria one after other 1. 'Host Name' as 'Contains', 2. 'Device IP' as 'Contains'"+"<br>"); 
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Configuration", advanceSearchPage.hostName, "contains", false, null);	
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Configuration", advanceSearchPage.primaryIPAddress, "contains", false, null);	
+		
+		 Reporter.log("Step 4 : Verify Boolean Expression text field contains  A and B or not? :: Expected Should be displayed  "+"<br>");
+		 Assert.assertTrue(advanceSearchPage.getBoolenEXpValue().contains("A and B"),"Boolean expression does not contain expressions A and B");
+		 
+	     common.pageSizeOption("5");
+		
+		 
+		 
+		 Reporter.log("Step 5 : Select 'Search For' as Resource Identity  & Click on 'search' "  +"<br>");		
+			common.deselectOptions(advanceSearchPage.selectedFields, advanceSearchPage.defaultSelectedFields);
+			common.selectOption(advanceSearchPage.selectedFields,"Host Name");
+			common.selectOption(advanceSearchPage.selectedFields,"Device IP");
+			common.search();
+			
+			String actPageSize=common.getObjectByXpath("//select[@title='Display results in groups of']//option[@selected='']").getText().trim();
+			
+		 Reporter.log("Step 6 : Verify page size in display Results   "+"<br>");
+		 Assert.assertTrue(actPageSize.equals("5"),"Search results page size is not the same as the search page size");
+			
+		 Reporter.log("===============End Compliance_Display_Results========================"+"<br>");
+	
+	}
+	
+	
+	//Configuration > verify Reset Expression button in Advance search page
+	@Test(enabled = false, groups = {"ART"})
+	 public void Configuration_Reset_Expression(){
+		
+		
+		
+		 Reporter.log("ALM Global ID For this test Case: QCTP1B235439 "+"<br>");
+		 Reporter.log("===============Start Compliance_Display_Results========================"+"<br>");
+		
+		 Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		 Navigate.Reports.AdvancedSearch();		 
+		 AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		
+		 Reporter.log("Step 2 : Select 'Search For' as Configuration' "+"<br>");
+		 advanceSearchPage.searchFor.sendKeys("Configuration");
+		 advanceSearchPage.Pagetitle.click();
+		 common.sleep(6000);
+		 
+		 
+		 Reporter.log("Step 3 : select criterias in Search Criteria one after other 1. 'Host Name' as 'Contains', 2. 'Device IP' as 'Contains'"+"<br>"); 
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Configuration", advanceSearchPage.hostName, "contains", false, null);	
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Configuration", advanceSearchPage.primaryIPAddress, "contains", false, null);	
+		 
+/*		String BooleanExpValue= advanceSearchPage.getBoolenEXpValue();
+		BooleanExpValue="A and B";*/
+		 
+		 Reporter.log("Step 4 : Verify Boolean Expression text field contains  A and B or not? :: Expected Should be displayed  "+"<br>");
+		 Assert.assertTrue(advanceSearchPage.getBoolenEXpValue().contains("A and B"),"Boolean expression does not contain expressions A and B");
+		 advanceSearchPage.ResetExpression();
+		// advanceSearchPage.resetexpression.click();
+		
+		 Reporter.log("Step 5 : Verify Boolean Expression text field contains  A and B or not? :: Expected Should be displayed  "+"<br>");
+		 Assert.assertTrue(advanceSearchPage.getBoolenEXpValue().contains("A and B"),"Boolean expression does not contain expressions A and B");
+	
+	
+	}
+	
+	
+	
+	//Device
+	
+	// Device > Verify Conformation popup that should be displayed when we try to add more than 10 search criterias.	
+	@Test(enabled = false, groups = {"ART"})
+	 public void Device_10_Criteria(){
+		 
+		
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235440 "+"<br>");
+		Reporter.log("===============Start Device_10_Criteria========================"+"<br>");
+		
+		Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		 
+		Navigate.Reports.AdvancedSearch();
+		AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		
+		Reporter.log("Step 2 : Select 'Search For' as Device' "+"<br>");
+		 advanceSearchPage.searchFor.sendKeys("Device");
+		 advanceSearchPage.Pagetitle.click();
+		common.sleep(6000);
+		
+		 Reporter.log("Step 3 : select below criterias in Search Criteria one after other"
+			 		+ "'ACL Application' as 'Contains', 'ACL Configuration' as 'Contains','Asset Tag' as 'Contains','ACL ID' as 'Contains','ACL Type' as 'Contains','Device Family' as 'Contains','Comments' as 'Contains','Device Description' as 'Contains','Device IP' as 'Contains' & 'Host Name' as 'Contains' >"+"<br>");
+		
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Device", advanceSearchPage.ACLApplication, "contains", false, null);
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Device", advanceSearchPage.ACLConfiguration, "contains", false, null);
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Device", advanceSearchPage.ACLID, "contains", false, null);
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Device", advanceSearchPage.ACLType, "contains", false, null);
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Device", advanceSearchPage.Comments, "contains", false, null);
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Device", advanceSearchPage.AssetTag, "contains", false, null);
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Device", advanceSearchPage.DeviceFamily, "contains", false, null);
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Device", advanceSearchPage.primaryIPAddress, "contains", false, null);
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Device", advanceSearchPage.DeviceName, "contains", false, null);
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Device", advanceSearchPage.hostName, "contains", false, null);	
+		
+		 Reporter.log("Step 4 : Try to Add 11th Criteria  verify the conformation pop up  "+"<br>");
+		try {
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Device", advanceSearchPage.hostName, "contains", false, null);
+		common.sleepInSeconds(3);
+		} catch (AssertionError e) {
+			
+		}	
+		Reporter.log("Step 5 : Verify Tilte ::Expected : 'Advanced Search' "+"<br>");
+		Assert.assertTrue(common.checkTitleContains("Advanced Search"),"After alert box is dismissed, Advanced Search form is not displayed");
+		 Reporter.log("===============End Device_10_Criteria========================="+"<br>");
+		
+		
+		 }
+	
+	
+	
+	
+	// Search for 'Device' >  Verify Add Criteria & Delete Criteria functionality in Advanced Search page
+	@Test(enabled = false, groups = {"ART"})
+	public void Device_Add_Delete_Criteria(){
+			
+		 Reporter.log("ALM Global ID For this test Case: QCTP1B235448 "+"<br>");
+		 Reporter.log("===============Start Device_Add_Delete_Criteria========================"+"<br>");
+		
+		 Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		 Navigate.Reports.AdvancedSearch();		 
+		 AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		
+		 Reporter.log("Step 2 : Select 'Search For' as Device' "+"<br>");
+		 advanceSearchPage.searchFor.sendKeys("Device");
+		 advanceSearchPage.Pagetitle.click();
+		 common.sleep(6000);
+		 
+		 
+		 Reporter.log("Step 3 : select criterias in Search Criteria one after other 1. 'Host Name' as 'Contains', 2. 'Device IP' as 'Contains'"+"<br>"); 
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Device", advanceSearchPage.hostName, "contains", false, null);	
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Device", advanceSearchPage.primaryIPAddress, "contains", false, null);	
+		
+		 Reporter.log("Step 4 : Verify Boolean Expression text field contains  A and B or not? :: Expected Should be displayed  "+"<br>");
+		 Assert.assertTrue(advanceSearchPage.getBoolenEXpValue().contains("A and B"),"Boolean expression does not contain expressions A and B");
+		 
+		 Reporter.log("Step 5  : Verify impact on Boolean Expression upon Deleting 'Device IP' "+"<br>");
+		 advanceSearchPage.deleteSearchCriteria("B");
+		 common.sleep(3000);
+		
+		 Assert.assertFalse(advanceSearchPage.getBoolenEXpValue().contains("B"),"Boolean expression contains expression B after criteria B is removed");
+		 Reporter.log("===============End Device_Add_Delete_Criteria========================"+"<br>");
+	
+				
+			}	
+	
+	
+	@Test(enabled = false, groups = {"ART"})
+	public void Device_Boolean_Expression() throws Exception{
+		
+		
+		
+		 Reporter.log("ALM Global ID For this test Case:  "+"<br>");
+		 Reporter.log("===============Start Device_Boolean_Expression======================="+"<br>");
+		 
+		 String deviceIP1 = common.GetRandomIPv4(1, 256);
+		 System.out.println(deviceIP1);
+		 String deviceIP2 = common.GetRandomIPv4(1, 256);
+		 System.out.println(deviceIP2);
+		 String deviceIP3 = common.GetRandomIPv4(1, 256);
+		 System.out.println(deviceIP3);
+		String deviceName =common.GetRandomString();		
+		System.out.println(deviceName);
+		int[] deviceGroupIDs = new int[]{1};
+		common.addDevice(deviceIP1, deviceName, "Default Site", false, deviceGroupIDs);	
+		common.addDevice(deviceIP2, deviceName, "Default Site", false, deviceGroupIDs);	
+		common.addDevice(deviceIP3, deviceName, "Default Site", false, deviceGroupIDs);	
+		 
+		 Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		 Navigate.Reports.AdvancedSearch();		 
+		 AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		
+		 Reporter.log("Step 2 : Select 'Search For' as Device' "+"<br>");
+		 advanceSearchPage.searchFor.sendKeys("Device");
+		 common.sleep(2000);
+		// advanceSearchPage.Pagetitle.click();
+		 common.sleep(2000);
+		 
+		 
+		 Reporter.log("Step 3 : select criterias in Search Criteria one after other 1. 'Host Name' as 'Contains', 2. 'Device IP' as 'Contains'"+"<br>"); 
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Device", advanceSearchPage.hostName, "contains", true, deviceName);	
+		 		
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Device", advanceSearchPage.primaryIPAddress, "contains", true, deviceIP1);
+		 advanceSearchPage.enterAdvanceSearchCriteriaAndText("Device", advanceSearchPage.primaryIPAddress, "contains", true, deviceIP2);		
+		// common.deselectOptions(advanceSearchPage.selectedFields, advanceSearchPage.defaultSelectedFields_devics);
+		 WebElement BoolenExpField = common.getObjectByXpath("//*[@id='criteria_table']/table/tbody/tr[4]/td/input[1]");
+		 BoolenExpField.clear();
+		 common.sleep(2000);
+		 WebElement BoolenExpField1 = common.getObjectByXpath("//*[@id='criteria_table']/table/tbody/tr[4]/td/input[1]");
+		 BoolenExpField1.sendKeys("A and (B or C)");
+		//common.selectOption(advanceSearchPage.selectedFields,"Device IP");
+		common.search();
+		 Assert.assertTrue(common.checkTitleContains("Results"),"Search results page is not displayed");
+		 
+		 String tableXpath = "//table[@class = 'TableBorder']";
+		 //common.pageSizeOption("All");	 
+		// Assert.assertFalse(common.checkForExistenceOfAnElementInTable(tableXpath, "Host Name", hostName), "Search results page does not contain Hostname");
+		 Assert.assertTrue(common.checkForExistenceOfAnElementInTable(tableXpath, "Device IP", deviceIP1), "Search results page does not contain device with IP {0}");
+		 Assert.assertTrue(common.checkForExistenceOfAnElementInTable(tableXpath, "Device IP", deviceIP2), "Search results page does not contain device with IP {1}");
+		 //Assert.assertFalse(common.checkForExistenceOfAnElementInTable(tableXpath, "Device IP", deviceIP3), "Search results page does not contain device with IP {2}");
+		 
+		
+		
+		 //common.checkForExistenceOfAnElementInTable(tableXpath, "Host Name", hostName);
+		
+		
+		
+		 Reporter.log("===============End Device_Boolean_Expression========================"+"<br>");	
+	
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	//Diagnostic
+	
+	// Diagnostic > Verify Conformation popup that should be displayed when we try to add more than 10 search criterias.
+	@Test(enabled = false, groups = {"ART"})
+	 public void Dignostic_10_Criterias(){
+		
+		Reporter.log("ALM Global ID For this test Case:QCTP1B235450 "+"<br>");
+		Reporter.log("===============Start Dignostic_10_Criterias========================"+"<br>");
+		
+		Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		
+		Navigate.Reports.AdvancedSearch();
+		AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		 
+		 
+		Reporter.log("Step 2 : Select 'Search For' as Diagnostic' "+"<br>");
+		 advanceSearchPage.searchFor.sendKeys("Diagnostic");
+		 advanceSearchPage.Pagetitle.click();
+		common.sleep(6000);
+		
+		Reporter.log("Step 3 : select Search Criteria  Host Name as 'contains' for 10 times"+"<br>"); 
+		for(int i = 0; i<10; i++){
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Diagnostic", advanceSearchPage.hostName, "contains", false, null);	
+		}
+				
+		Reporter.log("Step 4 : Try to Add 11th Criteria & verify the conformation pop up  "+"<br>");
+		try {
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Device", advanceSearchPage.hostName, "contains", false, null);
+		common.sleepInSeconds(3);
+		} catch (AssertionError e) {
+			
+		}	
+		
+		Reporter.log("Step 5 : Verify Tilte ::Expected : 'Advanced Search' "+"<br>");
+		Assert.assertTrue(common.checkTitleContains("Advanced Search"),"After alert box is dismissed, Advanced Search form is not displayed");
+		Reporter.log("Step 6 : Verify Boolean Expression text field contains  A and B C and D and E and F and G and H and I and J or not? :: Expected Should be displayed  "+"<br>");
+		
+		Assert.assertTrue(advanceSearchPage.getBoolenEXpValue().contains("A and B and C and D and E and F and G and H and I and J"),"Diagnostic boolean search expression does not contain full expression (for 10 criterias)");
+		Reporter.log("===============End Dignostic_10_Criterias========================"+"<br>");
+	}
+	
+	// Search for 'Diagnostic' >  Verify Add Criteria & Delete Criteria functionality in Advanced Search page
+	@Test(enabled = false, groups = {"ART"})
+	 public void Diagnostic_Add_Delete_Criteria(){
+		
+		Reporter.log("ALM Global ID For this test Case:  QCTP1B235451 "+"<br>");
+		Reporter.log("===============Start Diagnostic_Add_Delete_Criteria========================"+"<br>");
+		
+		Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		
+		Navigate.Reports.AdvancedSearch();
+		AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		 
+		 
+		Reporter.log("Step 2 : Select 'Search For' as Diagnostic' "+"<br>");
+		 advanceSearchPage.searchFor.sendKeys("Diagnostic");
+		 advanceSearchPage.Pagetitle.click();
+		common.sleep(6000);
+		
+		 Reporter.log("Step 3 : select criterias in Search Criteria one after other 1. 'Host Name' as 'Contains', 2. 'Device IP' as 'Contains'"+"<br>"); 
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Diagnostic", advanceSearchPage.hostName, "contains", false, null);	
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Diagnostic", advanceSearchPage.primaryIPAddress, "contains", false, null);
+	 	 
+		Reporter.log("Step 4 : Verify Boolean Expression text field contains  A and B or not? :: Expected Should be displayed  "+"<br>");
+		Assert.assertTrue(advanceSearchPage.getBoolenEXpValue().contains("A and B"),"Boolean expression does not contain expressions A and B");
+		 
+		Reporter.log("Step 5  : Verify impact on Boolean Expression upon Deleting 'Device IP' "+"<br>");
+		advanceSearchPage.deleteSearchCriteria("B");
+		common.sleep(3000);
+		
+		 Assert.assertFalse(advanceSearchPage.getBoolenEXpValue().contains("B"),"Boolean expression contains expression B after criteria B is removed");
+		 Reporter.log("===============End Diagnostic_Add_Delete_Criteria======================"+"<br>");
+		}
+	
+	
+	
+	//Event
+	// Event > Verify Conformation popup that should be displayed when we try to add more than 10 search criterias.
+	@Test(enabled = false, groups = {"ART"})
+	 public void Event_10_Criterias(){
+		
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235452 "+"<br>");
+		Reporter.log("===============Start Event_10_Criterias========================"+"<br>");
+		
+		Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		
+		Navigate.Reports.AdvancedSearch();
+		AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		 
+		 
+		Reporter.log("Step 2 : Select 'Search For' as Event' "+"<br>");
+		 advanceSearchPage.searchFor.sendKeys("Event");
+		 advanceSearchPage.Pagetitle.click();
+		common.sleep(6000);
+		
+		Reporter.log("Step 3 : select Search Criteria  Host Name as 'contains' for 10 times"+"<br>"); 
+		for(int i = 0; i<10; i++){
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Event", advanceSearchPage.hostName, "contains", false, null);	
+		}
+				
+		Reporter.log("Step 4 : Try to Add 11th Criteria & verify the conformation pop up  "+"<br>");
+		try {
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Event", advanceSearchPage.hostName, "contains", false, null);
+		common.sleepInSeconds(3);
+		} catch (AssertionError e) {
+			
+		}	
+		
+		Reporter.log("Step 5 : Verify Tilte ::Expected : 'Advanced Search' "+"<br>");
+		Assert.assertTrue(common.checkTitleContains("Advanced Search"),"After alert box is dismissed, Advanced Search form is not displayed");
+		
+		Reporter.log("Step 6 : Verify Boolean Expression text field contains  A and B C and D and E and F and G and H and I and J or not? :: Expected Should be displayed  "+"<br>");
+		Assert.assertTrue(advanceSearchPage.getBoolenEXpValue().contains("A and B and C and D and E and F and G and H and I and J"),"Diagnostic boolean search expression does not contain full expression (for 10 criterias)");
+		
+		Reporter.log("===============End Event_10_Criterias========================"+"<br>");
+			}
+	
+	
+	// Search for 'Event' >  Verify Add Criteria & Delete Criteria functionality in Advanced Search page
+		@Test(enabled = false, groups = {"ART"})
+		 public void Event_Add_Delete_Criteria(){
+			
+			Reporter.log("ALM Global ID For this test Case: QCTP1B235453 "+"<br>");
+			Reporter.log("===============Start Event_Add_Delete_Criteria======================="+"<br>");
+			
+			Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+			
+			Navigate.Reports.AdvancedSearch();
+			AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+			 
+			 
+			Reporter.log("Step 2 : Select 'Search For' as Event' "+"<br>");
+			advanceSearchPage.searchFor.sendKeys("Event");
+			 advanceSearchPage.Pagetitle.click();
+			common.sleep(6000);
+			
+			 Reporter.log("Step 3 : select criterias in Search Criteria one after other 1. 'Host Name' as 'Contains', 2. 'Device IP' as 'Contains'"+"<br>"); 
+			advanceSearchPage.enterAdvanceSearchCriteriaAndText("Event", advanceSearchPage.hostName, "contains", false, null);	
+			advanceSearchPage.enterAdvanceSearchCriteriaAndText("Event", advanceSearchPage.primaryIPAddress, "contains", false, null);
+		 	 
+			Reporter.log("Step 4 : Verify Boolean Expression text field contains  A and B or not? :: Expected Should be displayed  "+"<br>");
+			Assert.assertTrue(advanceSearchPage.getBoolenEXpValue().contains("A and B"),"Boolean expression does not contain expressions A and B");
+			 
+			Reporter.log("Step 5  : Verify impact on Boolean Expression upon Deleting 'Device IP' "+"<br>");
+			advanceSearchPage.deleteSearchCriteria("B");
+			common.sleep(3000);
+			
+			 Assert.assertFalse(advanceSearchPage.getBoolenEXpValue().contains("B"),"Boolean expression contains expression B after criteria B is removed");
+			 Reporter.log("===============End Event_Add_Delete_Criteria====================="+"<br>");
+			}
+		
+	
+	
+	//Interface
+		
+	// Interface > Verify Conformation popup that should be displayed when we try to add more than 10 search criterias.
+	@Test(enabled = false, groups = {"ART"})	
+	  public void Interface_10_Criteria(){
+		
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235454 "+"<br>");
+		Reporter.log("===============Start Interface_10_Criteria========================"+"<br>");
+		
+		Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		
+		Navigate.Reports.AdvancedSearch();
+		AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		 
+		 
+		Reporter.log("Step 2 : Select 'Search For' as Interface' "+"<br>");
+		advanceSearchPage.searchFor.sendKeys("Interface");
+		 advanceSearchPage.Pagetitle.click();
+		common.sleep(6000);
+		
+		Reporter.log("Step 3 : select Search Criteria  Host Name as 'contains' for 10 times"+"<br>"); 
+		for(int i = 0; i<10; i++){
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Interface", advanceSearchPage.hostName, "contains", false, null);	
+		}
+				
+		Reporter.log("Step 4 : Try to Add 11th Criteria & verify the conformation pop up  "+"<br>");
+		try {
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Interface", advanceSearchPage.hostName, "contains", false, null);
+		common.sleepInSeconds(3);
+		} catch (AssertionError e) {
+			
+		}	
+		
+		Reporter.log("Step 5 : Verify Tilte ::Expected : 'Advanced Search' "+"<br>");
+		Assert.assertTrue(common.checkTitleContains("Advanced Search"),"After alert box is dismissed, Advanced Search form is not displayed");
+		
+		Reporter.log("Step 6 : Verify Boolean Expression text field contains  A and B C and D and E and F and G and H and I and J or not? :: Expected Should be displayed  "+"<br>");
+		Assert.assertTrue(advanceSearchPage.getBoolenEXpValue().contains("A and B and C and D and E and F and G and H and I and J"),"Diagnostic boolean search expression does not contain full expression (for 10 criterias)");
+		
+		Reporter.log("===============End Interface_10_Criteria======================="+"<br>");
+			}
+			
+	
+	// Search for 'Interface' >  Verify Add Criteria & Delete Criteria functionality in Advanced Search page
+	@Test(enabled = false, groups = {"ART"})
+	 public void Interface_Add_Delete_Criteria(){
+		
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235455 "+"<br>");
+		Reporter.log("===============Start Interface_Add_Delete_Criteria======================="+"<br>");
+		
+		Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		
+		Navigate.Reports.AdvancedSearch();
+		AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		 
+		 
+		Reporter.log("Step 2 : Select 'Search For' as Interface' "+"<br>");
+		advanceSearchPage.searchFor.sendKeys("Interface");
+		 advanceSearchPage.Pagetitle.click();
+		common.sleep(6000);
+		
+		 Reporter.log("Step 3 : select criterias in Search Criteria one after other 1. 'Host Name' as 'Contains', 2. 'Device IP' as 'Contains'"+"<br>"); 
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Interface", advanceSearchPage.hostName, "contains", false, null);	
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Interface", advanceSearchPage.primaryIPAddress, "contains", false, null);
+	 	 
+		Reporter.log("Step 4 : Verify Boolean Expression text field contains  A and B or not? :: Expected Should be displayed  "+"<br>");
+		Assert.assertTrue(advanceSearchPage.getBoolenEXpValue().contains("A and B"),"Boolean expression does not contain expressions A and B");
+		 
+		Reporter.log("Step 5  : Verify impact on Boolean Expression upon Deleting 'Device IP' "+"<br>");
+		advanceSearchPage.deleteSearchCriteria("B");
+		common.sleep(3000);
+		
+		 Assert.assertFalse(advanceSearchPage.getBoolenEXpValue().contains("B"),"Boolean expression contains expression B after criteria B is removed");
+		 Reporter.log("===============End Interface_Add_Delete_Criteria====================="+"<br>");
+			
+		}
+	
+	
+	
+	
+	//Module
+	// Module > Verify Conformation popup that should be displayed when we try to add more than 10 search criterias.
+	@Test(enabled = false, groups = {"ART"})	
+	public void Module_10_Criteria(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235456 "+"<br>");
+		Reporter.log("===============Start Module_10_Criteria========================"+"<br>");
+		
+		Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		
+		Navigate.Reports.AdvancedSearch();
+		AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		 
+		 
+		Reporter.log("Step 2 : Select 'Search For' as Module' "+"<br>");
+		advanceSearchPage.searchFor.sendKeys("Module");
+		 advanceSearchPage.Pagetitle.click();
+		common.sleep(6000);
+		
+		Reporter.log("Step 3 : select Search Criteria  Host Name as 'contains' for 10 times"+"<br>"); 
+		for(int i = 0; i<10; i++){
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Module", advanceSearchPage.hostName, "contains", false, null);	
+		}
+				
+		Reporter.log("Step 4 : Try to Add 11th Criteria & verify the conformation pop up  "+"<br>");
+		try {
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Module", advanceSearchPage.hostName, "contains", false, null);
+		common.sleepInSeconds(3);
+		} catch (AssertionError e) {
+			
+		}	
+		
+		Reporter.log("Step 5 : Verify Tilte ::Expected : 'Advanced Search' "+"<br>");
+		Assert.assertTrue(common.checkTitleContains("Advanced Search"),"After alert box is dismissed, Advanced Search form is not displayed");
+		
+		Reporter.log("Step 6 : Verify Boolean Expression text field contains  A and B C and D and E and F and G and H and I and J or not? :: Expected Should be displayed  "+"<br>");
+		Assert.assertTrue(advanceSearchPage.getBoolenEXpValue().contains("A and B and C and D and E and F and G and H and I and J"),"Diagnostic boolean search expression does not contain full expression (for 10 criterias)");
+		
+		Reporter.log("===============End Module_10_Criteria======================="+"<br>");
+	}
+
+	
+	
+	// Search for 'Module' >  Verify Add Criteria & Delete Criteria functionality in Advanced Search page
+	@Test(enabled = false, groups = {"ART"})
+	  public void Module_Add_Delete_Criteria(){
+		
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235457 "+"<br>");
+		Reporter.log("===============Start Module_Add_Delete_Criteria======================="+"<br>");
+		
+		Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		
+		Navigate.Reports.AdvancedSearch();
+		AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		 
+		 
+		Reporter.log("Step 2 : Select 'Search For' as Module' "+"<br>");
+		advanceSearchPage.searchFor.sendKeys("Module");
+		 advanceSearchPage.Pagetitle.click();
+		common.sleep(6000);
+		
+		 Reporter.log("Step 3 : select criterias in Search Criteria one after other 1. 'Host Name' as 'Contains', 2. 'Device IP' as 'Contains'"+"<br>"); 
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Module", advanceSearchPage.hostName, "contains", false, null);	
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Module", advanceSearchPage.primaryIPAddress, "contains", false, null);
+	 	 
+		Reporter.log("Step 4 : Verify Boolean Expression text field contains  A and B or not? :: Expected Should be displayed  "+"<br>");
+		Assert.assertTrue(advanceSearchPage.getBoolenEXpValue().contains("A and B"),"Boolean expression does not contain expressions A and B");
+		 
+		Reporter.log("Step 5  : Verify impact on Boolean Expression upon Deleting 'Device IP' "+"<br>");
+		advanceSearchPage.deleteSearchCriteria("B");
+		common.sleep(3000);
+		
+		 Assert.assertFalse(advanceSearchPage.getBoolenEXpValue().contains("B"),"Boolean expression contains expression B after criteria B is removed");
+		 Reporter.log("===============End Module_Add_Delete_Criteria===================="+"<br>");
+				
+			
+		}
+	
+	
+	//Session
+	// Session > Verify Conformation popup that should be displayed when we try to add more than 10 search criterias.
+	
+	@Test(enabled = false, groups = {"ART"})	
+	  public void Session_10_Criterias(){
+		
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235458 "+"<br>");
+		Reporter.log("===============Start Session_10_Criterias========================"+"<br>");
+		
+		Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		
+		Navigate.Reports.AdvancedSearch();
+		AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		 
+		 
+		Reporter.log("Step 2 : Select 'Search For' as Session' "+"<br>");
+		advanceSearchPage.searchFor.sendKeys("Session");
+		 advanceSearchPage.Pagetitle.click();
+		common.sleep(6000);
+		
+		Reporter.log("Step 3 : select Search Criteria  Host Name as 'contains' for 10 times"+"<br>"); 
+		for(int i = 0; i<10; i++){
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Session", advanceSearchPage.hostName, "contains", false, null);	
+		}
+				
+		Reporter.log("Step 4 : Try to Add 11th Criteria & verify the conformation pop up  "+"<br>");
+		try {
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Session", advanceSearchPage.hostName, "contains", false, null);
+		common.sleepInSeconds(3);
+		} catch (AssertionError e) {
+			
+		}	
+		
+		Reporter.log("Step 5 : Verify Tilte ::Expected : 'Advanced Search' "+"<br>");
+		Assert.assertTrue(common.checkTitleContains("Advanced Search"),"After alert box is dismissed, Advanced Search form is not displayed");
+		
+		Reporter.log("Step 6 : Verify Boolean Expression text field contains  A and B C and D and E and F and G and H and I and J or not? :: Expected Should be displayed  "+"<br>");
+		Assert.assertTrue(advanceSearchPage.getBoolenEXpValue().contains("A and B and C and D and E and F and G and H and I and J"),"Diagnostic boolean search expression does not contain full expression (for 10 criterias)");
+		
+		Reporter.log("===============End Session_10_Criterias======================="+"<br>");	
+		}
+	
+	
+	
+	// Search for 'Session' >  Verify Add Criteria & Delete Criteria functionality in Advanced Search page
+	@Test(enabled = false, groups = {"ART"})
+	 public void Session_Add_Delete_Criteria(){
+		
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235459 "+"<br>");
+		Reporter.log("===============Start Session_Add_Delete_Criteria======================="+"<br>");
+		
+		Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		
+		Navigate.Reports.AdvancedSearch();
+		AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		 
+		 
+		Reporter.log("Step 2 : Select 'Search For' as 'Session' "+"<br>");
+		advanceSearchPage.searchFor.sendKeys("Session");
+		 advanceSearchPage.Pagetitle.click();
+		common.sleep(6000);
+		
+		 Reporter.log("Step 3 : select criterias in Search Criteria one after other 1. 'Host Name' as 'Contains', 2. 'Device IP' as 'Contains'"+"<br>"); 
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Session", advanceSearchPage.hostName, "contains", false, null);	
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Session", advanceSearchPage.primaryIPAddress, "contains", false, null);
+	 	 
+		Reporter.log("Step 4 : Verify Boolean Expression text field contains  A and B or not? :: Expected Should be displayed  "+"<br>");
+		Assert.assertTrue(advanceSearchPage.getBoolenEXpValue().contains("A and B"),"Boolean expression does not contain expressions A and B");
+		 
+		Reporter.log("Step 5  : Verify impact on Boolean Expression upon Deleting 'Device IP' "+"<br>");
+		advanceSearchPage.deleteSearchCriteria("B");
+		common.sleep(3000);
+		
+		 Assert.assertFalse(advanceSearchPage.getBoolenEXpValue().contains("B"),"Boolean expression contains expression B after criteria B is removed");
+		 Reporter.log("===============End Session_Add_Delete_Criteria===================="+"<br>");
+			}
+			
+		
+	//Task
+	
+	// Task > Verify Conformation popup that should be displayed when we try to add more than 10 search criterias.
+	@Test(enabled = false, groups = {"ART"})	
+	public void Task_10_Criteria(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235460 "+"<br>");
+		Reporter.log("===============Start Task_10_Criteria========================"+"<br>");
+		
+		Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		
+		Navigate.Reports.AdvancedSearch();
+		AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		 
+		 
+		Reporter.log("Step 2 : Select 'Search For' as Task' "+"<br>");
+		advanceSearchPage.searchFor.sendKeys("Task");
+		 advanceSearchPage.Pagetitle.click();
+		common.sleep(6000);
+		
+		Reporter.log("Step 3 : select Search Criteria  Host Name as 'contains' for 10 times"+"<br>"); 
+		for(int i = 0; i<10; i++){
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Task", advanceSearchPage.hostName, "contains", false, null);	
+		}
+				
+		Reporter.log("Step 4 : Try to Add 11th Criteria & verify the conformation pop up  "+"<br>");
+		try {
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Task", advanceSearchPage.hostName, "contains", false, null);
+		common.sleepInSeconds(3);
+		} catch (AssertionError e) {
+			
+		}	
+		
+		Reporter.log("Step 5 : Verify Tilte ::Expected : 'Advanced Search' "+"<br>");
+		Assert.assertTrue(common.checkTitleContains("Advanced Search"),"After alert box is dismissed, Advanced Search form is not displayed");
+		
+		Reporter.log("Step 6 : Verify Boolean Expression text field contains  A and B C and D and E and F and G and H and I and J or not? :: Expected Should be displayed  "+"<br>");
+		Assert.assertTrue(advanceSearchPage.getBoolenEXpValue().contains("A and B and C and D and E and F and G and H and I and J"),"Diagnostic boolean search expression does not contain full expression (for 10 criterias)");
+		
+		Reporter.log("===============End Task_10_Criteria======================="+"<br>");	
+	}
+	
+	
+	// Search for 'Task' >  Verify Add Criteria & Delete Criteria functionality in Advanced Search page
+	
+	@Test(enabled = false, groups = {"ART"})
+	 public void Task_Add_Delete_Criteria(){
+		
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235461 "+"<br>");
+		Reporter.log("===============Start Task_Add_Delete_Criteria======================="+"<br>");
+		
+		Reporter.log("Step 1 : Navigate > Reports > AdvancedSearch "+"<br>");
+		
+		Navigate.Reports.AdvancedSearch();
+		AdvanceSearchPage advanceSearchPage = new AdvanceSearchPage();
+		 
+		 
+		Reporter.log("Step 2 : Select 'Search For' as 'Task' "+"<br>");
+		advanceSearchPage.searchFor.sendKeys("Task");
+		 advanceSearchPage.Pagetitle.click();
+		common.sleep(6000);
+		
+		 Reporter.log("Step 3 : select criterias in Search Criteria one after other 1. 'Host Name' as 'Contains', 2. 'Device IP' as 'Contains'"+"<br>"); 
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Task", advanceSearchPage.hostName, "contains", false, null);	
+		advanceSearchPage.enterAdvanceSearchCriteriaAndText("Task", advanceSearchPage.primaryIPAddress, "contains", false, null);
+	 	 
+		Reporter.log("Step 4 : Verify Boolean Expression text field contains  A and B or not? :: Expected Should be displayed  "+"<br>");
+		Assert.assertTrue(advanceSearchPage.getBoolenEXpValue().contains("A and B"),"Boolean expression does not contain expressions A and B");
+		 
+		Reporter.log("Step 5  : Verify impact on Boolean Expression upon Deleting 'Device IP' "+"<br>");
+		advanceSearchPage.deleteSearchCriteria("B");
+		common.sleep(3000);
+		
+		 Assert.assertFalse(advanceSearchPage.getBoolenEXpValue().contains("B"),"Boolean expression contains expression B after criteria B is removed");
+		 Reporter.log("===============End Task_Add_Delete_Criteria===================="+"<br>");
+			}
+			
+		
+	
+	
+	 @AfterMethod(enabled = false, groups = {"BAT", "ART"})
+	  public void logout()
+	  {
+	  	try {
+			login.logOut();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	  
+	  	driver.quit();
+	  	driver=null;
+	  	
+	  }
+}

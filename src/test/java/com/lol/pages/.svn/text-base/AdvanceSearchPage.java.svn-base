@@ -1,0 +1,314 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+public class AdvanceSearchPage extends Page {
+	
+	WebElement table =null;
+	List<WebElement> divs = null;
+	List<WebElement> rows = null;
+	
+	
+	// Web Elements for Compliance
+	public WebElement searchFor =  common.getObjectByName("queryName");
+	public String criteriaTable = "//*[@id='criteria_table']/table/tbody/tr[1]/td";
+	public WebElement expression = driver.findElement(By.xpath("//input[@name='expression']"));
+	public WebElement resetExpression = common.getObjectByXpath("//input[@value='Reset Expression']");
+	public String hostName = "Host Name";
+	public String primaryIPAddress = "Device IP"; 
+	public String DeviceGroupName="Device Group";
+	public String InCompliance = "Compliance";
+	public String ConfigPolicyName = "Policy";
+	public String PolicySiteList = "Partition";
+	public String CVE = "CVE";
+	public String PolicyTagList = "Policy Tag";
+	public String RuleOutOfComplianceDate = "Rule Out Of Compliance Date";
+	public String LastModifiedDate = "Last Checked Date";
+	public String ConfigRuleName = "Rule";
+	public String selectedFields=  common.getObjectByXpath("//select[@title='Select fields to be included in search results']").getAttribute("name").trim();
+	//public String selectedFields = "selectedFields";
+	
+	public String[] defaultSelectedFields = new String[]{hostName,primaryIPAddress,InCompliance,ConfigPolicyName,ConfigRuleName};
+	
+	
+	// Web Elements for ACL
+	public String ACLApplication = "ACL Application";
+	public String ACLConfiguration = "ACL Configuration"; 
+	public String Handle="ACL Handle";
+	public String ACLID = "ACL ID";
+	public String ACLType = "ACL Type";
+	public String UserName = "Changed By";
+	public String Comments = "Comments";
+	public String DeviceID = "Device ID";
+	//public String DeviceIP = "Device IP";
+	public String startDate = "Last Modified";
+	public String MostRecent = "Search Scope";
+	
+	public String[] SelectedFields_ACL= new String[]{hostName,primaryIPAddress,DeviceID,ACLID,Handle,ACLType,ACLConfiguration,ACLApplication,Comments,UserName,startDate};
+	public String[] defaultSelectedFields_ACL= new String[]{hostName,Handle,ACLID,ACLType};
+	//public String[]SortResultsBy_ACL = new String[]{hostName,primaryIPAddress,DeviceID,ACLID,Handle,ACLType,UserName,startDate};
+	// Web Elements for Device
+	public String AccessMethods = "Access Methods";
+	public String AssetTag = "Asset Tag"; 
+	public String ExcludeFromPoll="Change Detection and Polling";
+	public String DataBlock = "Configuration Text";
+	public String StartCreateDate = "Create Date";
+	public String CustomServiceTypes = "Custom Service Type";	
+	public String DeviceName = "Device Description";
+	public String DeviceFamily = "Device Family";
+	public String FirmwareVersion = "Device Firmware Version";
+	public String GeographicalLocation = "Device Location";
+	public String Model = "Device Model";
+	public String SoftwareVersion = "Device Software Version";
+	public String DeviceStatus = "Device Status";
+	public String devicetype = "Device Type";
+	public String Vendor = "Device Vendor";
+	public String Rsdf = "Different Startup/Running";
+	public String drivername = "Driver Name";
+	public String PrimaryFQDN = "FQDN";
+	public String FreePorts = "Free Ports";
+	public String PaddedIp = "IP Address Range";
+	public String StartLastAccessAttemptDate = "Last Access Attempt";
+	public String LastAccessAttemptStatus = "Last Access Result";
+	public String LastSnStartLastSnapshotDate = "Last Changed Time";
+	public String StartLastSnapshotAttemptDate = "Last Snapshot Attempt";
+	public String LastSnapshotAttemptStatus = "Last Snapshot Result";
+	public String StartLastAccessSuccessDate = "Last Successful Attempt";	
+	public String StartLastSuccessfulSnapshotDate = "Last Successful Snapshot";
+	public String ModuleDescription = "Module Description";
+	public String ModuleFirmwareVersion = "Module Firmware Version";
+	public String ModuleHardwareRevision = "Module Hardware Revision";
+	public String ModuleMemory = "Module Memory";
+	public String ModuleModel = "Module Model";
+	public String ModuleSerialNumber = "Module Serial";
+	public String slot = "Module Slot";
+	public String ModuleOS = "Module Software Version";
+	public String PolicyImportance = "Non-Compliant based on Rule Priority";
+	public String ConfigPolicyID = "Non-Compliant with Selected Policies";
+	public String ConfigRuleID = "Non-Compliant with Selected Rules";
+	public String RuleName = "Password Rule";
+	public String FreePortsPercent = "Percentage of Free Ports";
+	public String PortsInUsePercent = "Percentage of Ports In Use";
+	public String PolicyInCompliance = "Policy Compliance";
+	public String PortsInUse = "Ports In Use";
+	public String ROMVersion = "ROM Version";
+	public String SecondaryIP = "Secondary IP Address";
+	public String SerialNumber = "Serial Number";
+	public String ServiceTypes = "Service Type";
+	public String Memory = "System Memory";
+	public String TotalPorts = "Total Ports";
+	public String Uptime = "Uptime";
+	public String StartUptimeStoreDate = "Uptime Stored Date";
+	public String DomainName = "VTP Domain Name";
+	public String OperatingMode = "VTP Operating Mode";
+	public String[] defaultSelectedFields_devics = new String[]{hostName,primaryIPAddress,Vendor,Model};
+	// Web Elements for Configuration
+	public String ConfigText = "Configuration Text";
+	public String date = "Date";
+	
+	public String SearchCurrentConfigOnly = "Search Scope";
+	
+	// Web Elements for Diagnostic
+	
+	public String DiagnosticText = "Diagnostic Text";	
+	public String diagnosticType = "Diagnostic Type";
+	
+	// Web Elements for Event
+	
+	//public String UserName = "Date";
+	public String EventText = "Description";
+	public String Importance = "Importance";
+	public String EventType = "Summary";
+	
+	// Web Elements for Interface
+	public String ConfiguredDuplex = "Configured Duplex";
+	public String ConfiguredSpeed = "Configured Speed";
+	public String Description = "Description";
+	public String NegotiatedDuplex = "Negotiated Duplex";
+	public String IpValue = "Port IP";
+	public String PortName = "Port Name";	
+	public String PortStatus = "Port Status";
+	public String PortType = "Port Type";
+	public String PortState = "Running Port State";
+	public String vlanID = "VLAN ID";
+	public String VlanName = "VLAN Name";
+	
+	// Web Elements for Module
+	
+	public String HardwareRevision = "Module Hardware Revision";
+	
+	// Web Elements for Session
+	
+	public String endDate = "End Date";
+	public String SessionData = "Session Data";
+	public String SessionType = "Session Type";
+	
+	// Web Elements for Task
+	public String ApprovalStatus = "Approval Status";
+	public String ApproveByDate = "Approve By Date";
+	public String startCompleteDate = "Complete Date";
+	public String coreName = "Core";
+	public String Duration = "Duration";
+	public String FailureType = "Failure or Skipped Type";
+	public String Result = "Result";
+	
+	public String RunType = "Run Mode";
+	public String ScheduleDate = "Schedule Date";
+	public String ScheduledBy = "Scheduled By";
+	public String startStartDate = "Start Date";
+	public String StopOnFail = "Stop on Failure Configured";
+	public String scheduleTaskId = "Task ID";
+	public String taskName ="Task Name";
+	public String Priority = "Task Priority";
+	public String Status = "Task Status";
+	public String TaskType = "Task Type";
+	
+	//public WebElement BoolenExpField = common.getObjectByXpath("//*[@id='criteria_table']/table/tbody/tr[4]/td/input[1]");
+	//public WebElement cleartext = common.getObjectByXpath("//*[@id='criteria_table']/table/tbody/tr[4]/td/input[1]");
+	
+	
+	//public  selectedFields = common.getObjectByXpath("//select[@title='Select fields to be included in search results']");
+	
+	
+
+	//public WebElement resetexpression = driver.findElement(By.xpath("//*[@id='advanced_form']/tbody/tr[6]/td/input[2]"));
+	public WebElement Pagetitle= driver.findElement(By.id("PageTitleTop"));
+	
+	public String Partation()
+	{
+		 try {
+			// To get text from 'Boolean Expression' field 'search for' is selected as other than 'Compliance'
+		String SortResult=common.getObjectByXpath(".//*[@id='queryform']//p[1]/select").getAttribute("name").trim();
+		return SortResult;
+				
+			 } catch (AssertionError e) {
+				// To get text from 'Boolean Expression' field 'search for' is selected as 'Compliance'
+				 String Expression=common.getObjectByXpath("").getAttribute("value").trim();
+					return Expression;
+			 }
+		
+	
+	}
+	
+	
+	
+	
+	public String SortResultsBy()
+	{
+		 try {
+			// To get text from 'Boolean Expression' field 'search for' is selected as other than 'Compliance'
+		String SortResult=common.getObjectByXpath(".//*[@id='queryform']//p[1]/select").getAttribute("name").trim();
+		return SortResult;
+				
+			 } catch (AssertionError e) {
+				// To get text from 'Boolean Expression' field 'search for' is selected as 'Compliance'
+				 String Expression=common.getObjectByXpath("").getAttribute("value").trim();
+					return Expression;
+			 }
+		
+	
+	}
+	
+	
+	
+	public void ResetExpression(){
+		
+		 try{
+				// To click on Reset button 'search for' is selected as other than 'Compliance'
+			 driver.findElement(By.xpath("//*[@id='criteria_table']/table/tbody/tr[4]/td/input[2]")).click();
+			 common.sleep(3000);			
+			 }
+			 catch(Exception e){
+				 // To click on Reset button 'search for' is selected as 'Compliance'
+					driver.findElement(By.xpath("//*[@id='advanced_form']/tbody/tr[6]/td/input[2]")).click();
+			 }		
+	}
+	
+	
+	public String getBoolenEXpValue()
+	{
+		 try {
+			// To get text from 'Boolean Expression' field 'search for' is selected as other than 'Compliance'
+		String Expression=common.getObjectByXpath("//*[@id='criteria_table']/table/tbody/tr[4]/td/input[1]").getAttribute("value").trim();
+		return Expression;
+				
+			 } catch (AssertionError e) {
+				// To get text from 'Boolean Expression' field 'search for' is selected as 'Compliance'
+				 String Expression=common.getObjectByXpath("//*[@id='advanced_form']/tbody/tr[6]/td/input[1]").getAttribute("value").trim();
+					return Expression;
+			 }
+		
+	
+	}
+	
+	public void enterAdvanceSearchCriteriaAndText(String searchFor, String criteriaName, String valuationCriteria, boolean enterText, String value)
+	{
+		
+		if(searchFor.equalsIgnoreCase("Compliance"))
+		{
+		common.selectOption("fieldList", criteriaName);
+		common.sleep(2000);
+		common.getObjectByXpath("//div[@ id = 'criteria_table']//b[text()='"+criteriaName+"']/../../..//td[2]/select[@class='FormField']")
+		.sendKeys("contains");
+		common.sleep(2000);
+		if(enterText){
+			common.getObjectByXpath("//div[@ id = 'criteria_table']//b[text()='"+criteriaName+"']/../../..//td[3]/input").sendKeys(value);
+		}
+		}else
+		{
+			common.selectOption("addCriteria", criteriaName);
+			common.sleep(2000);
+			
+			String rowName = common
+					.getObjectByXpath(
+							"(//b[text() = '" + criteriaName
+									+ "']/preceding-sibling::input[1])[last()]")
+					.getAttribute("value").toString();
+			int number = NAUtils.advanceSearchRowNumber(rowName);
+			common.getObjectByName("expressions[" + number + "].operationName")
+					.sendKeys(valuationCriteria);
+			common.sleep(2000);
+			if(enterText){
+				common.getObjectByName("expressions[" + number + "].values").sendKeys(
+					value);
+			}
+		}
+		
+			
+		}
+
+
+/*	public List<WebElement> getBoolenEXpValue1() {
+		// TODO Auto-generated method stub
+		return null;
+	}*/
+	
+	public void deleteSearchCriteria(String searchCriterialetter)
+	{
+		
+		
+		 table = common.getObjectById("criteria_table");;
+		 rows = driver.findElements(By.tagName("tr"));		
+		 try {
+			//Delete a Search Criteria  when 'Search for' is selected as other than Compliance 
+			for(int i=1;i<rows.size();i++){			
+				if(common.getObjectByXpath("//*[@id='criteria_table']//tr["+i+"]//div[1]/span[1]").getText().trim().equals(searchCriterialetter)){
+					common.getObjectByXpath("//*[@id='criteria_table']//tr["+i+"]//div[1]/span[2]").click();
+					break;
+				}		
+				}
+		} catch (AssertionError e) {
+			//Delete a Search Criteria  when 'Search for' is selected as Compliance 
+			for(int i=1;i<rows.size();i++){			
+				if(common.getObjectByXpath("//*[@id='criteria_table']//div["+i+"]//div[1]/span[1]").getText().trim().equals(searchCriterialetter)){
+					common.getObjectByXpath("//*[@id='criteria_table']//div["+i+"]//div[1]/span[2]").click();
+					break;
+				}		
+				}
+		}
+	}
+
+}

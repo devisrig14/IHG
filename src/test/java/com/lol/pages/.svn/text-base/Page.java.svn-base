@@ -1,0 +1,33 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import test.java.com.hp.fc.usa.nmc.na.tests.TestExecutor;
+
+
+public abstract class Page extends TestExecutor{
+
+	// Save button in any page
+	public void save(){
+		common.getObjectByXpath("//input[@value='Save']").click();
+	}
+	
+	// Cancel button in any page
+	public void cancel(){
+		common.getObjectByXpath("//input[@value='Cancel']").click();
+	}
+	
+	// Info page message comparison
+	public boolean pageInfoBoxContains(String str){
+			
+		WebElement wb = driver.findElement(By.id("InfoBox"));
+		if(wb == null || !wb.isDisplayed()){
+			wb = driver.findElement(By.name("InfoBox"));
+		}
+		System.out.println("infor boz "+wb.getText());	
+		return wb.getText().toLowerCase().contains(str.toLowerCase());
+	}
+	
+	
+}

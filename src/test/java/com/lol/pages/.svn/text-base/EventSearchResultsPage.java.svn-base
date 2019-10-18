@@ -1,0 +1,32 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+public class EventSearchResultsPage extends Page {
+	//public String searchForEventResultsTable ="//table[@class='TableBorder']";
+	
+	WebElement table =null;
+	List<WebElement> rows = null;
+	
+	public String getEventDate(String userName)
+	{				
+		String EventDateAndTime = null;
+		table = common.getObjectByXpath("//table[@ class='TableBorder']");
+		rows = driver.findElements(By.tagName("tr"));
+		System.out.println(rows.size());
+		for(int i=2;i<rows.size();i++)
+		{
+			System.out.println(common.getObjectByXpath("//table[@ class='TableBorder']/tbody/tr["+i+"]/td[5]").getText());
+			if(common.getObjectByXpath("//table[@ class='TableBorder']/tbody/tr["+i+"]/td[5]").getText().trim().equals(userName))
+			{
+				System.out.println(common.getObjectByXpath("//table[@ class='TableBorder']/tbody/tr["+i+"]/td[2]").getText());
+				EventDateAndTime = common.getObjectByXpath("//table[@ class='TableBorder']/tbody/tr["+i+"]/td[2]").getText().trim();	
+				break;				
+			}
+		}
+		return EventDateAndTime;
+	}		
+}

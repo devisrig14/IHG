@@ -1,0 +1,287 @@
+package test.java.com.hp.fc.usa.nmc.na.tests;
+
+import java.io.IOException;
+import java.util.List;
+
+import junit.framework.Assert;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import test.java.com.hp.fc.usa.nmc.na.pages.AdminSettingsDeviceAccessPage;
+import test.java.com.hp.fc.usa.nmc.na.pages.RebootDeviceTaskPage;
+import test.java.com.hp.fc.usa.nmc.na.pages.TaskInformationPage;
+import test.java.com.hp.fc.usa.nmc.na.pages.TaskNewEditPage;
+
+public class RebootCompleteAfterPingTest extends TestExecutor{
+
+	WebElement table=null;
+	List<WebElement> rows = null;
+	
+	@Before
+	public void startTest() throws IOException{
+		initialize();
+		
+		driver.get("http://"+System.getProperty("naIpAddress"));
+		
+		login.loginAsUser("admin");
+		if(!isLoggedIn){
+			System.out.println("Invalid Username/password");
+			Assert.assertTrue("Not able to login to NA Server", false);
+			// report error
+		}
+		driver.manage().window().maximize();
+	}
+	
+	/* ALM Manual Test case location 
+	 *
+	 * td://nmc.bto.qc2d.atlanta.hp.com/qcbin/TestPlanModule-00000000395028973?EntityType=ITest&EntityID=186270
+	 * 
+	 * 
+	 */
+	//@Ignore
+	@Test
+	public void testEnableVerifyRebootCompletionFromAdminSettings_001(){
+		
+		
+		System.out.println("============ALM - Test Case ID- 186270===Start testEnableVerifyRebootCompletionFromAdminSettings_001========================");
+		
+		// Step 1 and 2 
+		System.out.println("***********Step 1 and 2**********");
+		
+		NAUtils.disableVerifyRebootCompletion();
+		NAUtils.enableVerifyRebootCompletion();
+		
+		// Step 3
+		System.out.println("***********Step 3**********");
+		Navigate.Tasks.NewTasks.rebootDevice();
+		RebootDeviceTaskPage rebootTask = new RebootDeviceTaskPage();
+		Assert.assertTrue("Reboot completion task not selected ", rebootTask.verifyRebootCompletion.isSelected());
+		
+		System.out.println("===============End testEnableVerifyRebootCompletionFromAdminSettings_001========================");
+		
+	}
+	
+	//@Ignore
+	@Test
+	public void testDisableVerifyRebootCompletionFromAdminSettings_002(){
+		
+		System.out.println("===============Start testDisableVerifyRebootCompletionFromAdminSettings_002========================");
+		
+		// Step 1 and 2 
+		System.out.println("***********Step 1 and 2**********");
+		
+		NAUtils.enableVerifyRebootCompletion();
+		NAUtils.disableVerifyRebootCompletion();
+				
+		// Step 3
+		System.out.println("***********Step 3**********");
+		Navigate.Tasks.NewTasks.rebootDevice();
+		RebootDeviceTaskPage rebootTask = new RebootDeviceTaskPage();
+		Assert.assertFalse("Reboot completion task selected ", rebootTask.verifyRebootCompletion.isSelected());
+		
+		System.out.println("===============End testDisableVerifyRebootCompletionFromAdminSettings_002========================");
+	}
+	
+		
+	//@Ignore
+	@Test
+	public void testTryRebootTaskOnSingleDeviceWithVerifyRebootEnabled_004(){
+		
+		System.out.println("===============Start testTryRebootTaskOnSingleDeviceWithVerifyRebootEnabled_004========================");
+				
+		String[] deviceIpAndID = common.getDeviceIpAndID().split(":");
+		int deviceID = Integer.parseInt(deviceIpAndID[1]);
+		
+		Navigate.Tasks.NewTasks.rebootDevice();
+		TaskNewEditPage task = new TaskNewEditPage();
+				
+		common.addDeviceToDeviceSelector(new int[]{deviceID});
+		common.selectCheckBox(By.name(task.verifyRebootCompletion));
+		//task.verifyRebootCompletion.click();
+		
+		common.save();
+		//common.handleAlert(true);
+		common.sleepInSeconds(1);
+		common.clickYes();
+		
+		String taskResult = common.getNATaskResult(200).toString();
+		
+		Assert.assertTrue("Reboot Task on Single Device not succedded", taskResult.equals("Succeeded"));
+		
+		
+		System.out.println("===============End testTryRebootTaskOnSingleDeviceWithVerifyRebootEnabled_004========================");
+	}
+	
+	//@Ignore
+	@Test
+	public void testTryRebootTaskOnMultipleDeviceWithVerifyRebootEnabled_005(){
+		
+		System.out.println("===============Start testTryRebootTaskOnMultipleDeviceWithVerifyRebootEnabled_005========================");
+				
+		int[]  deviceIDs = common.getDeviceIDs(2, true);
+		
+		Navigate.Tasks.NewTasks.rebootDevice();
+		TaskNewEditPage task = new TaskNewEditPage();
+		
+		common.addDeviceToDeviceSelector(deviceIDs);
+		common.selectCheckBox(By.name(task.verifyRebootCompletion));
+		//task.verifyRebootCompletion.click();
+		
+		common.save();
+		//common.handleAlert(true);
+		common.sleepInSeconds(1);
+		common.clickYes();
+		
+		String taskResult = common.getNATaskResult(200).toString();
+		Assert.assertTrue("Reboot Task on Multiple Devices not succedded", taskResult.equals("Succeeded"));
+		
+		
+		System.out.println("===============End testTryRebootTaskOnMultipleDeviceWithVerifyRebootEnabled_005========================");
+	}
+	
+	//@Ignore
+	@Test
+	public void testRebootTaskAsPartOfUpgradeSoftware_010() throws Exception{
+		
+		System.out.println("===============Start testRebootTaskAsPartOfUpgradeSoftware_010========================");
+		
+		String deviceIPAndID[] = common.getDeviceIpAndID().split(":");
+		String deviceIP = deviceIPAndID[0];
+		int deviceID[] = new int[]{Integer.parseInt(deviceIPAndID[1])};
+		
+		Navigate.Tasks.NewTasks.rebootDevice();
+		TaskNewEditPage task = new TaskNewEditPage();
+		
+		common.addDeviceToDeviceSelector(deviceID);
+		common.selectCheckBox(By.name(task.verifyRebootCompletion));
+		//task.verifyRebootCompletion.click();
+		common.getObjectByName(task.rebootTimeout).clear();
+		common.getObjectByName(task.rebootTimeout).sendKeys("100");
+		
+		common.save();
+		//common.handleAlert(true);
+		
+		common.sleepInSeconds(1);
+		common.clickYes();
+		
+		String taskResult = common.getNATaskResult(100).toString();
+		Assert.assertTrue("Reboot Task on Single Device succedded", common.checkDeviceReachability(deviceIP) && taskResult.equals("Succeeded"));
+		
+		TaskInformationPage taskInfo = new TaskInformationPage();
+		common.getObjectByLinkText(taskInfo.runAgain).click();
+		
+		task = new TaskNewEditPage();
+		common.getObjectByName(task.rebootTimeout).clear();
+		common.getObjectByName(task.rebootTimeout).sendKeys("120");
+		
+		common.save();
+	//	common.handleAlert(true);
+		common.sleepInSeconds(1);
+		common.clickYes();
+		
+		taskResult = common.getNATaskResult(100).toString();
+		Assert.assertTrue("Reboot Task on Single Device succedded", common.checkDeviceReachability(deviceIP) && taskResult.equals("Succeeded"));
+		
+		System.out.println("===============End testRebootTaskAsPartOfUpgradeSoftware_010========================");
+		
+	}
+	
+	//@Ignore
+	@Test
+	public void testCancelTheRebootTaskWithVerifyRebootEnabledAsSoonAsDeviceShowsPingFailure_025(){
+		
+		System.out.println("===============Start testCancelTheRebootTaskWithVerifyRebootEnabledAsSoonAsDeviceShowsPingFailure_025========================");
+		
+		String deviceIPAndID[] = common.getDeviceIpAndID(true).split(":");
+		String deviceIP = deviceIPAndID[0];
+		int deviceID[] = new int[]{Integer.parseInt(deviceIPAndID[1])};
+		
+		Navigate.Tasks.NewTasks.rebootDevice();
+		TaskNewEditPage task = new TaskNewEditPage();
+		
+		
+		common.addDeviceToDeviceSelector(deviceID);
+		common.selectCheckBox(By.name(task.verifyRebootCompletion));
+		//task.verifyRebootCompletion.click();
+		common.getObjectByName(task.rebootTimeout).clear();
+		common.getObjectByName(task.rebootTimeout).sendKeys("120");
+		
+		common.save();
+	//	common.handleAlert(true);
+		common.sleepInSeconds(1);
+		common.clickYes();
+		
+		TaskInformationPage taskInfo = new TaskInformationPage();
+		
+		Assert.assertTrue("Device is shutdown successfully ",common.deviceReachabilityAfterRestartCheck(deviceIP,120).toString().toLowerCase().trim().equals("success"));
+		
+		// cancel the running task
+		common.getObjectByLinkText(taskInfo.cancelTask).click();
+		Assert.assertTrue("Not able to cancel the task ", common.pageInfoBoxContains("Task cancellation initiated."));
+		
+		Assert.assertTrue("Device is restarted successfully ",common.deviceReachabilityAfterRestartCheck(deviceIP,120).toString().toLowerCase().trim().equals("success"));
+		
+		
+		System.out.println("===============End testCancelTheRebootTaskWithVerifyRebootEnabledAsSoonAsDeviceShowsPingFailure_025========================");
+	}
+	
+	//@Ignore
+	@Test
+	public void testOnlyAdminAndPowerUsersCouldChangeTheSettingForDeviceReachability_022(){
+		
+		System.out.println("===============Start testOnlyAdminAndPowerUsersCouldChangeTheSettingForDeviceReachability_022========================");
+		
+		String powerUser = NAUtils.addUser(new String[]{"Power User"});
+		Assert.assertTrue(login.loginAsUser(powerUser));
+		
+		Navigate.Admin.AdminSettings.deviceAccess();
+		AdminSettingsDeviceAccessPage deviceAccessPage = new AdminSettingsDeviceAccessPage();
+		deviceAccessPage.deviceReachability.click();
+		common.getObjectByXpath("//input[@type='submit' and @value='Save']").click();
+		
+		Assert.assertTrue("Power user not able to set the device reachability settings ", common.pageInfoBoxContains("Setting values have been saved."));
+		
+		System.out.println("===============End testOnlyAdminAndPowerUsersCouldChangeTheSettingForDeviceReachability_022========================");
+		
+		
+	}
+	
+	//@Ignore
+	@Test
+	public void testLimitedAndFullAccessUserShouldNotHaveAccessToChangeTheSettingForDeviceReachability_023(){
+		
+		System.out.println("===============Start testLimitedAndFullAccessUserShouldNotHaveAccessToChangeTheSettingForDeviceReachability_023========================");
+		
+		String limitedUser = NAUtils.addUser(new String[]{"Limited Access User"});
+		Assert.assertTrue(login.loginAsUser(limitedUser));
+		
+		
+		
+		Navigate.Admin.AdminSettings.deviceAccess();
+		Assert.assertFalse("Limited User doesnt have permission to view Device Access Page ", common.checkTitle("HP Network Automation: Administrative Settings"));
+		
+		login.asAdmin();
+		
+		String fullUser = NAUtils.addUser(new String[]{"Full Access User"});
+		
+		Assert.assertTrue(login.loginAsUser(fullUser));
+		
+		Navigate.Admin.AdminSettings.deviceAccess();
+		Assert.assertFalse("Limited User doesnt have permission to view Device Access Page ", common.checkTitle("HP Network Automation: Administrative Settings"));
+		
+		System.out.println("===============End testLimitedAndFullAccessUserShouldNotHaveAccessToChangeTheSettingForDeviceReachability_023========================");
+		
+		
+	}
+	 @After
+	 public void logout(){
+			login.logOut();
+			
+		}
+		
+}

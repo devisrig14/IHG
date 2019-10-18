@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<common>
+  <device_password_rules>
+  <!-- <rule type="network"
+          ruleName="Manager"
+          userName="Manager"
+          password="rnetpa55"
+          enablePassword="rnetpa55"
+          snmpReadCommunity="public"
+          snmpReadWriteCommunity="private"
+          snmpV3Username="Manager"
+          snmpV3AuthenticationPassword="rnetpa55"
+          snmpV3EncryptionPassword="rnetpa55">
+          
+          </rule> -->
+          
+     <rule type="network" 
+     	   ruleName="manager"
+     	   userName="manager" 
+           password="simpass100" 
+           enablePassword="simpass100" 
+           snmpReadCommunity="ntcpublic" 
+           snmpReadWriteCommunity="netman"
+           snmpV3Username="nasnmpv3"  
+           snmpV3AuthenticationPassword="nasnmpv3-pass" 
+           snmpV3EncryptionPassword="nasnmpv3-pass" > 
+           
+           </rule>
+          
+ </device_password_rules>
+  
+  
+  <devices_list>
+  
+    <device  hostname="3500XL" ip="44.50.100.1" ruleName="manager" pool="A" mgmtIP="50.186.30.154"/>
+    <device hostname="VTPLAB-c2950-SRV" ip="44.50.100.4" ruleName="manager" pool="C" mgmtIP="192.168.5.6"/>
+    <device hostname="C3560" ip="44.50.100.5" ruleName="manager" pool="D" mgmtIP="192.168.5.3"/>
+    <device hostname="VTPLAB-C2900XL-CLNT" ip="44.50.100.3" ruleName="manager" pool="B"/>
+  <!--  
+  	<device hostname="Cisco_2980G-A-78" ip="16.78.58.126" ruleName="Manager"/>
+  	<device hostname="Cat6513" ip="16.78.58.168" ruleName="Manager"/>
+ 	<device hostname="Lab-2821-ISR-t1" ip="16.78.58.25" ruleName="Manager"/>
+    <device hostname="Lab-C3500XL-02" ip="16.78.58.21" ruleName="Manager"/>
+	<device hostname="WS-3560-24PS" ip="16.78.58.44" ruleName="Manager"/>
+    <device hostname="Lab-VPN3005-02" ip="16.78.58.24" ruleName="Manager"/>
+    <device hostname="VTPLAB-c2950-SRV" ip="16.78.58.33" ruleName="Manager"/>
+	<device hostname="VTPLAB-C2900XL-CLNT" ip="16.78.58.34" ruleName="Manager"/>
+    <device hostname="lab-c2924xl-01" ip="16.78.58.22" ruleName="Manager"/>
+    <device hostname="Lab-C2924XL-02" ip="16.78.58.23" ruleName="Manager"/>
+    <device hostname="Lab-VPN3005-02" ip="16.78.58.24" ruleName="Manager"/>
+    <device hostname="c3550-demo" ip="16.78.58.123" ruleName="Manager"/>
+    <device hostname="c-3560-demo" ip="16.78.58.124" ruleName="Manager"/>
+    <device hostname="c-2960-demo" ip="16.78.58.125" ruleName="Manager"/>
+    <device hostname="Lab-C3500XL-01" ip="16.78.58.20" ruleName="Manager"/>  
+    <device hostname="7200_vadim" ip="172.24.150.33" ruleName="Manager"/>
+    <device hostname="7200_nice" ip="172.24.150.34" ruleName="Manager"/>
+   --> 
+    
+  </devices_list>
+</common>

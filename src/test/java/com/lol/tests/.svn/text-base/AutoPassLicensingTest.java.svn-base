@@ -1,0 +1,216 @@
+package test.java.com.hp.fc.usa.nmc.na.tests;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import junit.framework.Assert;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.openqa.selenium.WebElement;
+
+import test.java.com.hp.fc.usa.nmc.na.utils.Common.LicenseInformation;
+
+public class AutoPassLicensingTest extends TestExecutor {
+
+	WebElement table=null;
+	List<WebElement> rows = null;
+	Calendar cal = null;
+	Date date = null;
+	
+	@Before
+	public void startTest() throws IOException{
+		initialize();
+		
+		driver.get("http://"+System.getProperty("naIpAddress"));
+		
+		login.loginAsUser("admin");
+		if(!isLoggedIn){
+			System.out.println("Invalid Username/password");
+			Assert.assertTrue("Not able to login to NA Server", false);
+			// report error
+		}
+		driver.manage().window().maximize();
+	}
+	
+	
+	/*@Test
+	public void test_a_DefaultLicense(){
+		Assert.assertTrue(
+				"Default licisen is not 250",
+				common.getLicenseDetailsFromNA(
+						LicenseInformation.NumberOfNodesLicensed).equals("250"));
+		Assert.assertTrue("License type is not Default Ultimate",
+				common.getLicenseDetailsFromNA(LicenseInformation.Feature)
+						.equals("Ultimate"));
+		
+	}*/
+	/* Added single Test for all the below ignored tagged test because due to random selection of
+	 * execution , most of the test case were failing hence add all the scenarios in a single test
+	 */
+	
+	//@Ignore
+	@Test
+	public void test_UpdateFirstPremiumThenUltimateLicense() {
+		
+		// Verify InstantON License
+		Assert.assertTrue("On InstantOn license, number of Licensed node count is not 250 ",common.getLicenseDetailsFromNA(LicenseInformation.NumberOfNodesLicensed).equals("250"));
+		Assert.assertTrue("License type is not Ultimate",common.getLicenseDetailsFromNA(LicenseInformation.Feature).equals("Ultimate"));
+		
+		// Upload Premium license 
+		Assert.assertTrue("License update failed for Premium license ",common.updateLicense(common.getPremiumPack1_50()));
+		Assert.assertTrue("Not able to update number of Licensed node count of Premium License",common.getLicenseDetailsFromNA(LicenseInformation.NumberOfNodesLicensed).equals("50"));
+		Assert.assertTrue("License type is not Premium",common.getLicenseDetailsFromNA(LicenseInformation.Feature).equals("Premium"));
+		
+		// Again Upload Premium license- check licensed node count got added from previous license  
+		Assert.assertTrue("License update failed for Premium license ",common.updateLicense(common.getPremiumPack2_50()));
+		Assert.assertTrue("Not able to update number of Licensed node count of Premium License",common.getLicenseDetailsFromNA(LicenseInformation.NumberOfNodesLicensed).equals("100"));
+		Assert.assertTrue("License type is not Premium",common.getLicenseDetailsFromNA(LicenseInformation.Feature).equals("Premium"));
+		
+		// Upload Ultimate license 
+		
+		Assert.assertTrue("License update failed for Ultimate license ",common.updateLicense(common.getUltimatePack1_50()));
+		Assert.assertTrue("Not able to update number of Licensed node count of Ultimate License",common.getLicenseDetailsFromNA(LicenseInformation.NumberOfNodesLicensed).equals("50"));
+		Assert.assertTrue("License type is not Ultimate",common.getLicenseDetailsFromNA(LicenseInformation.Feature).equals("Ultimate"));
+		
+		// Uplaod Premium license and verify that Ultimate license remains unchanged , not degradation takes place
+		Assert.assertTrue("License update failed for Ultimate license ",common.updateLicense(common.getPremiumPack3_50()));
+		Assert.assertTrue("Not able to update number of Licensed node count of Ultimate License",common.getLicenseDetailsFromNA(LicenseInformation.NumberOfNodesLicensed).equals("50"));
+		Assert.assertTrue("License type is not Ultimate",common.getLicenseDetailsFromNA(LicenseInformation.Feature).equals("Ultimate"));
+		
+		// Add 500 nodes with Ultimate license 
+		
+		Assert.assertTrue("License update failed for Ultimate license ",common.updateLicense(common.getUltimatePack2_500()));
+		Assert.assertTrue("Not able to update number of Licensed node count of Ultimate License",common.getLicenseDetailsFromNA(LicenseInformation.NumberOfNodesLicensed).equals("550"));
+		Assert.assertTrue("License type is not Ultimate",common.getLicenseDetailsFromNA(LicenseInformation.Feature).equals("Ultimate"));
+				
+		
+	}
+/*
+	@Ignore
+	@Test
+	public void test_a_EvalLicense_10() {
+		Assert.assertTrue("License update failed for Evaluation",
+				common.updateLicense(common.getEvalLicense_10()));
+		Assert.assertTrue(
+				"Not able to update Eval License",
+				common.getLicenseDetailsFromNA(
+						LicenseInformation.NumberOfNodesLicensed).equals("10"));
+		Assert.assertTrue("License type is not Evaluation",
+				common.getLicenseDetailsFromNA(LicenseInformation.Feature)
+						.equals("Ultimate"));
+		
+	}
+
+	@Ignore
+	@Test
+	public void test_b_EvalLicense_15() {
+		Assert.assertTrue("License update failed for Evaluation",
+				common.updateLicense(common.getEvalLicense_15()));
+		Assert.assertTrue(
+				"Not able to update Eval License",
+				common.getLicenseDetailsFromNA(
+						LicenseInformation.NumberOfNodesLicensed).equals("15"));
+		Assert.assertTrue("License type is not Evaluation",
+				common.getLicenseDetailsFromNA(LicenseInformation.Feature)
+						.equals("Ultimate"));
+
+	}
+	
+	@Ignore
+	@Test
+	public void test_c_PermLicense_200(){
+		Assert.assertTrue("License update failed for Permanent",
+				common.updateLicense(common.getPremLicense_200()));
+		Assert.assertTrue(
+				"Not able to update Perm License",
+				common.getLicenseDetailsFromNA(
+						LicenseInformation.NumberOfNodesLicensed).equals("200"));
+		Assert.assertTrue("License type is not Premium",
+				common.getLicenseDetailsFromNA(LicenseInformation.Feature)
+						.equals("Premium"));
+		Assert.assertTrue("Error validating license expiration", common
+				.getLicenseDetailsFromNA(LicenseInformation.LicenseExpiration)
+				.equals("Never"));
+	}
+	
+	@Ignore
+	@Test
+	public void test_d_PermLicense_650(){
+		Assert.assertTrue("License update failed for Permanent",
+				common.updateLicense(common.getPremLicense_650()));
+		Assert.assertTrue(
+				"Not able to update Perm License",
+				common.getLicenseDetailsFromNA(
+						LicenseInformation.NumberOfNodesLicensed).equals("850"));
+		Assert.assertTrue("License type is not Premium",
+				common.getLicenseDetailsFromNA(LicenseInformation.Feature)
+						.equals("Premium"));
+		Assert.assertTrue("Error validating license expiration", common
+				.getLicenseDetailsFromNA(LicenseInformation.LicenseExpiration)
+				.equals("Never"));
+	}
+	
+	@Ignore
+	@Test
+	public void test_e_UltLicense_50(){
+		Assert.assertTrue("License update failed for Ultimate",
+				common.updateLicense(common.getUltLicense_50()));
+		Assert.assertTrue(
+				"Not able to update Perm License",
+				common.getLicenseDetailsFromNA(
+						LicenseInformation.NumberOfNodesLicensed).equals("50"));
+		Assert.assertTrue("License type is not Ultimate",
+				common.getLicenseDetailsFromNA(LicenseInformation.Feature)
+						.equals("Ultimate"));
+		Assert.assertTrue("Error validating license expiration", common
+				.getLicenseDetailsFromNA(LicenseInformation.LicenseExpiration)
+				.equals("Never"));
+	}
+	
+	@Ignore
+	@Test
+	public void test_f_UltLicense_200(){
+		Assert.assertTrue("License update failed for Ultimate",
+				common.updateLicense(common.getUltLicense_200()));
+		Assert.assertTrue(
+				"Not able to update Perm License",
+				common.getLicenseDetailsFromNA(
+						LicenseInformation.NumberOfNodesLicensed).equals("250"));
+		Assert.assertTrue("License type is not Ultimate",
+				common.getLicenseDetailsFromNA(LicenseInformation.Feature)
+						.equals("Ultimate"));
+		Assert.assertTrue("Error validating license expiration", common
+				.getLicenseDetailsFromNA(LicenseInformation.LicenseExpiration)
+				.equals("Never"));
+	}
+	
+   @Ignore
+	@Test
+	public void test_g_UltLicense_250(){
+		Assert.assertTrue("License update failed for Ultimate",
+				common.updateLicense(common.getUltLicense_250()));
+		Assert.assertTrue(
+				"Not able to update Perm License",
+				common.getLicenseDetailsFromNA(
+						LicenseInformation.NumberOfNodesLicensed).equals("500"));
+		Assert.assertTrue("License type is not Ultimate",
+				common.getLicenseDetailsFromNA(LicenseInformation.Feature)
+						.equals("Ultimate"));
+		Assert.assertTrue("Error validating license expiration", common
+				.getLicenseDetailsFromNA(LicenseInformation.LicenseExpiration)
+				.equals("Never"));
+	}
+	
+*/
+   @After
+   public void logout(){
+	   login.logOut();
+ 			
+ 	}
+	
+}

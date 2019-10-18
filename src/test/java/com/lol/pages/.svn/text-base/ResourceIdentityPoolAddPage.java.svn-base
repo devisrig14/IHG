@@ -1,0 +1,15 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import org.openqa.selenium.WebElement;
+
+public class ResourceIdentityPoolAddPage extends Page{
+
+	public WebElement resourceIDPoolName = common.getObjectByName("resourceIDPoolName");
+	public WebElement resourceIDPoolDesc = common.getObjectByName("resourceIDPoolDescription");
+	public WebElement securityPartition = common.getObjectByName("siteID");
+	public WebElement candidateCustFieldID = common.getObjectByName("candidateCustFieldID");
+	public WebElement chosenCustFieldID = common.getObjectByName("chosenCustFieldID");
+	
+	public WebElement addButton = common.getObjectByXpath("//input[@value='<< Add']");
+	public WebElement removeButton = common.getObjectByXpath("//input[@value='Remove >>']");
+}

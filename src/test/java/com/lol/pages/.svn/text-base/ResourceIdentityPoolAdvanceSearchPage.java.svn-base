@@ -1,0 +1,29 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+public class ResourceIdentityPoolAdvanceSearchPage extends Page{
+
+	public WebElement searchFor =  common.getObjectByName("queryName");
+	public String criteriaTable = "html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr[4]/td/table/tbody/tr/td/div/table/tbody/tr[1]/td/table";
+	public WebElement expression = driver.findElement(By.xpath("//input[@name='expression']"));
+	public WebElement resetExpression = common.getObjectByXpath("//input[@value='Reset Expression']");
+	public String selectedFields = "selectedFields";
+	public WebElement sortBy = common.getObjectByName("sortBy");
+	public WebElement sortByAscending = common.getObjectById("ascending_enabled");
+	public WebElement sortByDescending = common.getObjectById("descending_enabled");
+	public WebElement pageSize = common.getObjectByName("pageSize");
+	public String createDate = "Create Date";
+	public String createdByUserName = "Created By";
+	public String description = "Description";
+	public String lastModifiedBy = "Last Modified By";
+	public String lastModifiedDate = "Last Modified Date";
+	public String partition = "Partition";
+	public String poolName = "Pool";
+	public String resourceIdentity = "Resource Identity";
+	public String status = "Status";
+	public String[] defaultSelectedFields = new String[]{resourceIdentity,status,poolName,partition};
+	
+		
+}

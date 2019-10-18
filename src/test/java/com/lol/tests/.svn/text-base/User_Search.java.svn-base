@@ -1,0 +1,1420 @@
+package test.java.com.hp.fc.usa.nmc.na.tests;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.testng.Assert;
+import org.testng.AssertJUnit;
+import org.testng.Reporter;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Listeners;
+import org.testng.annotations.Test;
+
+import test.java.com.hp.fc.usa.nmc.na.listener.GenerateCustomReport;
+import test.java.com.hp.fc.usa.nmc.na.pages.AdminSettings_UserAuthentication;
+import test.java.com.hp.fc.usa.nmc.na.pages.SearchFor_Users_Listing_Page;
+import test.java.com.hp.fc.usa.nmc.na.pages.SearchFor_Users_Page;
+import test.java.com.hp.fc.usa.nmc.na.pages.UsersListingPage;
+import test.java.com.hp.fc.usa.nmc.na.pages.UsersSearchPage;
+import test.java.com.hp.fc.usa.nmc.na.utils.Common;
+
+@Listeners(GenerateCustomReport.class)
+public class User_Search extends TestExecutor
+{
+	WebElement table=null;
+	List<WebElement> rows = null;
+	String SearchWith;
+	
+	@BeforeMethod(enabled = true, groups = {"BAT", "ART"})
+	public void startTest() throws IOException, InterruptedException{
+		initialize();
+		
+		driver.get("http://"+System.getProperty("naIpAddress"));
+		
+		if(common.checkExistenceOfOverridelink())
+		{
+			common.getObjectById("overridelink").click();
+			Thread.sleep(3000);			
+		}
+		//driver.navigate().to("javascript:document.getElementById('overridelink').click();");
+		
+		login.loginAsUser("admin");
+		if(!isLoggedIn){
+			System.out.println("Invalid Username/password");
+			Assert.assertTrue( false,"Not able to login to NA Server");
+			// report error
+		}
+		driver.manage().window().maximize();
+		
+	}
+	
+	
+	
+	@Test(enabled = true, groups = {"ART"})
+	public void User_Search_Basic_Functionality()
+	{
+		Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+		Reporter.log("===============SUser_Search_Basic_Functionality========================"+"<br>");
+		
+		Reporter.log("Step 1: Create User with Random First Name"+"<br>");
+		String random = String.format( RandomStringUtils.randomNumeric(5));;
+		String firstName = "AutomationFN"+random;			
+		String lastName = "AutomationLN"+random;
+		String userName = "AutomationUN"+random;
+		String emailAddress = userName+"@hpna.com";
+		String AAAUserName = "AutomationAAUN"+random;		
+		
+		NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+		
+		Navigate.Reports.SearchFor.Users();
+        common.search();
+        Assert.assertTrue(common.checkTitleContains("User Search Results"), "'User Search Results' page is not seen");
+        
+        Navigate.Reports.SearchFor.Users(); 
+        SearchFor_Users_Page SearchFor_Users_Page = new SearchFor_Users_Page();
+        WebElement table = SearchFor_Users_Page.table;
+      	common.uncheckAllCheckboxes(table);
+		common.checkAllCheckboxes(table);
+    	common.search();
+    	
+    	Assert.assertTrue(common.checkTitleContains("User Search Results"), "'User Search Results' page is not seen");
+	       
+		Navigate.Reports.SearchFor.Users();
+		SearchFor_Users_Page SearchFor_Users_Page2 = new SearchFor_Users_Page();
+		WebElement table2 = SearchFor_Users_Page2.table;		
+		common.uncheckAllCheckboxes(table2);		
+		SearchFor_Users_Page2.firstNameCheckBox.click();
+		common.sleep(3000);		
+		SearchFor_Users_Page2.firstNameOperationName.sendKeys("contains");
+		SearchFor_Users_Page2.firstNameValue.sendKeys(firstName);
+		common.search();
+		Assert.assertTrue(common.checkTitleContains("User Search Results"), "'User Search Results' page is not seen");
+		SearchFor_Users_Listing_Page SearchFor_Users_Listing_Page = new SearchFor_Users_Listing_Page();
+		Assert.assertTrue(SearchFor_Users_Listing_Page.checkForExistanceOfUserInSearchResults(firstName),"Search result does not contain user with first name {0}");
+		
+		Reporter.log("===============User_Search_Basic_Functionality======================"+"<br>");
+	}
+	
+	
+	@Test(enabled = false, groups = {"ART"})
+	public void User_Search_Export_To_CSV() 
+	{
+		Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+		Reporter.log("===============User_Search_Export_To_CSV======================="+"<br>");
+		
+		Reporter.log("Step 1: Create User with Random First Name"+"<br>");
+		String random = String.format( RandomStringUtils.randomNumeric(5));;
+		String firstName = "AutomationFN"+random;			
+		String lastName = "AutomationLN"+random;
+		String user1 = "AutomationUN"+random;
+		String emailAddress = user1+"@hpna.com";
+		String AAAUserName = "AutomationAAUN"+random;	
+		
+		NAUtils.addUser(user1, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+		Navigate.Reports.SearchFor.Users();
+        common.search();
+        Assert.assertTrue(common.checkTitleContains("User Search Results"), "'User Search Results' page is not seen");
+        Assert.assertTrue( driver.findElements(By.linkText("View Search Result as CSV File")).size()>=0,"Search result CSV file can not be downloaded");
+       
+       // Assert.assertTrue(common.getObjectById("html/text/ViewAsCSV").getText().trim().equals("View Search Result as CSV File"),"Search result CSV file can not be downloaded");
+       
+		
+		Reporter.log("===============User_Search_Export_To_CSV======================="+"<br>");
+		
+	}
+	
+	
+	@Test(enabled = false, groups = {"ART"})
+	public void User_Search_FirstName_Contains() 
+	{
+		Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+		Reporter.log("===============Start User_Search_FirstName_Contains========================"+"<br>");
+		
+		Reporter.log("Step 1: Create User with Random First Name"+"<br>");
+		String random = String.format( RandomStringUtils.randomNumeric(5));;
+		String firstName = "AutomationFN"+random;			
+		String lastName = "AutomationLN"+random;
+		String userName = "AutomationUN"+random;
+		String emailAddress = userName+"@hpna.com";
+		String AAAUserName = "AutomationAAUN"+random;		
+		
+		NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+		
+		Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only FirstName checkbox(Select 'contains' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+		this.completeSearchWith_firstName("contains", firstName);
+		
+		Reporter.log("===============End User_Search_FirstName_Contains========================"+"<br>");
+		
+	}
+		@Test(enabled = false, groups = {"ART"})
+		public void User_Search_FirstName_Not_Contains()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("===============Start User_Search_FirstName_Not_Contains======================="+"<br>");
+			
+			Reporter.log("Step 1: Create User with Random First Name"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;		
+						
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only FirstName checkbox(Select 'does not contain' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_firstName("does not contain", firstName);
+			
+			Reporter.log("===============End User_Search_FirstName_Not_Contains======================"+"<br>");
+			}
+		
+		
+		@Test(enabled = false, groups = {"ART"})
+		public void User_Search_FirstName_Matches()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("===============Start User_Search_FirstName_Matches======================="+"<br>");
+			
+			Reporter.log("Step 1: Create User with Random First Name"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;		
+						
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only FirstName checkbox(Select 'matches' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_firstName("matches", firstName);
+			
+			Reporter.log("===============End User_Search_FirstName_Matches======================"+"<br>");
+			}
+		
+		@Test(enabled = false, groups = {"ART"})
+		public void User_Search_FirstName_Equals()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("===============Start User_Search_FirstName_Equals======================="+"<br>");
+			
+			Reporter.log("Step 1: Create User with Random First Name"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;		
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only FirstName checkbox(Select 'equals' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_firstName("equals", firstName);
+			
+			Reporter.log("===============End User_Search_FirstName_Equals===================="+"<br>");
+			}
+		
+		@Test(enabled = false, groups = {"ART"})
+		public void User_Search_FirstName_Not_Equals()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("===============Start User_Search_FirstName_Equals======================="+"<br>");
+			
+			Reporter.log("Step 1: Create User with Random First Name"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;		
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only FirstName checkbox(Select 'does not equal' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_firstName("does not equal", firstName);
+			
+			Reporter.log("===============End User_Search_FirstName_Equals======================"+"<br>");
+			
+			}
+		
+		
+		
+		@Test(enabled = false, groups = {"ART"})
+		public void User_Search_LastName_Contains()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("===============Start User_Search_LastName_Contains======================="+"<br>");
+			Reporter.log("Step 1: Create User with Random Last Name"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;			
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only LastName checkbox(Select 'contains' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_lastName("contains", lastName);
+			
+			Reporter.log("===============User_Search_LastName_Contains==================="+"<br>");
+			
+			}
+		
+		@Test(enabled = false, groups = {"ART"})
+		public void User_Search_LastName_Not_Contains()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("===============User_Search_LastName_Not_Contains======================"+"<br>");
+			Reporter.log("Step 1: Create User with Random Last Name"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;		
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only LastName checkbox(Select 'does not contain' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_lastName("does not contain", lastName);
+			
+			Reporter.log("===============User_Search_LastName_Not_Contains==================="+"<br>");
+			
+			}
+		
+		
+		@Test(enabled = false, groups = {"ART"})
+		public void User_Search_LastName_Matches()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("===============User_Search_LastName_Matches====================="+"<br>");
+			
+			Reporter.log("Step 1: Create User with Random Last Name"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;			
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only LastName checkbox(Select 'matches' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_lastName("matches", lastName);
+			
+			Reporter.log("===============User_Search_LastName_Matches================="+"<br>");
+			
+			}
+		
+		@Test(enabled = false, groups = {"ART"})
+		public void User_Search_LastName_Equals()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("===============User_Search_LastName_Equals====================="+"<br>");
+			
+			Reporter.log("Step 1: Create User with Random Last Name"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;		
+						
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only LastName checkbox(Select 'equals' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_lastName("equals", lastName);
+			
+			Reporter.log("==============User_Search_LastName_Equals================="+"<br>");
+			
+			}
+		
+		@Test(enabled = false, groups = {"ART"})
+		public void User_Search_LastName_Not_Equals()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("===============User_Search_LastName_Not_Equals===================="+"<br>");
+			Reporter.log("Step 1: Create User with Random Last Name"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;		
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only LastName checkbox(Select 'does not equal' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_lastName("does not equal", lastName);
+			
+			Reporter.log("==============User_Search_LastName_Not_Equals================"+"<br>");
+			
+			}
+		
+		@Test(enabled = false, groups = {"ART"})
+		public void User_Search_UserName_Contains()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("=============== User_Search_UserName_Contains===================="+"<br>");
+			Reporter.log("Step 1: Create User with Random UserName"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;		
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only UserName checkbox(Select 'contains' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_userName("contains", userName);
+			
+			Reporter.log("==============User_Search_UserName_Contains==============="+"<br>");
+			
+			}
+		
+		@Test(enabled = false, groups = {"ART"})
+		public void User_Search_UserName_Not_Contains()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("=============== User_Search_UserName_Not_Contains===================="+"<br>");
+			
+			Reporter.log("Step 1: Create User with Random UserName"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;		
+						
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only UserName checkbox(Select 'does not contain' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_userName("does not contain", userName);
+			
+			Reporter.log("=============User_Search_UserName_Not_Contains==========="+"<br>");
+			
+			}
+		
+		@Test(enabled = false, groups = {"ART"})
+		public void User_Search_UserName_Matches()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("=============== User_Search_UserName_Matches===================="+"<br>");
+			
+			Reporter.log("Step 1: Create User with Random UserName"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;			
+						
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only UserName checkbox(Select 'matches' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_userName("matches", userName);
+			
+			Reporter.log("============User_Search_UserName_Matches==========="+"<br>");
+			
+			}
+		
+		@Test(enabled = false, groups = {"ART"})
+		public void  User_Search_UserName_Equals()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("===============User_Search_UserName_Equals===================="+"<br>");
+			
+			Reporter.log("Step 1: Create User with Random UserName"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;				
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only UserName checkbox(Select 'equals' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_userName("equals", userName);
+			
+			Reporter.log("============User_Search_UserName_Equals=========="+"<br>");
+			
+			}
+		@Test(enabled = false, groups = {"ART"})
+		public void  User_Search_UserName_Not_Equals()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("===============User_Search_UserName_Equals===================="+"<br>");
+			
+			Reporter.log("Step 1: Create User with Random UserName"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;				
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only UserName checkbox(Select 'does not equal' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_userName("does not equal", userName);
+			
+			Reporter.log("============User_Search_UserName_Equals=========="+"<br>");
+			
+			}
+		@Test(enabled = false, groups = {"ART"})
+		 public void User_Search_Email_Contains()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("=============== User_Search_Email_Contain==================="+"<br>");
+			
+			Reporter.log("Step 1: Create User with Random EmailAddress"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;				
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only Email Address checkbox(Select 'contains' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_userName("contains", emailAddress);
+			
+			Reporter.log("============User_Search_Email_Contains========="+"<br>");
+			
+			}
+		@Test(enabled = false, groups = {"ART"})
+		 public void User_Search_Email_Not_Contains()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("=============== User_Search_Email_Not_Contains=================="+"<br>");
+			
+			Reporter.log("Step 1: Create User with Random EmailAddress"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;				
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only Email Address checkbox(Select 'does not contain' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_emailAddress("does not contain", emailAddress);
+			
+			Reporter.log("============User_Search_Email_Not_Contains========"+"<br>");
+			
+			}
+		
+		@Test(enabled = false, groups = {"ART"})
+		 public void User_Search_Email_Matches()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("===============User_Search_Email_Matches================="+"<br>");
+			
+			Reporter.log("Step 1: Create User with Random EmailAddress"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;					
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only Email Address checkbox(Select 'matches' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_emailAddress("matches", emailAddress);
+			
+			Reporter.log("===========User_Search_Email_Matches========"+"<br>");
+			
+			}
+		@Test(enabled = false, groups = {"ART"})
+		 public void User_Search_Email_Equals()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("===============User_Search_Email_Equals================="+"<br>");
+			
+			Reporter.log("Step 1: Create User with Random EmailAddress"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;				
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false,null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only Email Address checkbox(Select 'equals' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_emailAddress("equals", emailAddress);
+			
+			Reporter.log("===========User_Search_Email_Equals========"+"<br>");
+			
+			}
+		@Test(enabled = false, groups = {"ART"})
+		 public void User_Search_Email_Not_Equals()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("===============User_Search_Email_Not_Equals================"+"<br>");
+			
+			Reporter.log("Step 1: Create User with Random EmailAddress"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;					
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false,null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only Email Address checkbox(Select 'does not equal' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_emailAddress("does not equal", emailAddress);
+			
+			Reporter.log("===========User_Search_Email_Not_Equals======="+"<br>");
+			
+			}
+		
+		@Test(enabled = false, groups = {"ART"})
+		 public void User_Search_AAA_Username_Contains()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("===============User_Search_AAA_Username_Contains================"+"<br>");
+			
+			Reporter.log("Step 1: Create User with Random  AAAUserName"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;					
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false,null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only AAA User Name checkbox(Select 'contains' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_AAAUserName("contains", AAAUserName);
+			
+			Reporter.log("===========User_Search_AAA_Username_Contains======"+"<br>");
+			
+			}
+		
+		@Test(enabled = false, groups = {"ART"})
+		 public void User_Search_AAA_Username_Not_Contains()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("===============User_Search_AAA_Username_Not_Contains================"+"<br>");
+			
+			Reporter.log("Step 1: Create User with Random  AAAUserName"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;					
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only AAA User Name checkbox(Select 'does not contain' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_AAAUserName("does not contain", AAAUserName);
+			
+			Reporter.log("===========User_Search_AAA_Username_Not_Contains======="+"<br>");
+			
+			}
+		@Test(enabled = false, groups = {"ART"})
+		 public void User_Search_AAA_Username_Matches()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("===============User_Search_AAA_Username_Matches================"+"<br>");
+			
+			Reporter.log("Step 1: Create User with Random  AAAUserName"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;				
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only AAA User Name checkbox(Select 'matches' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_AAAUserName("matches", AAAUserName);
+			
+			Reporter.log("===========User_Search_AAA_Username_Matches======="+"<br>");
+			
+			}
+		@Test(enabled = false, groups = {"ART"})
+		 public void User_Search_AAA_Username_Equals()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("===============User_Search_AAA_Username_Equals================"+"<br>");
+			
+			Reporter.log("Step 1: Create User with Random  AAAUserName"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;					
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only AAA User Name checkbox(Select 'equals' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_AAAUserName("equals", AAAUserName);
+			
+			Reporter.log("===========User_Search_AAA_Username_Equals======="+"<br>");
+			
+			}
+		@Test(enabled = false, groups = {"ART"})
+		 public void User_Search_AAA_Username_Not_Equals()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("===============User_Search_AAA_Username_Matches================"+"<br>");
+			
+			Reporter.log("Step 1: Create User with Random  AAAUserName"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;						
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, null);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only AAA User Name checkbox(Select 'does not equal' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_AAAUserName("does not equal", AAAUserName);
+			
+			Reporter.log("===========User_Search_AAA_Username_Matches======="+"<br>");
+			
+			}
+		
+		
+		
+		@Test(enabled = false, groups = {"ART"})
+		 public void User_Search_Comments_Contains()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("===============User_Search_Comments_Contains================"+"<br>");
+			
+			Reporter.log("Step 1: Create User with Random  AAAUserName"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;		
+			String Comments="Automation"+random;
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, Comments);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only Comments checkbox(Select 'contains' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_Comments("contains", Comments);
+			
+			Reporter.log("===========User_Search_Comments_Contains======"+"<br>");
+			
+			}
+		
+		@Test(enabled = false, groups = {"ART"})
+		 public void User_Search_Comments_Not_Contains()
+		{
+			Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+			Reporter.log("===============User_Search_Comments_Not_Contains==============="+"<br>");
+			
+			Reporter.log("Step 1: Create User with Random  AAAUserName"+"<br>");
+			String random = String.format( RandomStringUtils.randomNumeric(5));;
+			String firstName = "AutomationFN"+random;			
+			String lastName = "AutomationLN"+random;
+			String userName = "AutomationUN"+random;
+			String emailAddress = userName+"@hpna.com";
+			String AAAUserName = "AutomationAAUN"+random;		
+			String Comments="Automation"+random;
+			NAUtils.addUser(userName, "password", false, false, false, false, firstName,lastName, emailAddress, new String[]{"Full Access User"}, "Default Site", true,false, AAAUserName, "password", false, Comments);
+			
+			Reporter.log("Step 2: Navigate > Reprots > Search For > Users > Select only AAA User Name checkbox(Select 'does not contain' & perform search upon entering following text as search criteria 1)'entire String' 2)'wildcards'3)'upper case characters' 4)'lower case characters'5) 'alphanumeric' 6) 'only numeric'7)'null'8) 'html tag') "+"<br>");
+			this.completeSearchWith_Comments("does not contain", Comments);
+			
+			Reporter.log("===========UUser_Search_Comments_Not_Contains====="+"<br>");
+		}
+	/*	this.completeSearchWith_firstName("does not contain", firstName);
+		this.completeSearchWith_firstName("matches", firstName);
+		this.completeSearchWith_firstName("equals", firstName);
+		this.completeSearchWith_firstName("does not equal", firstName);
+		
+		System.out.println("Searching for lastName");
+		this.completeSearchWith_lastName("contains", lastName);
+		this.completeSearchWith_lastName("does not contain", lastName);
+		this.completeSearchWith_lastName("matches", lastName);
+		this.completeSearchWith_lastName("equals", lastName);
+		this.completeSearchWith_lastName("does not equal", lastName);
+		
+		System.out.println("Searching for userName");
+		this.completeSearchWith_userName("contains", userName);
+		this.completeSearchWith_userName("does not contain", userName);
+		this.completeSearchWith_userName("matches", userName);
+		this.completeSearchWith_userName("equals", userName);
+		this.completeSearchWith_userName("does not equal", userName);
+		
+		System.out.println("Searching for emailAddress");
+		this.completeSearchWith_emailAddress("contains", emailAddress);
+		this.completeSearchWith_emailAddress("does not contain", emailAddress);
+		this.completeSearchWith_emailAddress("matches", emailAddress);
+		this.completeSearchWith_emailAddress("equals", emailAddress);
+		this.completeSearchWith_emailAddress("does not equal", emailAddress);
+		
+		System.out.println("Searching for aaaUserName");
+		this.completeSearchWith_AAAUserName("contains", AAAUserName);
+		this.completeSearchWith_AAAUserName("does not contain", AAAUserName);
+		this.completeSearchWith_AAAUserName("matches", AAAUserName);
+		this.completeSearchWith_AAAUserName("equals", AAAUserName);
+		this.completeSearchWith_AAAUserName("does not equal", AAAUserName);*/
+		
+		
+		
+	
+	
+	
+
+//*************************************************************** Helper Methods*****************************************************************************	
+		public void completeSearchWith_firstName1(String OperationName, String firstName) 
+		{
+			
+			Reporter.log("Case 1: Searching with entire String"+"<br>");
+			if(OperationName.equalsIgnoreCase("contains")){
+				Assert.assertTrue(this.firstName_Helper(OperationName, firstName, firstName));		
+			}
+		}
+	
+		
+		
+	public void completeSearchWith_firstName(String OperationName, String firstName) 
+	{
+		
+		Reporter.log("Case 1: Searching with entire String"+"<br>");
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{	
+		Assert.assertTrue(this.firstName_Helper(OperationName, firstName, firstName), "Specified User not seen in the 'Search Results' page, when searched with entire String'");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+			{	
+				Assert.assertFalse(this.firstName_Helper(OperationName, firstName, firstName), "Specified User seen in the 'Search Results' page, when searched with entire String'");
+			}
+			
+		
+		Reporter.log("Case 2: Searching with 'wildcards'"+"<br>");		
+		String searchCriteria_wildcards = firstName.substring(0, 1) + "*";
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+		Assert.assertTrue(this.firstName_Helper(OperationName, searchCriteria_wildcards, firstName), "Specified User not seen in the 'Search Results' page, when searched with 'wildcards'");
+		} else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("equals"))
+		{
+			Assert.assertFalse(this.firstName_Helper(OperationName, searchCriteria_wildcards, firstName), "Specified User seen in the 'Search Results' page, when searched with 'wildcards'");
+		}
+		Reporter.log("Case 3: Searching with 'upper case characters'"+"<br>");
+		String searchCriteria_upperCase = firstName.toUpperCase();
+		
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+		Assert.assertTrue(this.firstName_Helper(OperationName, searchCriteria_upperCase, firstName), "Specified User not seen in the 'Search Results' page, when searched with 'upper case characters'");
+		} else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+			{
+			Assert.assertFalse(this.firstName_Helper(OperationName, searchCriteria_upperCase, firstName), "Specified User seen in the 'Search Results' page, when searched with 'upper case characters'");
+			}
+		
+		Reporter.log("Case 4: Searching with 'lower case characters'"+"<br>");
+		String searchCriteria_lowerCase = firstName.toLowerCase();
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+		Assert.assertTrue(this.firstName_Helper(OperationName, searchCriteria_lowerCase, firstName), "Specified User not seen in the 'Search Results' page, when searched with 'lower case characters'");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertFalse(this.firstName_Helper(OperationName, searchCriteria_lowerCase, firstName), "Specified User seen in the 'Search Results' page, when searched with 'lower case characters'");
+		}
+		
+		Reporter.log("Case 5: Searching with 'alphanumeric'"+"<br>");
+		
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+		Assert.assertTrue(this.firstName_Helper(OperationName, firstName, firstName), "Specified User not seen in the 'Search Results' page, when searched with 'alphanumeric''");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertFalse(this.firstName_Helper(OperationName, firstName, firstName), "Specified User seen in the 'Search Results' page, when searched with 'alphanumeric''");
+		}
+		
+		Reporter.log("Case 6: Searching with 'only numeric'"+"<br>");
+		String searchCriteria_onlyNumeric = firstName.replaceAll("[^0-9]", "");
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+		Assert.assertTrue(this.firstName_Helper(OperationName, searchCriteria_onlyNumeric, firstName), "Specified User not seen in the 'Search Results' page, when searched with 'only numeric'");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("equals")||OperationName.equalsIgnoreCase("matches"))
+		{
+			Assert.assertFalse(this.firstName_Helper(OperationName, searchCriteria_onlyNumeric, firstName), "Specified User seen in the 'Search Results' page, when searched with 'only numeric'");
+		}
+		Reporter.log("Case 7: Searching with 'null'"+"<br>");
+		String searchCriteria_null = "null";
+		if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertTrue(this.firstName_Helper(OperationName, searchCriteria_null, firstName), "Specified User not seen in the 'Search Results' page, when searched with 'null'");
+		}else if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+			Assert.assertFalse(this.firstName_Helper(OperationName, searchCriteria_null, firstName), "Specified User not seen in the 'Search Results' page, when searched with 'null'");
+		}
+		
+		Reporter.log("Case 8: Searching with 'html tag'"+"<br>");
+		String searchCriteria_html = "<html>";	
+		if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertTrue(this.firstName_Helper(OperationName, searchCriteria_html, firstName), "Specified User not seen in the 'Search Results' page, when searched with 'html tag'");
+		}else if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+			Assert.assertFalse(this.firstName_Helper(OperationName, searchCriteria_html, firstName), "Specified User not seen in the 'Search Results' page, when searched with 'html tag'");
+		}
+	}
+	
+	public boolean firstName_Helper(String OperationName, String searchCriteria, String firstName) 
+	{
+		Navigate.Reports.SearchFor.Users();		
+		SearchFor_Users_Page SearchFor_Users_Page = new SearchFor_Users_Page();
+		WebElement table = SearchFor_Users_Page.table;
+		common.uncheckAllCheckboxes(table);		
+		SearchFor_Users_Page.firstNameCheckBox.click();
+		common.sleep(3000);		
+		SearchFor_Users_Page.firstNameOperationName.sendKeys(OperationName);
+		SearchFor_Users_Page.firstNameValue.sendKeys(searchCriteria);
+		common.search();
+		Assert.assertTrue(common.checkTitleContains("User Search Results"), "'User Search Results' page is not seen");
+		SearchFor_Users_Listing_Page SearchFor_Users_Listing_Page = new SearchFor_Users_Listing_Page();
+		boolean ExistanceOfUser = SearchFor_Users_Listing_Page.checkForExistanceOfUserInSearchResults(firstName);
+		return ExistanceOfUser;
+	}
+	
+	public void completeSearchWith_lastName(String OperationName, String lastName) 
+	{
+		
+		Reporter.log("Case 1: Searching with entire String"+"<br>");
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{	
+		Assert.assertTrue(this.lastName_Helper(OperationName, lastName, lastName), "Specified User not seen in the 'Search Results' page, when searched with entire String'");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+			{	
+				Assert.assertFalse(this.lastName_Helper(OperationName, lastName, lastName), "Specified User seen in the 'Search Results' page, when searched with entire String'");
+			}
+			
+		
+		Reporter.log("Case 2: Searching with 'wildcards'"+"<br>");		
+		String searchCriteria_wildcards = lastName.substring(0, 1) + "*";
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+		Assert.assertTrue(this.lastName_Helper(OperationName, searchCriteria_wildcards, lastName), "Specified User not seen in the 'Search Results' page, when searched with 'wildcards'");
+		} else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("equals"))
+		{
+			Assert.assertFalse(this.lastName_Helper(OperationName, searchCriteria_wildcards, lastName), "Specified User seen in the 'Search Results' page, when searched with 'wildcards'");
+		}
+		Reporter.log("Case 3: Searching with 'upper case characters'"+"<br>");
+		String searchCriteria_upperCase = lastName.toUpperCase();
+		
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+		Assert.assertTrue(this.lastName_Helper(OperationName, searchCriteria_upperCase, lastName), "Specified User not seen in the 'Search Results' page, when searched with 'upper case characters'");
+		} else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+			{
+			Assert.assertFalse(this.lastName_Helper(OperationName, searchCriteria_upperCase, lastName), "Specified User seen in the 'Search Results' page, when searched with 'upper case characters'");
+			}
+		
+		Reporter.log("Case 4: Searching with 'lower case characters'"+"<br>");
+		String searchCriteria_lowerCase = lastName.toLowerCase();
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+		Assert.assertTrue(this.lastName_Helper(OperationName, searchCriteria_lowerCase, lastName), "Specified User not seen in the 'Search Results' page, when searched with 'lower case characters'");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertFalse(this.lastName_Helper(OperationName, searchCriteria_lowerCase, lastName), "Specified User seen in the 'Search Results' page, when searched with 'lower case characters'");
+		}
+		
+		Reporter.log("Case 5: Searching with 'alphanumeric'"+"<br>");
+		
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+		Assert.assertTrue(this.lastName_Helper(OperationName, lastName, lastName), "Specified User not seen in the 'Search Results' page, when searched with 'alphanumeric''");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertFalse(this.lastName_Helper(OperationName, lastName, lastName), "Specified User seen in the 'Search Results' page, when searched with 'alphanumeric''");
+		}
+		
+		Reporter.log("Case 6: Searching with 'only numeric'"+"<br>");
+		String searchCriteria_onlyNumeric = lastName.replaceAll("[^0-9]", "");
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+		Assert.assertTrue(this.lastName_Helper(OperationName, searchCriteria_onlyNumeric, lastName), "Specified User not seen in the 'Search Results' page, when searched with 'only numeric'");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("equals")||OperationName.equalsIgnoreCase("matches"))
+		{
+			Assert.assertFalse(this.lastName_Helper(OperationName, searchCriteria_onlyNumeric, lastName), "Specified User seen in the 'Search Results' page, when searched with 'only numeric'");
+		}
+		Reporter.log("Case 7: Searching with 'null'"+"<br>");
+		String searchCriteria_null = "null";
+		if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertTrue(this.lastName_Helper(OperationName, searchCriteria_null, lastName), "Specified User not seen in the 'Search Results' page, when searched with 'null'");
+		}else if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+			Assert.assertFalse(this.lastName_Helper(OperationName, searchCriteria_null, lastName), "Specified User not seen in the 'Search Results' page, when searched with 'null'");
+		}
+		
+		Reporter.log("Case 8: Searching with 'html tag'"+"<br>");
+		String searchCriteria_html = "<html>";	
+		if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertTrue(this.lastName_Helper(OperationName, searchCriteria_html, lastName), "Specified User not seen in the 'Search Results' page, when searched with 'html tag'");
+		}else if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+			Assert.assertFalse(this.lastName_Helper(OperationName, searchCriteria_html, lastName), "Specified User not seen in the 'Search Results' page, when searched with 'html tag'");
+		}
+	}
+	
+	public boolean lastName_Helper(String OperationName, String searchCriteria, String lastName) 
+	{
+		Navigate.Reports.SearchFor.Users();
+		WebElement table = common.getObjectByXpath("//table[@ class='table_form_standard']");
+		SearchFor_Users_Page SearchFor_Users_Page = new SearchFor_Users_Page();
+		common.uncheckAllCheckboxes(table);		
+		SearchFor_Users_Page.lastNameCheckBox.click();
+		common.sleep(3000);		
+		SearchFor_Users_Page.lastNameOperationName.sendKeys(OperationName);
+		SearchFor_Users_Page.lastNameValue.sendKeys(searchCriteria);
+		common.search();
+		Assert.assertTrue(common.checkTitleContains("User Search Results"), "'User Search Results' page is not seen");
+		SearchFor_Users_Listing_Page SearchFor_Users_Listing_Page = new SearchFor_Users_Listing_Page();
+		boolean ExistanceOfUser = SearchFor_Users_Listing_Page.checkForExistanceOfUserInSearchResults(lastName);
+		return ExistanceOfUser;
+	}
+	
+	public void completeSearchWith_userName(String OperationName, String userName) 
+	{
+		
+		Reporter.log("Case 1: Searching with entire String"+"<br>");
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{	
+		Assert.assertTrue(this.userName_Helper(OperationName, userName, userName), "Specified User not seen in the 'Search Results' page, when searched with entire String'");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+			{	
+				Assert.assertFalse(this.userName_Helper(OperationName, userName, userName), "Specified User seen in the 'Search Results' page, when searched with entire String'");
+			}
+			
+		
+		Reporter.log("Case 2: Searching with 'wildcards'"+"<br>");		
+		String searchCriteria_wildcards = userName.substring(0, 1) + "*";
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+		Assert.assertTrue(this.userName_Helper(OperationName, searchCriteria_wildcards, userName), "Specified User not seen in the 'Search Results' page, when searched with 'wildcards'");
+		} else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("equals"))
+		{
+			Assert.assertFalse(this.userName_Helper(OperationName, searchCriteria_wildcards, userName), "Specified User seen in the 'Search Results' page, when searched with 'wildcards'");
+		}
+		Reporter.log("Case 3: Searching with 'upper case characters'"+"<br>");
+		String searchCriteria_upperCase = userName.toUpperCase();
+		
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+		Assert.assertTrue(this.userName_Helper(OperationName, searchCriteria_upperCase, userName), "Specified User not seen in the 'Search Results' page, when searched with 'upper case characters'");
+		} else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+			{
+			Assert.assertFalse(this.userName_Helper(OperationName, searchCriteria_upperCase, userName), "Specified User seen in the 'Search Results' page, when searched with 'upper case characters'");
+			}
+		
+		Reporter.log("Case 4: Searching with 'lower case characters'"+"<br>");
+		String searchCriteria_lowerCase = userName.toLowerCase();
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+		Assert.assertTrue(this.userName_Helper(OperationName, searchCriteria_lowerCase, userName), "Specified User not seen in the 'Search Results' page, when searched with 'lower case characters'");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertFalse(this.userName_Helper(OperationName, searchCriteria_lowerCase, userName), "Specified User seen in the 'Search Results' page, when searched with 'lower case characters'");
+		}
+		
+		Reporter.log("Case 5: Searching with 'alphanumeric'"+"<br>");
+		
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+		Assert.assertTrue(this.userName_Helper(OperationName, userName, userName), "Specified User not seen in the 'Search Results' page, when searched with 'alphanumeric''");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertFalse(this.userName_Helper(OperationName, userName, userName), "Specified User seen in the 'Search Results' page, when searched with 'alphanumeric''");
+		}
+		
+		Reporter.log("Case 6: Searching with 'only numeric'"+"<br>");
+		String searchCriteria_onlyNumeric = userName.replaceAll("[^0-9]", "");
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+		Assert.assertTrue(this.userName_Helper(OperationName, searchCriteria_onlyNumeric, userName), "Specified User not seen in the 'Search Results' page, when searched with 'only numeric'");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("equals")||OperationName.equalsIgnoreCase("matches"))
+		{
+			Assert.assertFalse(this.userName_Helper(OperationName, searchCriteria_onlyNumeric, userName), "Specified User seen in the 'Search Results' page, when searched with 'only numeric'");
+		}
+		Reporter.log("Case 7: Searching with 'null'"+"<br>");
+		String searchCriteria_null = "null";
+		if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertTrue(this.userName_Helper(OperationName, searchCriteria_null, userName), "Specified User not seen in the 'Search Results' page, when searched with 'null'");
+		}else if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+			Assert.assertFalse(this.userName_Helper(OperationName, searchCriteria_null, userName), "Specified User not seen in the 'Search Results' page, when searched with 'null'");
+		}
+		
+		Reporter.log("Case 8: Searching with 'html tag'"+"<br>");
+		String searchCriteria_html = "<html>";	
+		if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertTrue(this.userName_Helper(OperationName, searchCriteria_html, userName), "Specified User not seen in the 'Search Results' page, when searched with 'html tag'");
+		}else if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+			Assert.assertFalse(this.userName_Helper(OperationName, searchCriteria_html, userName), "Specified User not seen in the 'Search Results' page, when searched with 'html tag'");
+		}
+	}
+	
+	public boolean userName_Helper(String OperationName, String searchCriteria, String userName) 
+	{
+		Navigate.Reports.SearchFor.Users();
+		
+		SearchFor_Users_Page SearchFor_Users_Page = new SearchFor_Users_Page();
+		WebElement table = SearchFor_Users_Page.table;
+		common.uncheckAllCheckboxes(table);		
+		SearchFor_Users_Page.userNameCheckBox.click();
+		common.sleep(3000);		
+		SearchFor_Users_Page.userNameOperationName.sendKeys(OperationName);
+		SearchFor_Users_Page.userNameValue.sendKeys(searchCriteria);
+		common.search();
+		Assert.assertTrue(common.checkTitleContains("User Search Results"), "'User Search Results' page is not seen");
+		SearchFor_Users_Listing_Page SearchFor_Users_Listing_Page = new SearchFor_Users_Listing_Page();
+		boolean ExistanceOfUser = SearchFor_Users_Listing_Page.checkForExistanceOfUserInSearchResults(userName);
+		return ExistanceOfUser;
+	}
+	
+	
+	public void completeSearchWith_emailAddress(String OperationName, String emailAddress) 
+	{
+		
+		Reporter.log("Case 1: Searching with entire String"+"<br>");
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{	
+		Assert.assertTrue(this.emailAddress_Helper(OperationName, emailAddress, emailAddress), "Specified User not seen in the 'Search Results' page, when searched with entire String'");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+			{	
+				Assert.assertFalse(this.emailAddress_Helper(OperationName, emailAddress, emailAddress), "Specified User seen in the 'Search Results' page, when searched with entire String'");
+			}
+			
+		
+		Reporter.log("Case 2: Searching with 'wildcards'"+"<br>");		
+		String searchCriteria_wildcards = emailAddress.substring(0, 1) + "*";
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+		Assert.assertTrue(this.emailAddress_Helper(OperationName, searchCriteria_wildcards, emailAddress), "Specified User not seen in the 'Search Results' page, when searched with 'wildcards'");
+		} else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("equals"))
+		{
+			Assert.assertFalse(this.emailAddress_Helper(OperationName, searchCriteria_wildcards, emailAddress), "Specified User seen in the 'Search Results' page, when searched with 'wildcards'");
+		}
+		Reporter.log("Case 3: Searching with 'upper case characters'"+"<br>");
+		String searchCriteria_upperCase = emailAddress.toUpperCase();
+		
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+		Assert.assertTrue(this.emailAddress_Helper(OperationName, searchCriteria_upperCase, emailAddress), "Specified User not seen in the 'Search Results' page, when searched with 'upper case characters'");
+		} else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+			{
+			Assert.assertFalse(this.emailAddress_Helper(OperationName, searchCriteria_upperCase, emailAddress), "Specified User seen in the 'Search Results' page, when searched with 'upper case characters'");
+			}
+		
+		Reporter.log("Case 4: Searching with 'lower case characters'"+"<br>");
+		String searchCriteria_lowerCase = emailAddress.toLowerCase();
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+		Assert.assertTrue(this.emailAddress_Helper(OperationName, searchCriteria_lowerCase, emailAddress), "Specified User not seen in the 'Search Results' page, when searched with 'lower case characters'");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertFalse(this.emailAddress_Helper(OperationName, searchCriteria_lowerCase, emailAddress), "Specified User seen in the 'Search Results' page, when searched with 'lower case characters'");
+		}
+		
+		Reporter.log("Case 5: Searching with 'alphanumeric'"+"<br>");
+		
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+		Assert.assertTrue(this.emailAddress_Helper(OperationName, emailAddress, emailAddress), "Specified User not seen in the 'Search Results' page, when searched with 'alphanumeric''");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertFalse(this.emailAddress_Helper(OperationName, emailAddress, emailAddress), "Specified User seen in the 'Search Results' page, when searched with 'alphanumeric''");
+		}
+		
+		Reporter.log("Case 6: Searching with 'only numeric'"+"<br>");
+		String searchCriteria_onlyNumeric = emailAddress.replaceAll("[^0-9]", "");
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+		Assert.assertTrue(this.emailAddress_Helper(OperationName, searchCriteria_onlyNumeric, emailAddress), "Specified User not seen in the 'Search Results' page, when searched with 'only numeric'");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("equals")||OperationName.equalsIgnoreCase("matches"))
+		{
+			Assert.assertFalse(this.emailAddress_Helper(OperationName, searchCriteria_onlyNumeric, emailAddress), "Specified User seen in the 'Search Results' page, when searched with 'only numeric'");
+		}
+		Reporter.log("Case 7: Searching with 'null'"+"<br>");
+		String searchCriteria_null = "null";
+		if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertTrue(this.emailAddress_Helper(OperationName, searchCriteria_null, emailAddress), "Specified User not seen in the 'Search Results' page, when searched with 'null'");
+		}else if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+			Assert.assertFalse(this.emailAddress_Helper(OperationName, searchCriteria_null, emailAddress), "Specified User not seen in the 'Search Results' page, when searched with 'null'");
+		}
+		
+		Reporter.log("Case 8: Searching with 'html tag'"+"<br>");
+		String searchCriteria_html = "<html>";	
+		if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertTrue(this.emailAddress_Helper(OperationName, searchCriteria_html, emailAddress), "Specified User not seen in the 'Search Results' page, when searched with 'html tag'");
+		}else if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+			Assert.assertFalse(this.emailAddress_Helper(OperationName, searchCriteria_html, emailAddress), "Specified User not seen in the 'Search Results' page, when searched with 'html tag'");
+		}
+	}
+	
+	public boolean emailAddress_Helper(String OperationName, String searchCriteria, String emailAddress) 
+	{
+		Navigate.Reports.SearchFor.Users();
+		
+		SearchFor_Users_Page SearchFor_Users_Page = new SearchFor_Users_Page();
+		WebElement table = SearchFor_Users_Page.table;
+		common.uncheckAllCheckboxes(table);		
+		SearchFor_Users_Page.emailAddressCheckBox.click();
+		common.sleep(3000);		
+		SearchFor_Users_Page.emailAddressOperationName.sendKeys(OperationName);
+		SearchFor_Users_Page.emailAddressValue.sendKeys(searchCriteria);
+		common.search();
+		Assert.assertTrue(common.checkTitleContains("User Search Results"), "'User Search Results' page is not seen");
+		SearchFor_Users_Listing_Page SearchFor_Users_Listing_Page = new SearchFor_Users_Listing_Page();
+		boolean ExistanceOfUser = SearchFor_Users_Listing_Page.checkForExistanceOfUserInSearchResults(emailAddress);
+		return ExistanceOfUser;
+	}
+	
+	public void completeSearchWith_AAAUserName(String OperationName, String AAAUserName) 
+	{
+		
+		Reporter.log("Case 1: Searching with entire String"+"<br>");
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{	
+		Assert.assertTrue(this.AAAUserName_Helper(OperationName, AAAUserName, AAAUserName), "Specified User not seen in the 'Search Results' page, when searched with entire String'");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+			{	
+				Assert.assertFalse(this.AAAUserName_Helper(OperationName, AAAUserName, AAAUserName), "Specified User seen in the 'Search Results' page, when searched with entire String'");
+			}
+			
+		
+		Reporter.log("Case 2: Searching with 'wildcards'"+"<br>");		
+		String searchCriteria_wildcards = AAAUserName.substring(0, 1) + "*";
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+		Assert.assertTrue(this.AAAUserName_Helper(OperationName, searchCriteria_wildcards, AAAUserName), "Specified User not seen in the 'Search Results' page, when searched with 'wildcards'");
+		} else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("equals"))
+		{
+			Assert.assertFalse(this.AAAUserName_Helper(OperationName, searchCriteria_wildcards, AAAUserName), "Specified User seen in the 'Search Results' page, when searched with 'wildcards'");
+		}
+		Reporter.log("Case 3: Searching with 'upper case characters'"+"<br>");
+		String searchCriteria_upperCase = AAAUserName.toUpperCase();
+		
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+		Assert.assertTrue(this.AAAUserName_Helper(OperationName, searchCriteria_upperCase, AAAUserName), "Specified User not seen in the 'Search Results' page, when searched with 'upper case characters'");
+		} else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+			{
+			Assert.assertFalse(this.AAAUserName_Helper(OperationName, searchCriteria_upperCase, AAAUserName), "Specified User seen in the 'Search Results' page, when searched with 'upper case characters'");
+			}
+		
+		Reporter.log("Case 4: Searching with 'lower case characters'"+"<br>");
+		String searchCriteria_lowerCase = AAAUserName.toLowerCase();
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+		Assert.assertTrue(this.AAAUserName_Helper(OperationName, searchCriteria_lowerCase, AAAUserName), "Specified User not seen in the 'Search Results' page, when searched with 'lower case characters'");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertFalse(this.AAAUserName_Helper(OperationName, searchCriteria_lowerCase, AAAUserName), "Specified User seen in the 'Search Results' page, when searched with 'lower case characters'");
+		}
+		
+		Reporter.log("Case 5: Searching with 'alphanumeric'"+"<br>");
+		
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+		Assert.assertTrue(this.AAAUserName_Helper(OperationName, AAAUserName, AAAUserName), "Specified User not seen in the 'Search Results' page, when searched with 'alphanumeric''");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertFalse(this.AAAUserName_Helper(OperationName, AAAUserName, AAAUserName), "Specified User seen in the 'Search Results' page, when searched with 'alphanumeric''");
+		}
+		
+		Reporter.log("Case 6: Searching with 'only numeric'"+"<br>");
+		String searchCriteria_onlyNumeric = AAAUserName.replaceAll("[^0-9]", "");
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+		Assert.assertTrue(this.AAAUserName_Helper(OperationName, searchCriteria_onlyNumeric, AAAUserName), "Specified User not seen in the 'Search Results' page, when searched with 'only numeric'");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("equals")||OperationName.equalsIgnoreCase("matches"))
+		{
+			Assert.assertFalse(this.AAAUserName_Helper(OperationName, searchCriteria_onlyNumeric, AAAUserName), "Specified User seen in the 'Search Results' page, when searched with 'only numeric'");
+		}
+		Reporter.log("Case 7: Searching with 'null'"+"<br>");
+		String searchCriteria_null = "null";
+		if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertTrue(this.AAAUserName_Helper(OperationName, searchCriteria_null, AAAUserName), "Specified User not seen in the 'Search Results' page, when searched with 'null'");
+		}else if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+			Assert.assertFalse(this.AAAUserName_Helper(OperationName, searchCriteria_null, AAAUserName), "Specified User not seen in the 'Search Results' page, when searched with 'null'");
+		}
+		
+		Reporter.log("Case 8: Searching with 'html tag'"+"<br>");
+		String searchCriteria_html = "<html>";	
+		if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertTrue(this.AAAUserName_Helper(OperationName, searchCriteria_html, AAAUserName), "Specified User not seen in the 'Search Results' page, when searched with 'html tag'");
+		}else if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+			Assert.assertFalse(this.AAAUserName_Helper(OperationName, searchCriteria_html, AAAUserName), "Specified User not seen in the 'Search Results' page, when searched with 'html tag'");
+		}
+	}
+	
+	public boolean AAAUserName_Helper(String OperationName, String searchCriteria, String AAAUserName) 
+	{
+		Navigate.Reports.SearchFor.Users();
+	
+		SearchFor_Users_Page SearchFor_Users_Page = new SearchFor_Users_Page();
+		WebElement table = SearchFor_Users_Page.table;
+		common.uncheckAllCheckboxes(table);		
+		SearchFor_Users_Page.AAAUserNameCheckBox.click();
+		common.sleep(3000);		
+		SearchFor_Users_Page.AAAUserNameOperationName.sendKeys(OperationName);
+		SearchFor_Users_Page.AAAUserNameValue.sendKeys(searchCriteria);
+		common.search();
+		Assert.assertTrue(common.checkTitleContains("User Search Results"), "'User Search Results' page is not seen");
+		SearchFor_Users_Listing_Page SearchFor_Users_Listing_Page = new SearchFor_Users_Listing_Page();
+		boolean ExistanceOfUser = SearchFor_Users_Listing_Page.checkForExistanceOfUserInSearchResults(AAAUserName);
+		return ExistanceOfUser;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	public void completeSearchWith_Comments(String OperationName, String comments) 
+	{
+		
+		Reporter.log("Case 1: Searching with entire String"+"<br>");
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{	
+		Assert.assertTrue(this.Comments_Helper(OperationName, comments, comments), "Specified User not seen in the 'Search Results' page, when searched with entire String'");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{	
+			Assert.assertFalse(this.Comments_Helper(OperationName, comments, comments), "Specified User seen in the 'Search Results' page, when searched with entire String'");
+		}
+		
+		
+		Reporter.log("Case 2: Searching with 'wildcards'"+"<br>");		
+		String searchCriteria_wildcards = comments.substring(0, 1) + "*";
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+		Assert.assertTrue(this.Comments_Helper(OperationName, searchCriteria_wildcards, comments), "Specified User not seen in the 'Search Results' page, when searched with 'wildcards'");
+		} else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("equals"))
+		{
+			Assert.assertFalse(this.Comments_Helper(OperationName, searchCriteria_wildcards, comments), "Specified User seen in the 'Search Results' page, when searched with 'wildcards'");
+		}
+		Reporter.log("Case 3: Searching with 'upper case characters'"+"<br>");
+		String searchCriteria_upperCase = comments.toUpperCase();
+		
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+		Assert.assertTrue(this.Comments_Helper(OperationName, searchCriteria_upperCase, comments), "Specified User not seen in the 'Search Results' page, when searched with 'upper case characters'");
+		} else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+			{
+			Assert.assertFalse(this.Comments_Helper(OperationName, searchCriteria_upperCase, comments), "Specified User seen in the 'Search Results' page, when searched with 'upper case characters'");
+			}
+		
+		Reporter.log("Case 4: Searching with 'lower case characters'"+"<br>");
+		String searchCriteria_lowerCase = comments.toLowerCase();
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+		Assert.assertTrue(this.Comments_Helper(OperationName, searchCriteria_lowerCase, comments), "Specified User not seen in the 'Search Results' page, when searched with 'lower case characters'");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertFalse(this.Comments_Helper(OperationName, searchCriteria_lowerCase, comments), "Specified User seen in the 'Search Results' page, when searched with 'lower case characters'");
+		}
+		
+		Reporter.log("Case 5: Searching with 'alphanumeric'"+"<br>");
+		
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+		Assert.assertTrue(this.Comments_Helper(OperationName, comments, comments), "Specified User not seen in the 'Search Results' page, when searched with 'alphanumeric''");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertFalse(this.Comments_Helper(OperationName, comments, comments), "Specified User seen in the 'Search Results' page, when searched with 'alphanumeric''");
+		}
+		
+		Reporter.log("Case 6: Searching with 'only numeric'"+"<br>");
+		String searchCriteria_onlyNumeric = comments.replaceAll("[^0-9]", "");
+		if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+		Assert.assertTrue(this.Comments_Helper(OperationName, searchCriteria_onlyNumeric, comments), "Specified User not seen in the 'Search Results' page, when searched with 'only numeric'");
+		}else if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("equals")||OperationName.equalsIgnoreCase("matches"))
+		{
+			Assert.assertFalse(this.Comments_Helper(OperationName, searchCriteria_onlyNumeric, comments), "Specified User seen in the 'Search Results' page, when searched with 'only numeric'");
+		}
+		Reporter.log("Case 7: Searching with 'null'"+"<br>");
+		String searchCriteria_null = "null";
+		if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertTrue(this.Comments_Helper(OperationName, searchCriteria_null, comments), "Specified User not seen in the 'Search Results' page, when searched with 'null'");
+		}else if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+			Assert.assertFalse(this.Comments_Helper(OperationName, searchCriteria_null, comments), "Specified User not seen in the 'Search Results' page, when searched with 'null'");
+		}
+		
+		Reporter.log("Case 8: Searching with 'html tag'"+"<br>");
+		String searchCriteria_html = "<html>";	
+		if(OperationName.equalsIgnoreCase("does not contain")||OperationName.equalsIgnoreCase("does not equal"))
+		{
+			Assert.assertTrue(this.Comments_Helper(OperationName, searchCriteria_html, comments), "Specified User not seen in the 'Search Results' page, when searched with 'html tag'");
+		}else if(OperationName.equalsIgnoreCase("contains")||OperationName.equalsIgnoreCase("matches")||OperationName.equalsIgnoreCase("equals"))
+		{
+			Assert.assertFalse(this.Comments_Helper(OperationName, searchCriteria_html, comments), "Specified User not seen in the 'Search Results' page, when searched with 'html tag'");
+		}
+	}
+	
+	public boolean Comments_Helper(String OperationName, String searchCriteria, String comments) 
+	{
+		Navigate.Reports.SearchFor.Users();
+		
+		SearchFor_Users_Page SearchFor_Users_Page = new SearchFor_Users_Page();
+		WebElement table = SearchFor_Users_Page.table;
+		common.uncheckAllCheckboxes(table);		
+		SearchFor_Users_Page.commentsCheckBox.click();
+		common.sleep(3000);		
+		SearchFor_Users_Page.commentsOperationName.sendKeys(OperationName);
+		SearchFor_Users_Page.commentsValue.sendKeys(searchCriteria);
+		common.search();
+		Assert.assertTrue(common.checkTitleContains("User Search Results"), "'User Search Results' page is not seen");
+		SearchFor_Users_Listing_Page SearchFor_Users_Listing_Page = new SearchFor_Users_Listing_Page();
+		boolean ExistanceOfUser = SearchFor_Users_Listing_Page.checkForExistanceOfUserInSearchResults(comments);
+		return ExistanceOfUser;
+	}
+	
+	
+	
+	@Test(enabled = false, groups = {"ART"})
+	public void sampleTest() 
+	{
+		Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+		Reporter.log("===============Start ========================"+"<br>");
+			
+		
+		
+		Reporter.log("===============End ========================"+"<br>");
+	}
+	
+
+	
+	  @AfterMethod(enabled = true, groups = {"BAT", "ART"})
+	  public void logout()
+	  {
+	  	try {
+			login.logOut();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	  
+	  	driver.get("http://"+System.getProperty("naIpAddress"));
+	  	
+	  }
+
+	  
+}

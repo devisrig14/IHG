@@ -1,0 +1,7 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+public class HelpPageAboutHPNA extends Page{
+
+	public String viewLicenseInformation = "View License Information";
+	
+}

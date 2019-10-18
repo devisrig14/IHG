@@ -1,0 +1,10 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import org.openqa.selenium.WebElement;
+
+public class TaskNewEditPage extends Page {
+
+	public WebElement taskName = common.getObjectByName("taskName");
+	public String verifyRebootCompletion = "verifyReboot";
+	public String rebootTimeout = "rebootTimeout";
+}

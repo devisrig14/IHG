@@ -1,0 +1,278 @@
+package test.java.com.hp.fc.usa.nmc.na.tests;
+
+import java.io.IOException;
+import java.util.List;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import test.java.com.hp.fc.usa.nmc.na.pages.TaskNewTaskTakeSnapShotPage;
+import test.java.com.hp.fc.usa.nmc.na.pages.TasksMyTasksPage;
+
+
+public class SequentialTaskHandlingTest extends TestExecutor{
+
+	WebElement table = null;
+	List<WebElement> rows = null;
+	
+	@Before
+	public void startTest() throws IOException{
+		initialize();
+		
+		driver.get("http://"+System.getProperty("naIpAddress"));
+		
+		login.loginAsUser("admin");
+		if(!isLoggedIn){
+			System.out.println("Invalid Username/password");
+			Assert.assertTrue("Not able to login to NA Server", false);
+			// report error
+		}
+		driver.manage().window().maximize();
+	}
+	
+	//@Ignore
+	@Test
+	public void testExecuteGroupTaskWithRunTypeSerial_001() throws InterruptedException{
+		
+		System.out.println("===============Start testExecuteGroupTaskWithRunTypeSerial_001========================");
+		
+		String[] groupNameID = common.addDeviceGroup(common.getDeviceIDs(2, true)).split(":");
+		String taskname=common.generateRandomString();
+		int groupID =  Integer.parseInt(groupNameID[1]);
+		
+		Navigate.Tasks.NewTasks.takeSnapShot();
+		Thread.sleep(10000L);
+		TaskNewTaskTakeSnapShotPage snapShotPage = new TaskNewTaskTakeSnapShotPage();
+		
+// To clear the Task Name default value and enter with new random string 
+		common.emptyTaskNameField(snapShotPage.taskName);
+		
+		snapShotPage.taskName.sendKeys(taskname);
+		
+		common.addGroupToGroupSelector(new int[]{groupID});
+		snapShotPage.serial.click();
+		common.save();
+		
+		Navigate.Tasks.myTasks();
+		TasksMyTasksPage myTasks = new TasksMyTasksPage();
+		List <String> taskStatus = webTable.getColumnContents(myTasks.myTasksTable, "Task Status");
+		List <String> taskNames= webTable.getColumnContents(myTasks.myTasksTable, "Task Name");
+		for(String name:taskNames){
+			//	System.out.println("task name"+name);
+				if(name.contains(taskname)) {
+			//		System.out.println("task name:"+taskname+"status:"+taskStatus);
+					
+					Assert.assertTrue("Task status is not Pending ", taskStatus.contains("Pending"));
+					Assert.assertTrue("Task status is not Running ", taskStatus.contains("Running"));
+				}
+			}
+				
+		
+		
+		System.out.println("===============Start testExecuteGroupTaskWithRunTypeSerial_001========================");
+				
+	}
+	
+	//@Ignore
+	@Test
+	public void testExecuteGroupTaskWithRunTypeParallel_002() throws InterruptedException{
+		
+		System.out.println("===============Start testExecuteGroupTaskWithRunTypeParallel_002========================");
+	
+		
+		String[] groupNameID = common.addDeviceGroup(common.getDeviceIDs(2, true)).split(":");
+		String taskname=common.generateRandomString();
+		int groupID =  Integer.parseInt(groupNameID[1]);
+		
+		Navigate.Tasks.NewTasks.takeSnapShot();
+		Thread.sleep(10000L);
+		TaskNewTaskTakeSnapShotPage snapShotPage = new TaskNewTaskTakeSnapShotPage();
+		
+// To clear the Task Name default value and enter with new random string 
+		
+		common.emptyTaskNameField(snapShotPage.taskName);
+		
+		snapShotPage.taskName.sendKeys(taskname);
+		common.addGroupToGroupSelector(new int[]{groupID});
+		snapShotPage.parallel.click();
+		common.save();
+		Navigate.Tasks.myTasks();
+		
+		TasksMyTasksPage myTasks = new TasksMyTasksPage();
+		List <String> taskStatus = webTable.getColumnContents(myTasks.myTasksTable, "Task Status");
+		List <String> taskNames= webTable.getColumnContents(myTasks.myTasksTable, "Task Name");
+		
+		for(String name:taskNames){
+		//	System.out.println("task name"+name);
+			if(name.contains(taskname)) {
+		//		System.out.println("task name:"+taskname+"status:"+taskStatus);
+				Assert.assertFalse("Task status is pending ", taskStatus.contains("Pending"));
+			}
+		}
+
+		
+		System.out.println("===============End testExecuteGroupTaskWithRunTypeParallel_002========================");
+				
+	}
+	
+	//@Ignore
+	@Test
+	public void testMultipleDeviceGroupsWithRunTypeSerial_004(){
+		
+		System.out.println("===============Start testMultipleDeviceGroupsWithRunTypeSerial_004========================");
+		
+		int[] deviceIDs1 = common.getDeviceIDs(2, true);
+		int[] deviceIDs2 = common.getDeviceIDs(2, true);
+		int groupID1 = Integer.parseInt(common.addDeviceGroup(deviceIDs1).split(":")[1]);
+		int groupID2 = Integer.parseInt(common.addDeviceGroup(deviceIDs2).split(":")[1]);
+		
+		
+		Navigate.Tasks.NewTasks.takeSnapShot();
+		TaskNewTaskTakeSnapShotPage snapShotPage = new TaskNewTaskTakeSnapShotPage();
+		common.addGroupToGroupSelector(new int[]{groupID1,groupID2});
+		snapShotPage.serial.click();
+		common.save();
+		
+		int taskID = common.getTaskID();
+		
+		
+		Navigate.Tasks.myTasks();
+		TasksMyTasksPage myTasks = new TasksMyTasksPage();
+		List <String> taskStatus = webTable.getColumnContents(myTasks.myTasksTable, "Task Status");
+					
+		Assert.assertTrue("Task status is not Pending ", taskStatus.contains("Pending"));
+		Assert.assertTrue("Task status is not running ", taskStatus.contains("Running"));
+		
+		System.out.println("Task  Status "+common.naTaskSucceeded(taskID));
+		//TaskInformationPage taskPage = new TaskInformationPage();
+		
+		
+		System.out.println("===============End testMultipleDeviceGroupsWithRunTypeSerial_004========================");
+	}
+	
+	@Ignore
+	@Test
+	public void testSeveralIndividualDevicesWithRunTypeSerial_005(){
+		
+		System.out.println("==============Start testSeveralIndividualDevicesWithRunTypeSerial_005========================");
+		
+		int[] deviceIDs = common.getDeviceIDs(3, true);
+		
+		Navigate.Tasks.NewTasks.takeSnapShot();
+		TaskNewTaskTakeSnapShotPage snapShotPage = new TaskNewTaskTakeSnapShotPage();
+		common.addDeviceToDeviceSelector(deviceIDs);
+		snapShotPage.serial.click();
+		common.save();
+		
+		Navigate.Tasks.myTasks();
+		TasksMyTasksPage myTasks = new TasksMyTasksPage();
+		List <String> taskStatus = webTable.getColumnContents(myTasks.myTasksTable, "Task Status");
+					
+		Assert.assertTrue("Task status is not Pending ", taskStatus.contains("Pending"));
+		Assert.assertTrue("Task status is not running ", taskStatus.contains("Running"));
+		
+		System.out.println("===============End testSeveralIndividualDevicesWithRunTypeSerial_005========================");
+		
+	}
+	
+	@Ignore
+	@Test
+	public void testScheduleFourGroupTasksWithOneDeviceGroupSerialUniqueDevices_006(){
+		
+		System.out.println("===============Start testScheduleFourGroupTasksWithOneDeviceGroupSerialUniqueDevices_006========================");
+		
+		int[] deviceIDs = common.getDeviceIDs(4, true);
+		int[] deviceIDs1 = new int[2];
+		int[] deviceIDs2 = new int[2];
+		System.arraycopy(deviceIDs, 0, deviceIDs1, 0, deviceIDs1.length);
+		System.arraycopy(deviceIDs, deviceIDs1.length, deviceIDs2, 0, deviceIDs2.length);
+		int groupID1 = Integer.parseInt(common.addDeviceGroup(deviceIDs1).split(":")[1]);
+		int groupID2 = Integer.parseInt(common.addDeviceGroup(deviceIDs2).split(":")[1]);
+		
+		Navigate.Tasks.NewTasks.takeSnapShot();
+		TaskNewTaskTakeSnapShotPage snapShotPage = new TaskNewTaskTakeSnapShotPage();
+		common.addGroupToGroupSelector(new int[]{groupID1});
+		snapShotPage.serial.click();
+		common.save();
+		
+		Navigate.Tasks.NewTasks.takeSnapShot();
+		snapShotPage = new TaskNewTaskTakeSnapShotPage();
+		common.addGroupToGroupSelector(new int[]{groupID2});
+		snapShotPage.serial.click();
+		common.save();
+		
+		Navigate.Tasks.myTasks();
+		TasksMyTasksPage myTasks = new TasksMyTasksPage();
+		List <String> taskStatus = webTable.getColumnContents(myTasks.myTasksTable, "Task Status");
+					
+		Assert.assertTrue("Task status is not Pending ", taskStatus.contains("Pending") || taskStatus.contains("Waiting"));
+		Assert.assertTrue("Task status is not running ", taskStatus.contains("Running"));
+		
+		System.out.println("===============End testScheduleFourGroupTasksWithOneDeviceGroupSerialUniqueDevices_006========================");
+		
+		
+	}
+	
+	@Ignore
+	@Test
+	public void testScheduleFourGroupTasksWithOneDeviceGroupSerialCommonDevices_007(){
+		
+		System.out.println("===============Start testScheduleFourGroupTasksWithOneDeviceGroupSerialCommonDevices_007========================");
+		
+		int[] deviceIDs1 = common.getDeviceIDs(2, true);
+		int[] deviceIDs2 = common.getDeviceIDs(2, true);
+		
+		int groupID1 = Integer.parseInt(common.addDeviceGroup(deviceIDs1).split(":")[1]);
+		int groupID2 = Integer.parseInt(common.addDeviceGroup(deviceIDs2).split(":")[1]);
+		
+		Navigate.Tasks.NewTasks.takeSnapShot();
+		TaskNewTaskTakeSnapShotPage snapShotPage = new TaskNewTaskTakeSnapShotPage();
+		common.addGroupToGroupSelector(new int[]{groupID1});
+		snapShotPage.serial.click();
+		common.save();
+		
+		Navigate.Tasks.NewTasks.takeSnapShot();
+		snapShotPage = new TaskNewTaskTakeSnapShotPage();
+		common.addGroupToGroupSelector(new int[]{groupID2});
+		snapShotPage.serial.click();
+		common.save();
+		
+		Navigate.Tasks.myTasks();
+		TasksMyTasksPage myTasks = new TasksMyTasksPage();
+		List <String> taskStatus = webTable.getColumnContents(myTasks.myTasksTable, "Task Status");
+					
+		Assert.assertTrue("Task status is not Pending ", taskStatus.contains("Pending") || taskStatus.contains("Waiting"));
+		Assert.assertTrue("Task status is not running ", taskStatus.contains("Running"));
+		
+		System.out.println("===============End testScheduleFourGroupTasksWithOneDeviceGroupSerialCommonDevices_007========================");
+		
+	}
+	
+	@Ignore
+	@Test
+	public void testExecuteATaskWithOneDeviceWithRunTypeSelectedAsSerial_013(){
+		
+		System.out.println("==============Start testExecuteATaskWithOneDeviceWithRunTypeSelectedAsSerial_013========================");
+		
+		int deviceID = Integer.parseInt((common.getDeviceIpAndID().split(":"))[1]);
+		
+		Navigate.Tasks.NewTasks.takeSnapShot();
+		TaskNewTaskTakeSnapShotPage snapShotPage = new TaskNewTaskTakeSnapShotPage();
+		common.addDeviceToDeviceSelector(new int[]{deviceID});
+		snapShotPage.serial.click();
+		common.save();
+		
+		Assert.assertTrue("Error not shown when selecting serial. ", common.isElementExist(By.className("alert_3")));
+		System.out.println("===============End testExecuteATaskWithOneDeviceWithRunTypeSelectedAsSerial_013========================");
+		
+	}
+	
+	@After
+	public void logout(){
+	login.logOut();
+				
+			}
+}

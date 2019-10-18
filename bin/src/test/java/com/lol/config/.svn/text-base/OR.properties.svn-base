@@ -1,0 +1,3 @@
+# text
+displayed_loginname_text=html/body/div[1]/div
+err_msg_login_text=html/body/form/table/tbody/tr[2]/td[3]/table/tbody/tr[1]/td[1]/span/b

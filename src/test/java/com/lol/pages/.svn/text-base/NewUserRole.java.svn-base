@@ -1,0 +1,12 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import org.openqa.selenium.WebElement;
+
+public class NewUserRole extends Page{
+
+	public String scriptPermissionTable = "html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr[5]/td/table[1]";
+	public WebElement roleType = common.getObjectByName("roleType");
+	public WebElement roleName = common.getObjectByName("roleName");
+	public WebElement description = common.getObjectByName("description");
+	
+}

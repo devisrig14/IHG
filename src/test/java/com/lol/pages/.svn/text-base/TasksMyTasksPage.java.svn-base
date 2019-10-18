@@ -1,0 +1,8 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+
+public class TasksMyTasksPage extends Page{
+	
+	public String myTasksTable = "//table[@id='dataListTable']";
+
+}

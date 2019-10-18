@@ -1,0 +1,8 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+
+public class HelpPageViewLicenseInformation extends Page{
+
+	public String licenseArea = "data";
+	public String table = "table_form_standard";
+}

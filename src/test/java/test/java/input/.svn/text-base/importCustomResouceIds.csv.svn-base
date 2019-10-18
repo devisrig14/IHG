@@ -1,0 +1,4 @@
+name,status,description,rimcf:CustomField1,rimcf:CustomField2
+customFieldName1,0,Testing custom field 1,2,Test1
+customFieldName2,1,Testing custom field 2,3,Test2
+customFieldName3,0,Testing custom field 3,4,Test3

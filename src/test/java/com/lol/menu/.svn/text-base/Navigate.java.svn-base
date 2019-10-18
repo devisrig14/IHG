@@ -1,0 +1,27 @@
+package test.java.com.hp.fc.usa.nmc.na.menu;
+
+import org.openqa.selenium.WebDriver;
+
+import test.java.com.hp.fc.usa.nmc.na.tests.TestExecutor;
+
+
+public class Navigate extends TestExecutor {
+	
+	//private String 
+	public Admin Admin;
+	public Devices Devices;
+	public Tasks Tasks;
+	public Reports Reports;
+	public Help Help;
+
+	WebDriver driver = null;
+	
+	public Navigate(WebDriver driver){
+		this.driver = driver;
+		Admin = new Admin(driver);
+		Devices = new Devices(driver);
+		Tasks = new Tasks(driver);
+		Reports = new Reports(driver);
+		Help = new Help(driver);
+	}
+}

@@ -1,0 +1,35 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebElement;
+
+public class NewDevice extends Page {
+
+	public WebElement ipAddress = common.getObjectByXpath("//input[@title='Device primary IP address' and @name='primaryIPAddress']");
+	public WebElement hostName = common.getObjectByName("hostName");
+	public String site = "deviceGroup1ID";
+	public WebElement driverDiscoverEnable = common.getObjectById("driver_discover_enable");
+	public WebElement driverDiscoverDisable = common.getObjectById("driver_discover_disable");
+	public String driver = "driver";
+	public String passwordRules = "passwordRule";
+	public WebElement comments= common.getObjectByName("comments");
+	//public WebElement belongsToGroups = common.getObjectById("FlexDeviceGroupSelector");
+	
+	
+/*	public void EnterGroupName(String[] groupName){
+		for(int j=0;j<groupName.length;j++){
+			if{				
+			
+		this.belongsToGroups.click();
+		//String Username="Automation6a79AApn";
+		//char[] text=Username.toCharArray();
+	    //this.Username("Automation6a79AApn");
+		
+		this.belongsToGroups.sendKeys(groupName[j]);
+		common.sleep(3000);
+		this.belongsToGroups.sendKeys(Keys.ENTER);
+			}
+	}
+		}*/
+}

@@ -1,0 +1,86 @@
+package test.java.com.hp.fc.usa.nmc.na.listener;
+import org.testng.ITestContext;
+import org.testng.ITestListener;
+import org.testng.ITestResult;
+import org.testng.Reporter;
+
+import test.java.com.hp.fc.usa.nmc.na.tests.TestExecutor;
+
+
+
+// This Listener will Capture Screenshot on Test Failure and Creates link for Captured Screenshot in TestNG Report “index.html” > Reporter output
+public class GenerateCustomReport extends TestExecutor implements ITestListener 
+{
+	 	@Override
+	 
+	    public void onStart(ITestContext arg0) 
+	 	{
+	 
+		 Reporter.log("Start Of Execution(TEST)->"+arg0.getName(), true);
+	 
+	    }
+	 
+	    @Override
+	 
+	    public void onTestStart(ITestResult arg0) 
+	    {	 
+	        Reporter.log("Test Started->"+arg0.getName(), true);
+	    }
+	 
+	    @Override
+	 
+	    public void onTestSuccess(ITestResult arg0) 
+	    {	 
+	        Reporter.log("Test Pass->"+arg0.getName(), true);
+	    }
+	 
+	    @Override
+	 
+	    public void onTestFailure(ITestResult arg0) 
+	    {
+	 
+	        //Print Message in TestNG Report
+	    	System.out.println();
+	    	Reporter.log("Test Failed->"+arg0.getName()+"<br>");
+	    					        
+	        //Capture Screenshot
+			String ScreenShotName = arg0.getName()+".png";
+			common.CaptureScreenShot(driver, ScreenShotName);
+	        
+	        //Creating link for Captured Screenshot in TestNG Report 
+	        
+			
+	        String workingdirectory = System.getProperty("user.dir");
+	        	        
+	        String ScreenshotURL = workingdirectory+"/ScreenShotLib/"+ScreenShotName;
+	        
+	        String ScreenshotURLWithFile ="file:///"+ScreenshotURL;
+	        
+			Reporter.log("<a href="+ScreenshotURLWithFile+">click here to open screenshot</a>");
+			 
+	    }
+	 
+	    @Override
+	 
+	    public void onTestSkipped(ITestResult arg0) 
+	    {
+	       Reporter.log("Test Skipped->"+arg0.getName(), true);
+	    }
+	 
+	    @Override
+	 
+	    public void onFinish(ITestContext arg0) 
+	    {
+	    	Reporter.log("END Of Execution(TEST)->"+arg0.getName(), true);
+	 
+	    }
+	    
+	    @Override
+	    
+	    public void onTestFailedButWithinSuccessPercentage(ITestResult arg0) 
+	    {
+	 
+	        // TODO Auto-generated method stub
+	    	 
+	    }
+}

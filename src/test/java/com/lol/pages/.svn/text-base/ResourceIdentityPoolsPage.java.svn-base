@@ -1,0 +1,15 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import org.openqa.selenium.WebElement;
+
+public class ResourceIdentityPoolsPage extends Page {
+
+	public String poolsAvailableWebTable = "html/body/table[1]/tbody/tr/td[2]/div[3]/form/table";
+	
+	public WebElement selectOption =  common.getObjectByName("select_aid");
+	public WebElement actionsOptions = common.getObjectByName("select_options");
+
+	public WebElement newPool = common.getObjectByLinkText("New Pool");
+	
+	
+}

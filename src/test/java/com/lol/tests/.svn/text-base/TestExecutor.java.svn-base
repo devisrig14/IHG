@@ -1,0 +1,117 @@
+package test.java.com.hp.fc.usa.nmc.na.tests;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Platform;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
+
+import test.java.com.hp.fc.usa.nmc.na.deviceMenu.DeviceNavigate;
+import test.java.com.hp.fc.usa.nmc.na.menu.Navigate;
+import test.java.com.hp.fc.usa.nmc.na.pages.Page;
+import test.java.com.hp.fc.usa.nmc.na.utils.Common;
+import test.java.com.hp.fc.usa.nmc.na.utils.Login;
+import test.java.com.hp.fc.usa.nmc.na.utils.NAUtils;
+import test.java.com.hp.fc.usa.nmc.na.utils.Table;
+
+
+public class TestExecutor {
+	
+	//public static Properties CONFIG=null;
+	//public static Properties OR=null;
+	
+	//public static WebDriver dr = null;
+	//public static EventFiringWebDriver driver = null;
+	
+	public static boolean isLoggedIn = false;
+	
+	public static WebDriver driver = null;
+	public static DesiredCapabilities cap = null;
+	
+	// 
+	public static Navigate Navigate;
+	public static DeviceNavigate DeviceNavigate;
+	public static Page page;
+	public static Common common;
+	public static Login login;
+	public static NAUtils NAUtils;
+	public static Table webTable;
+	
+	public static JavascriptExecutor jscript = null;
+	
+	public static void initialize () throws IOException{
+		
+		if(driver==null){
+		
+	/*		// Initialize CONFIG property file
+			Properties prop = new Properties();
+			FileInputStream fn = new FileInputStream(System.getProperty("user.dir")+"//src//test//java//com//hp//fc//usa//nmc//na//config//config.properties");
+			prop.load(fn);
+			
+			
+		/*	// Initialize ON property file
+			
+			OR = new Properties();
+			fn = new FileInputStream(System.getProperty("user.dir")+"//src//com//hp//fc//usa//na//config//OR.properties");
+			OR.load(fn);*/
+			
+			
+			// Initialize the Remotewebdriver based on the browser by setting the capabilities
+			// Hub URL, NA ipaddress and browser are retrieved from arguments.
+			
+			if (System.getProperty("UseSeleniumHub").equals("true")) {
+
+				if (System.getProperty("browser").equals("Firefox")) {
+					cap = DesiredCapabilities.firefox();
+					cap.setBrowserName("firefox");
+					cap.setPlatform(Platform.ANY);
+				} else if (System.getProperty("browser").equals("iexplore")) {
+					cap = DesiredCapabilities.internetExplorer();
+					cap.setBrowserName("internet explorer");
+					// cap.setBrowserName("iexplore");
+					cap.setPlatform(Platform.ANY);
+
+				} else if (System.getProperty("brower").equals("Chrome")) {
+					cap = DesiredCapabilities.chrome();
+					cap.setBrowserName("chrome");
+					cap.setPlatform(Platform.ANY);
+				}
+
+				driver = new RemoteWebDriver(
+						new URL(System.getProperty("hub")), cap);
+			}
+			else if(System.getProperty("browser").equals("Firefox")) {
+				driver = new FirefoxDriver();
+			}
+			else if(System.getProperty("browser").equals("iexplore")) {
+			//	System.setProperty("webdriver.ie.driver", "E:\\Selenium\\workspace\\IEDriverServer.exe");
+				driver = new InternetExplorerDriver();
+			  
+			}
+			
+		//   driver = new FirefoxDriver();
+			// Global setting : Wait for 50 secs till the item loads.
+			
+			driver.manage().timeouts().implicitlyWait(50, TimeUnit.SECONDS);
+		}
+		
+		Navigate = new Navigate(driver);
+		DeviceNavigate = new DeviceNavigate(driver);
+		common = new Common(driver);
+		//System.out.println("...checking "+common.generateRandomNumber());
+		//page = new Page(driver);
+		login = new Login(driver);
+		NAUtils = new NAUtils(driver);
+		webTable = new Table(driver);
+		jscript = (JavascriptExecutor)driver;
+	}
+
+}

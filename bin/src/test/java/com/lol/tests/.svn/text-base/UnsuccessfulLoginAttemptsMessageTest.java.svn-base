@@ -1,0 +1,401 @@
+package test.java.com.hp.fc.usa.nmc.na.tests;
+
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Listeners;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.Assert;
+import org.testng.Reporter;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.WebElement;
+
+import test.java.com.hp.fc.usa.nmc.na.listener.GenerateCustomReport;
+import test.java.com.hp.fc.usa.nmc.na.pages.EventSearchResultsPage;
+import test.java.com.hp.fc.usa.nmc.na.pages.EventsListingPage;
+import test.java.com.hp.fc.usa.nmc.na.pages.ResourceIdentitySearchPage;
+import test.java.com.hp.fc.usa.nmc.na.pages.SearchForEventPage;
+
+@Listeners(GenerateCustomReport.class)
+public class UnsuccessfulLoginAttemptsMessageTest extends TestExecutor{
+
+	WebElement table = null;
+	List<WebElement> rows = null;
+
+	@BeforeMethod(enabled = true, groups = {"BAT", "ART"})
+	public void startTest() throws IOException, InterruptedException{
+		initialize();
+		
+		driver.get("http://"+System.getProperty("naIpAddress"));
+		
+		if(common.checkExistenceOfOverridelink())
+		{
+			common.getObjectById("overridelink").click();
+			Thread.sleep(3000);			
+		}
+		//driver.navigate().to("javascript:document.getElementById('overridelink').click();");
+		
+		login.loginAsUser("admin");
+		if(!isLoggedIn){
+			System.out.println("Invalid Username/password");
+			Assert.assertTrue( false,"Not able to login to NA Server");
+			// report error
+		}
+		driver.manage().window().maximize();
+		
+	}
+
+	// Verify the "Login successful message" upon login with correct Username and password
+    	
+	@Test(enabled = true, groups= {"ART"})
+	public void testSuccessfulLoginAttemptsMessageDisplayedInUI_001() {
+		Reporter.log("ALM Global ID For this test Case:  QCTP1B235311"+"<br>");
+		Reporter.log("===============Start testUnsuccessfulLoginAttemptsMessageDisplayedInUI_001========================"+"<br>");
+		
+		Reporter.log("Step 1 : Create New User"+"<br>");
+		String newAdminUser = NAUtils.addUser(new String[]{"Administrator"});
+
+		Reporter.log("Step 2 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newAdminUser);
+				
+		Reporter.log("Step 3 : login As New User for the first time"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newAdminUser));
+		
+ 		Reporter.log("Step 4: Navigate to Reports > Search For > Events > Search > Capture Recent Login time"+"<br>");
+ 		Navigate.Reports.SearchFor.Events(); 		
+ 		SearchForEventPage searchForeventPage = new SearchForEventPage();
+ 		common.selectOption(searchForeventPage.summaryAvailableList,"User Login");
+ 		common.search(); 		
+ 		EventSearchResultsPage EventSearchResults = new EventSearchResultsPage();
+ 		 		
+		try{	
+			String loginDateAndTime = EventSearchResults.getEventDate(newAdminUser);
+			
+			Reporter.log("Step 5 : login As New User for the Second time and verify Alert message displayed"+"<br>");
+			login.loginAsNewUser(newAdminUser);
+
+			if(common.isElementExist(By.className("alert_1"))){
+				String loginMessage = driver.findElement(By.id("InfoBox")).getText().toString().trim();
+				Reporter.log("Actual Alert Message is :  "+ loginMessage+"<br>");
+				String ExpectedMessage = "Last successful login for "+newAdminUser+": "+loginDateAndTime+". There have been 0 unsuccessful log-in attempts since the last successful login.";
+				Reporter.log("Expected Alert Message is :  "+ ExpectedMessage+"<br>");
+				if(loginMessage.equals(ExpectedMessage)){
+				Assert.assertTrue(true,"Login time and date not correct.");
+				}else{
+					Assert.assertTrue(false,"Login time and date not proper");
+
+				}
+			}else{
+					Assert.assertTrue(false,"Not able to find out unsucessful message");
+
+			}
+		}
+		catch(NoSuchElementException exception)
+		{
+			exception.printStackTrace();
+			Assert.fail();
+
+		}
+		Reporter.log("===============End testUnsuccessfulLoginAttemptsMessageDisplayedInUI_001========================"+"<br>");
+
+
+	}
+
+	// Verify the "Login successful message" displayed After one Un-Sucessfull Login Attempt (correct Username and wrong password)
+	@Test(enabled = true, groups= {"ART"})
+		public void testUnsuccessfulLoginAttemptsMessageDisplayedInUI_002(){
+		
+		Reporter.log("ALM Global ID For this test Case:  QCTP1B235306"+"<br>");
+		Reporter.log("===============Start testUnsuccessfulLoginAttemptsMessageDisplayedInUI_002 -- defect QCCR1B131289 ======================="+"<br>");
+		
+		Reporter.log("Step 1 : Create New User"+"<br>");
+		String newAdminUser = NAUtils.addUser(new String[]{"Administrator"});
+
+		Reporter.log("Step 2 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newAdminUser);
+				
+		Reporter.log("Step 3 : login As New User for the first time"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newAdminUser));
+		
+		Reporter.log("Step 4: Navigate to Reports > Search For > Events > Search > Capture Recent Login time"+"<br>");
+ 		Navigate.Reports.SearchFor.Events(); 		
+ 		SearchForEventPage searchForeventPage = new SearchForEventPage();
+ 		common.selectOption(searchForeventPage.summaryAvailableList,"User Login");
+ 		common.search(); 		
+ 		EventSearchResultsPage EventSearchResults = new EventSearchResultsPage();
+ 		
+		try{
+
+			String loginDateAndTime = EventSearchResults.getEventDate(newAdminUser);
+			Reporter.log("Expected Date Values is :  "+loginDateAndTime+"<br>");
+			
+			login.loginInvalidUserPassword(newAdminUser);
+
+			login.loginAsNewUser(newAdminUser);
+
+			if(common.isElementExist(By.className("alert_2"))){
+				String loginMessage = driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[@class='alert_2']")).getText().toString().trim();
+				Reporter.log("Actual Alert Message is :  "+ loginMessage+"<br>");
+						
+				String ExpectedMessage = "Last successful login for "+newAdminUser+": "+loginDateAndTime+". There have been 1 unsuccessful log-in attempts since the last successful login.";
+				Reporter.log("Expected Alert Message is :  "+ ExpectedMessage+"<br>");
+				
+				if(loginMessage.equals(ExpectedMessage)){
+					Assert.assertTrue(true,"Login time and date not correct.");
+				}else{
+					Reporter.log("Login time and date not proper"+"<br>");
+					Assert.assertTrue(false, "Login time and date not proper");
+				}
+			}else{
+				Assert.assertTrue(false, "Not able to find out unsucessful message");
+			}
+
+		}
+		catch(NoSuchElementException exception)
+		{
+			exception.printStackTrace();
+			Assert.fail();
+
+		}
+
+		Reporter.log("===============End testUnsuccessfulLoginAttemptsMessageDisplayedInUI_002========================"+"<br>");
+
+
+	}
+	
+	// Verify the "Login successful message" displayed After one Un-Sucessfull Login Attempt (wrong username and password)
+	@Test(enabled = true, groups= {"ART"})
+	public void testUnsuccessfulLoginAttemptsMessageDisplayedInUI_003(){
+		Reporter.log("ALM Global ID For this test Case:  QCTP1B235307"+"<br>");
+		Reporter.log("===============Start testUnsuccessfulLoginAttemptsMessageDisplayedInUI_003========================"+"<br>");
+		
+		Reporter.log("Step 1 : Create New User"+"<br>");
+		String newAdminUser = NAUtils.addUser(new String[]{"Administrator"});
+
+		Reporter.log("Step 2 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newAdminUser);
+				
+		Reporter.log("Step 3 : login As New User for the first time"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newAdminUser));
+		
+		Reporter.log("Step 4: Navigate to Reports > Search For > Events > Search > Capture Recent Login time"+"<br>");
+ 		Navigate.Reports.SearchFor.Events(); 		
+ 		SearchForEventPage searchForeventPage = new SearchForEventPage();
+ 		common.selectOption(searchForeventPage.summaryAvailableList,"User Login");
+ 		common.search(); 		
+ 		EventSearchResultsPage EventSearchResults = new EventSearchResultsPage();
+		
+		try{
+
+			String loginDateAndTime = EventSearchResults.getEventDate(newAdminUser);
+			login.loginInvalidUserPassword(newAdminUser+"1");
+
+			login.loginAsNewUser(newAdminUser);
+			if(common.isElementExist(By.className("alert_1"))){
+				String loginMessage =  driver.findElement(By.id("InfoBox")).getText().toString().trim();
+
+				Reporter.log("Actual Alert Message is :  "+ loginMessage+"<br>");
+				
+				String ExpectedMessage = "Last successful login for "+newAdminUser+": "+loginDateAndTime+". There have been 0 unsuccessful log-in attempts since the last successful login.";
+				Reporter.log("Expected Alert Message is :  "+ ExpectedMessage+"<br>");
+				
+				if(loginMessage.equals(ExpectedMessage)){
+					Assert.assertTrue(true, "Login time and date not correct.");
+				}else{
+					Reporter.log("Login time and date not proper"+"<br>");
+					Assert.assertTrue(false,"Login time and date not proper");
+				}
+			}else{
+				Assert.assertTrue(false,"Not able to find out unsucessful message");
+			}
+		}
+
+		catch(NoSuchElementException exception)
+		{
+			exception.printStackTrace();
+			Assert.fail();
+
+		}
+
+		Reporter.log("===============End testUnsuccessfulLoginAttemptsMessageDisplayedInUI_003========================"+"<br>");
+
+
+	}
+	
+	// Verify the "Login successful message" displayed After two Un-Sucessfull Login Attempts (correct Username and wrong password)
+	@Test(enabled = true, groups= {"ART"})
+	public void testUnsuccessfulLoginAttemptsMessageDisplayedInUI_004(){
+		Reporter.log("ALM Global ID For this test Case:  QCTP1B235308"+"<br>");
+		Reporter.log("===============Start testUnsuccessfulLoginAttemptsMessageDisplayedInUI_004======defect QCCR1B131289=================="+"<br>");
+		
+		Reporter.log("Step 1 : Create New User"+"<br>");
+		String newAdminUser = NAUtils.addUser(new String[]{"Administrator"});
+
+		Reporter.log("Step 2 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newAdminUser);
+				
+		Reporter.log("Step 3 : login As New User for the first time"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newAdminUser));
+		
+		Reporter.log("Step 4: Navigate to Reports > Search For > Events > Search > Capture Recent Login time"+"<br>");
+ 		Navigate.Reports.SearchFor.Events(); 		
+ 		SearchForEventPage searchForeventPage = new SearchForEventPage();
+ 		common.selectOption(searchForeventPage.summaryAvailableList,"User Login");
+ 		common.search(); 		
+ 		EventSearchResultsPage EventSearchResults = new EventSearchResultsPage();
+		
+		try{
+			String loginDateAndTime = EventSearchResults.getEventDate(newAdminUser);
+
+			login.loginInvalidUserPassword(newAdminUser);
+			login.loginInvalidUserPassword(newAdminUser);
+
+			login.loginAsNewUser(newAdminUser);
+			if(common.isElementExist(By.className("alert_2"))){
+				String loginMessage = driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[@class='alert_2']")).getText().toString().trim();
+				Reporter.log("Actual Alert Message is :  "+ loginMessage+"<br>");
+				
+				String ExpectedMessage = "Last successful login for "+newAdminUser+": "+loginDateAndTime+". There have been 2 unsuccessful log-in attempts since the last successful login.";
+				Reporter.log("Expected Alert Message is :  "+ ExpectedMessage+"<br>");
+				
+				if(loginMessage.equals(ExpectedMessage)){
+					Assert.assertTrue(true, "Login time and date not correct.");
+				}else{
+					Reporter.log("Login time and date not proper"+"<br>");
+					Assert.assertTrue(false, "Login time and date not proper");
+				}
+			}else{
+				Assert.assertTrue(false, "Not able to find out unsucessful message");
+			}
+		}
+		catch(NoSuchElementException exception)
+		{
+			exception.printStackTrace();
+			Assert.fail();
+
+		}
+		Reporter.log("===============End testUnsuccessfulLoginAttemptsMessageDisplayedInUI_004========================"+"<br>");
+
+	}
+
+	// Create New User > Verify the "Login successful message" upon login with correct Username and password
+	@Test(enabled = true, groups= {"ART"})
+	public void testUnsuccessfulLoginAttemptsMessageDisplayedInUI_005(){
+		Reporter.log("ALM Global ID For this test Case:  QCTP1B235309"+"<br>");
+		Reporter.log("===============Start testUnsuccessfulLoginAttemptsMessageDisplayedInUI_005========================"+"<br>");
+		
+			
+			Reporter.log("Step 1 : Create New User"+"<br>");
+			String adminUser = NAUtils.addUser(new String[]{"Administrator"});
+			
+			Reporter.log("Step 2 : Reset Password for the above created New User"+"<br>");
+			login.resetPassword(adminUser);
+
+			Reporter.log("Step 3 : login As New User for the first time"+"<br>");
+			login.loginAsNewUser(adminUser);
+			
+			Reporter.log("Step 4: Navigate to Reports > Search For > Events > Search > Capture Recent Login time"+"<br>");
+	 		Navigate.Reports.SearchFor.Events(); 		
+	 		SearchForEventPage searchForeventPage = new SearchForEventPage();
+	 		common.selectOption(searchForeventPage.summaryAvailableList,"User Login");
+	 		common.search(); 		
+	 		EventSearchResultsPage EventSearchResults = new EventSearchResultsPage();
+			
+			try{
+			String loginDateAndTime = EventSearchResults.getEventDate(adminUser);
+			
+			login.loginAsNewUser(adminUser);
+			
+			if(common.isElementExist(By.className("alert_1"))){
+				String loginMessage = driver.findElement(By.id("InfoBox")).getText().toString().trim();
+
+				Reporter.log("Actual Alert Message is :  "+ loginMessage+"<br>");
+				
+				String ExpectedMessage = "Last successful login for "+adminUser+": "+loginDateAndTime+". There have been 0 unsuccessful log-in attempts since the last successful login.";
+				Reporter.log("Expected Alert Message is :  "+ ExpectedMessage+"<br>");
+				
+				if(loginMessage.equals(ExpectedMessage)){
+					Assert.assertTrue(true,"Login time and date not correct.");
+				}else{
+					System.out.println("Login time and date not proper");
+					Assert.assertTrue(false,"Login time and date not proper");
+				}
+
+			}else{
+				Assert.assertTrue(false,"Not able to find out unsucessful message");
+			}
+
+		}
+		catch(NoSuchElementException exception)
+		{
+			exception.printStackTrace();
+			Assert.fail();
+
+		}
+
+		Reporter.log("===============End testUnsuccessfulLoginAttemptsMessageDisplayedInUI_005========================"+"<br>");
+
+	}
+
+	// Verify Time Difference
+	@Test(enabled = true, groups= {"ART"})
+	public void testTimeDiff(){
+		Reporter.log("ALM Global ID For this test Case:  QCTP1B235310"+"<br>");
+		String time1 = "Jul-10-14 13:22:56";
+		String time2 = "Jul-10-14 13:22:59";
+		Reporter.log("Time diff is : "+timeDiffCheck(time1, time2)+"<br>");
+	}
+
+	private void loginMessageCheck(int numberOfUnsucessfulLogins,String userLogin,String OldLoginDateAndTime){
+
+
+
+	}
+
+	public boolean timeDiffCheck(String time1,String time2){
+		try{
+			SimpleDateFormat format = new SimpleDateFormat("MMM-DD-YY HH:mm:ss");
+			Date date1 = format.parse(time1);
+			Date date2 = format.parse(time2);
+			//Reporter.log("Date 1 is "+date1+" Date 2 is "+date2);
+			long diff = date2.getTime() - date1.getTime();
+			Reporter.log("Diff is "+diff+"<br>");
+
+			long diffSeconds = diff / 1000 % 60;
+			System.out.print(diffSeconds + " seconds.");
+
+			if(diffSeconds<=3){
+				return true;
+			}else{
+				return false;
+			}
+
+		}catch(Exception e){
+			Reporter.log("exception caught while taking time difference"+"<br>");
+			Assert.fail();
+			return false;
+			
+		}
+	}
+
+	@AfterMethod(enabled = true, groups = {"BAT", "ART"})
+	  public void logout()
+	  {
+	  	try {
+			login.logOut();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	  
+	  	driver.quit();
+	  	driver=null;
+	  	
+	  }
+
+}

@@ -1,0 +1,47 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import org.openqa.selenium.WebElement;
+
+public class ResourceIdentitySearchPage extends Page{
+
+	public WebElement resourceIdentityOperationName = common.getObjectByName("expressions[0].operationName");
+	public WebElement resourceIdentityValue = common.getObjectByName("expressions[0].values");
+	public WebElement resourceIdentityCheckBox = common.getObjectById("ResourceIdentity");
+
+	public WebElement statusCheckBox = common.getObjectById("Status");
+	public WebElement statusAvailableCheckBox = common.getObjectById("Status_0");
+	public WebElement statusInUseCheckBox = common.getObjectById("Status_1");
+	
+	public WebElement poolNameCheckBox = common.getObjectById("ResourceIdentityPoolName");
+	public String poolsAvailableList = "expressions[2].values";
+	
+	public WebElement partitionCheckBox = common.getObjectById("SiteID");
+	public String partitionsAvailableList = "expressions[3].values";
+	
+	public WebElement descriptionCheckBox = common.getObjectById("Description");
+	public WebElement descriptionDropDown = common.getObjectByName("expressions[4].operationName");
+	public WebElement descriptionTextBox = common.getObjectByName("expressions[4].values");
+	
+	public WebElement createDateCheckBox = common.getObjectById("CreateDate");
+	public WebElement createSinceDropDown = common.getObjectByName("expressions[5].operationName");
+	public WebElement createSinceCustomizeDropDown = common.getObjectById("cal_StartCreateDate5");
+	public WebElement createUntilDropDown = common.getObjectByName("expressions[6].operationName");
+	public WebElement createUntilCustomizeDropDown = common.getObjectById("cal_EndCreateDate6");
+	
+	public WebElement createdByUserCheckBox = common.getObjectById("CreatedByUserName");
+	public WebElement createdByDropDown = common.getObjectByName("expressions[7].operationName");
+	public WebElement createdByTextBox = common.getObjectByName("expressions[7].values");
+	
+	public WebElement lastModifiedDateCheckBox = common.getObjectById("LastModifiedDate");
+	public WebElement lastModifiedSinceDropDown = common.getObjectByName("expressions[8].operationName");
+	public WebElement lastModifiedSinceCustomizeDropDown = common.getObjectById("cal_StartModifyDate8");
+	public WebElement lastModifiedUntilDropDown = common.getObjectByName("expressions[9].operationName");
+	public WebElement lastModifiedUntilCustomizeDropDown = common.getObjectById("cal_EndModifyDate9");
+	
+	public WebElement lastModifiedByCheckBox = common.getObjectById("ChangedByUserName");
+	public WebElement lastModifiedByDropDown = common.getObjectByName("expressions[10].operationName");
+	public WebElement lastModifiedByTextBox = common.getObjectByName("expressions[10].values");
+	
+	public String resourceIdentitySearchTable = "html/body/table[1]/tbody/tr/td[2]/div[3]/form/table[2]";
+	
+}

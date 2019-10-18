@@ -1,0 +1,166 @@
+package test.java.com.hp.fc.usa.nmc.na.menu;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+import test.java.com.hp.fc.usa.nmc.na.utils.Common;
+
+public class Admin {
+
+	WebDriver driver = null;
+	WebElement table=null;
+	List<WebElement> rows = null;
+	
+	public AdminSettings AdminSettings;
+	public SystemTasks SystemTasks;
+	
+	public Admin(WebDriver driver){
+		this.driver = driver;
+		this.AdminSettings = new AdminSettings(driver, this);
+		this.SystemTasks = new SystemTasks(driver, this);
+	}
+	
+	private void navigateToAdmin(){
+		//driver.findElement(By.xpath("//div[@id='dijit_PopupMenuBarItem_4']")).click();
+	}
+	
+	public void users(){
+		try{
+			navigateToUsers("Users");
+		}catch(Exception e){
+			navigateToUsers("Users");
+		}
+	}
+	
+	public void userGroups(){
+		try{
+			navigateToItem("User Groups");
+		}catch(Exception e){
+			navigateToItem("User Groups");
+		}
+	}
+	
+	public void newUser(){
+		try{
+			navigateToItem("New User");
+		}catch(Exception e){
+			navigateToItem("New User");
+		}
+	}
+	
+	public void newUserGroup(){
+		try{
+			navigateToItem("New User Group");
+		}catch(Exception e){
+			navigateToItem("New User Group");
+		}
+	}
+	
+	public void devicePasswordRules(){
+		try{
+			navigateToItem("Device Password Rules");
+		}catch(Exception e){
+			navigateToItem("Device Password Rules");
+		}
+	}
+	
+	public void AdminSettings(){
+		try{
+			navigateToItem("Administrative Settings");
+		}catch(Exception e){
+			navigateToItem("Administrative Settings");
+		}
+	}
+	
+	
+	public void EnhancedCustomerFieldSetup(){
+		try{
+			navigateToItem("Enhanced Custom Fields Setup");
+		}catch(Exception e){
+			navigateToItem("Enhanced Custom Fields Setup");
+		}
+	}
+	
+	public void Gateways(){
+		try{
+			navigateToItem("Gateways");
+		}catch(Exception e){
+			navigateToItem("Gateways");
+		}
+	}
+	
+	public void SecurityPartitions(){
+		try{
+			navigateToItem("Security Partitions");
+		}catch(Exception e){
+			navigateToItem("Security Partitions");
+		}
+	}
+	
+	public void UserRolesAndPermissions(){
+		try{
+			navigateToItem("User Roles & Permissions");
+		}catch(Exception e){
+			navigateToItem("User Roles & Permissions");
+		}
+	}
+	
+	public void LoggedOnUsers(){
+		try{
+			navigateToItem("Logged on Users");
+		}catch(Exception e){
+			navigateToItem("Logged on Users");
+		}
+	}
+	
+	
+	private void navigateToItem(String navigateItem){
+		
+		
+		driver.findElement(By.xpath("//span[@id='dijit_PopupMenuBarItem_4_text']")).click();
+		
+		table = driver.findElement(By.xpath("//table[@ id='dijit_Menu_12']"));
+		rows = table.findElements(By.tagName("tr"));
+				
+		for(int i =0;i<rows.size();i++){
+			
+			if(rows.get(i).getText().trim().equals(navigateItem)){
+				
+					driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
+					
+					System.out.println(driver.findElement(By.xpath("//table[@ id='dijit_Menu_12']//tr["+(i+1)+"]/td[2]")).getText());
+					driver.findElement(By.xpath("//table[@ id='dijit_Menu_12']//tr["+(i+1)+"]/td[2]")).click();
+					//driver.findElement(By.xpath("//table[@ id='dijit_Menu_12']//tr[1]/td[2][contains(text(), '"+navigateItem+"')]")).click();
+					break;
+				}
+		}
+	}
+	
+	private void navigateToUsers(String navigateItem){
+		
+		
+		driver.findElement(By.xpath("//span[@id='dijit_PopupMenuBarItem_4_text']")).click();
+		
+		table = driver.findElement(By.xpath("//table[@ id='dijit_Menu_12']"));
+		rows = table.findElements(By.tagName("tr"));
+				
+		for(int i =0;i<rows.size();i++){
+			
+			if(rows.get(i).getText().trim().equals(navigateItem)){
+				
+					driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
+					
+					//System.out.println(driver.findElement(By.xpath("//table[@ id='dijit_Menu_12']//tr[1]/td[2][contains(text(), 'Users')]")).getText());
+					System.out.println(driver.findElement(By.xpath("/html/body/div[3]/table/tbody/tr[1]/td[1]")).getText());
+					driver.findElement(By.xpath("/html/body/div[3]/table/tbody/tr[1]/td[1]")).click();
+					//driver.findElement(By.xpath("//table[@ id='dijit_Menu_12']//tr[1]/td[2][contains(text(), '"+navigateItem+"')]")).click();
+					break;
+				}
+		}
+	}
+	
+}

@@ -1,0 +1,8 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import org.openqa.selenium.WebElement;
+
+public class AdminSettingsDeviceAccessPage extends Page{
+
+	public WebElement deviceReachability = common.getObjectByName("DeviceInteraction/Reboot Device/verify_reboot");
+}

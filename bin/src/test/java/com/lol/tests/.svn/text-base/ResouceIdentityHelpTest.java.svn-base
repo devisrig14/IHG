@@ -1,0 +1,71 @@
+package test.java.com.hp.fc.usa.nmc.na.tests;
+
+public class ResouceIdentityHelpTest {
+
+	
+	/*@Test
+	public void testVerifyContextsensitivelinksResourceIdentityPools(){
+		
+		System.out.println("===============Start testVerifyContextsensitivelinksResourceIdentityPools========================");
+		
+		// Step 2
+		System.out.println("***********Step 2**********");
+		Navigate.Devices.DeviceTools.resourceIdentityPools();
+		
+		Assert.assertTrue("Resouce Identity Pool page not launched ", common.checkTitle("HP Network Automation: Resource Identity Pools"));
+		
+		common.getObjectByLinkText("New Pool").click();
+		
+		String parentWindowHandler = driver.getWindowHandle();
+		String subWindowHandle = null;
+		
+		// Step 3
+		System.out.println("***********Step 3**********");
+		common.help();
+		
+		Set<String> handles = driver.getWindowHandles();
+		Iterator<String> iterator = handles.iterator();
+		
+		while(iterator.hasNext()){
+			subWindowHandle = iterator.next();
+		}
+		
+		// switch to the popup window
+		driver.switchTo().window(subWindowHandle);
+		
+		
+		List<WebElement> frameList = driver.findElements(By.tagName("frame"));
+		if(frameList.size() > 0){
+			for(WebElement frame : frameList){
+				System.out.println("frmae name is "+frame.getAttribute("name"));
+			}
+		}
+		
+		driver.switchTo().frame("WWHContentFrame");
+		//System.out.println(driver.getPageSource());
+		
+		frameList = driver.findElements(By.tagName("frame"));
+		if(frameList.size()>0){
+			for(WebElement frame : frameList){
+				System.out.println("frame name second is "+ frame.getAttribute("name"));
+			}
+		}
+		
+		//driver.switchTo().defaultContent();
+		driver.switchTo().frame("WWHDocumentFrame");
+		
+		frameList = driver.findElements(By.tagName("frame"));
+		if(frameList.size()>0){
+			for(WebElement frame : frameList){
+				System.out.println("frame name third is ---- "+ frame.getAttribute("name"));
+			}
+		}
+		
+		System.out.println(driver.getPageSource());
+		System.out.println("title of popup is "+driver.getTitle());
+		
+		System.out.println("===============End testVerifyContextsensitivelinksResourceIdentityPools========================");
+		
+	}*/
+	
+}

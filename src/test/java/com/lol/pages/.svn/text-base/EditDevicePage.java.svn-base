@@ -1,0 +1,23 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+
+public class EditDevicePage extends Page{
+	
+	public String IpAddressValue = common.getObjectByXpath("//input[@ title= 'Device primary IP address']").getAttribute("value").trim();
+	public String hostNameValue = common.getObjectByXpath("//input[@ title= 'Device hostname']").getAttribute("value").trim();
+	WebElement table = common.getObjectByXpath("//table[@ class='table_form_standard']");
+
+/*	public String lastSnapshotResult = common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/div[1]/table/tbody/tr[4]/td[2]/table/tbody/tr/td[1]").getText();
+	public String deviceDescription = "Device Description";*/
+	
+	public String getHostnameFromEditPage ()
+	{
+		
+		return hostNameValue;
+		 
+	}
+
+}

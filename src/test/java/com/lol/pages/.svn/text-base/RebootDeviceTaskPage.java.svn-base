@@ -1,0 +1,9 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import org.openqa.selenium.WebElement;
+
+public class RebootDeviceTaskPage extends Page {
+
+	public WebElement verifyRebootCompletion = common.getObjectByName("verifyReboot"); 
+	
+}

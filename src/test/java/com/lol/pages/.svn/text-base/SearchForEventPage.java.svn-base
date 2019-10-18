@@ -1,0 +1,15 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import org.openqa.selenium.WebElement;
+
+public class SearchForEventPage extends Page
+{
+	public String summaryAvailableList = "expressions[2].values";
+	public WebElement summaryCheckBox = common.getObjectByName("expressions[2].checked");
+	
+	
+	public String SearchForEventsTable = "//table[@class='table_form_standard']";
+	
+	
+
+}

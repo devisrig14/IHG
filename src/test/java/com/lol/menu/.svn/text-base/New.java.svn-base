@@ -1,0 +1,68 @@
+package test.java.com.hp.fc.usa.nmc.na.menu;
+
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+public class New {
+	
+	WebDriver driver = null;
+	Devices parentMenu = null;
+	WebElement table=null;
+	List<WebElement> rows = null;
+	
+	public New(WebDriver driver,Devices parentMenu){
+		this.driver = driver;
+		this.parentMenu = parentMenu;
+	}
+	
+	public void device(){
+		try{
+			navigateToSubItem("Device");
+		}catch(Exception e){
+			navigateToSubItem("Device");
+		}
+	}
+	
+	public void deviceGroup(){
+		try{
+			navigateToSubItem("Device Group");
+		}catch(Exception e){
+			navigateToSubItem("Device Group");
+		}
+	}
+	
+	private void navigateToSubItem(String navigateSubItem){
+		
+		// Navigate to Devices settings and click on the respective submenu. Implemented this way as calling for Devices doesnt work.
+		
+		driver.findElement(By.xpath("//div[@id='dijit_PopupMenuBarItem_0']")).click();
+		table = driver.findElement(By.xpath("html/body/div[3]/table"));
+		rows = table.findElements(By.tagName("tr"));
+		//System.out.println(rows.size());
+		
+		for(int i =0;i<rows.size();i++){
+			//System.out.println("hi : "+i+" -- "+rows.get(i).getText().trim());
+			if(rows.get(i).getText().trim().equals("New")){
+				//System.out.println("html/body/div[3]/table/tbody/tr["+(i+1)+"]/td[2]");
+					driver.findElement(By.xpath("html/body/div[3]/table/tbody/tr["+(i+1)+"]/td[2]")).click();
+					break;
+				}
+		}
+		
+		table = driver.findElement(By.xpath("html/body/div[4]/table"));
+		rows = table.findElements(By.tagName("tr"));
+		//System.out.println(rows.size());
+		for(int i =0;i<rows.size();i++){
+			//System.out.println("subtable : "+i+" : "+rows.get(i).getText());
+			if(rows.get(i).getText().equals(navigateSubItem)){
+					driver.findElement(By.xpath("html/body/div[4]/table/tbody/tr["+(i+1)+"]/td[2]")).click();
+					break;
+				}
+		}
+	}
+	
+
+}

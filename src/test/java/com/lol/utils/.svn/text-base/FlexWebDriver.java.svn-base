@@ -1,0 +1,37 @@
+package test.java.com.hp.fc.usa.nmc.na.utils;
+
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+
+public class FlexWebDriver {
+
+	private final WebDriver webDriver;
+	private final String flashObjectId;
+
+	public FlexWebDriver(final WebDriver webDriver, final String flashObjectId) {
+		this.webDriver = webDriver;
+		this.flashObjectId = flashObjectId;
+	}
+
+	public String call(final String functionName, final String... args) {
+		final Object result = ((JavascriptExecutor) webDriver).executeScript(
+				makeJsFunction(functionName, args), new Object[0]);
+		return result != null ? result.toString() : null;
+	}
+
+	private String makeJsFunction(final String functionName,
+			final String... args) {
+		final StringBuffer functionArgs = new StringBuffer();
+		System.out.println("Into here");
+		if (args.length > 0) {
+			for (int j = 0; j < args.length; j++) {
+				if (j > 0) {
+					functionArgs.append(",");
+				}
+				functionArgs.append(String.format("'%1$s'", args[j]));
+			}
+		}
+		return String.format("return document.%1$s.%2$s(%3$s);", flashObjectId,
+				functionName, functionArgs);
+	}
+}

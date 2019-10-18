@@ -1,0 +1,2037 @@
+package test.java.com.hp.fc.usa.nmc.na.utils;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+//import org.junit.Assert;
+import org.testng.Assert;
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.NoAlertPresentException;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Reporter;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import test.java.com.hp.fc.usa.nmc.na.pages.DeviceHomePage;
+import test.java.com.hp.fc.usa.nmc.na.pages.HelpPageAboutHPNA;
+import test.java.com.hp.fc.usa.nmc.na.pages.InventoryPage;
+import test.java.com.hp.fc.usa.nmc.na.pages.NewDevice;
+import test.java.com.hp.fc.usa.nmc.na.pages.NewDeviceGroup;
+import test.java.com.hp.fc.usa.nmc.na.pages.TaskInformationPage;
+import test.java.com.hp.fc.usa.nmc.na.tests.TestExecutor;
+
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.OutputType;
+
+
+
+public class Common extends TestExecutor{
+	
+	WebDriver driver = null;
+	WebElement table =null;
+	List<WebElement> rows = null;
+	Select select = null;
+	
+	
+	public Common(WebDriver driver){
+		this.driver = driver;
+	}
+	
+	public enum DeviceStatus{
+		DoesNotExist,
+        NoDriver,
+        Inactive,
+        Inaccessible,
+        Good
+	}
+	
+	public enum TaskResult{
+		Succeeded,
+        Failed,
+        Warning,
+        Skipped,
+        Pending,
+        Waiting,
+        Running,
+        Requested
+	}
+	
+	public enum Status{
+		Success,
+		Failure
+	}
+	
+	public enum LicenseInformation{
+		Product,
+		Feature,
+		LicensedTo,
+		NumberOfNodesLicensed,
+		NumberOfNodesInUse,
+		LicenseExpiration
+	}
+	
+	
+	
+	/*
+	 * General Utility methods for NA
+	 */
+	
+	public void sleep(int timeInMillisecs) {
+		try {
+			Thread.sleep(timeInMillisecs);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	// Sleep in seconds
+	public void sleepInSeconds(int seconds){
+		try{
+			Thread.sleep(seconds*1000);
+		}catch(InterruptedException e){
+			e.printStackTrace();
+		}
+	}
+	
+	// Check if the element is present in Favorites
+	public boolean checkFav(String valueInFav){
+		
+		List<WebElement> numberOfFav = driver.findElements(By.xpath("html/body/table[1]/tbody/tr/td[1]/div[2]/div[3]/div"));
+		for(int i=0;i<numberOfFav.size();i++){
+			System.out.println("value is "+numberOfFav.get(i).getText());
+			if(numberOfFav.get(i).getText().equals(valueInFav)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	// Check if alert exists
+	public boolean ifAlertPresent(){ 
+	    try{ 
+	        return true; 
+	    }catch (NoAlertPresentException Ex){ 
+	        return false; 
+	    }   
+	}   
+	
+	// TBD
+	public void tableValue(String tableXpath,String keyFieldValue,String valueToCheck){
+		table = driver.findElement(By.xpath(tableXpath));
+		rows = table.findElements(By.tagName("tr"));
+		for(int i=2;i<rows.size();i++){
+			if(getObjectByXpath(tableXpath).equals(keyFieldValue)){
+				
+			}
+		}
+	}
+	
+	
+	// Check element present or not
+	public boolean isExists(By by) {
+	  try {
+	    return driver.findElement(by).isDisplayed();
+	  } catch (NoSuchElementException e) {
+	    return false;
+	  }
+	}
+
+		
+	// Handling alert to either accept or dismiss
+	public boolean handleAlert(boolean acceptOrDismiss){
+		Alert alert = driver.switchTo().alert();
+		if(acceptOrDismiss){
+			alert.accept();
+			return true;
+		}
+		alert.dismiss();
+		return false;
+	}
+	
+	// Select the checkbox
+	public boolean selectCheckBox(By by){
+			
+		try{
+			if(driver.findElement(by).getAttribute("checked").equals("true")){
+				System.out.println("Checked already");
+				return true;
+			}
+		}catch(Exception e){
+			try{
+				driver.findElement(by).click();
+				if(driver.findElement(by).getAttribute("checked").equals("true")){
+					System.out.println("Checking now");
+					return true;
+				}
+			}catch(Exception e1){
+				return false;
+			}
+		}
+		return false;
+	}
+	
+	
+	// Check if the Title.
+	public boolean checkTitle(String title){
+		//System.out.println("Title is :"+driver.getTitle().trim());
+		return driver.getTitle().trim().equals(title);
+	}
+	
+	public boolean checkTitleContains(String title){
+		
+		String pageTitle = this.getObjectById("PageTitleTop").getText().trim();
+		System.out.println("Title is "+ pageTitle);
+		
+		if(pageTitle == null || pageTitle.isEmpty())
+			pageTitle = this.getObjectByName("PageTitleTop").getText().trim();
+		
+		if(pageTitle == null || !pageTitle.isEmpty())
+			return pageTitle.toLowerCase().contains(title.toLowerCase());
+		
+		return pageTitle.toLowerCase().contains(title.toLowerCase());
+	}
+
+	// Save button in any page
+	public void save(){
+		getObjectByXpath("//input[@value='Save']").click();
+	}
+	// Click on Yes button of Warning dialogue box shown during the reboot of device
+	public void clickYes(){
+		getObjectByXpath("//*[@id='warnDialog']/tbody/tr[2]/td[1]/input").click();
+		
+	}
+	// Search button in any page
+	public void search(){
+		getObjectByXpath("//input[@value='Search' and @class='FormButton']").click();
+	}
+	
+	// Cancel button in any page
+	public void cancel(){
+		getObjectByXpath("//input[@value='Cancel']").click();
+	}
+	
+	// Back button in any page
+	public void back(){
+		getObjectByXpath("//a[@href='javascript:history.go(-1);']").click();
+	}
+	
+	// NA Home page
+	public void home(){
+		getObjectByLinkText("Home").click();
+	}
+	
+	// Save and Acquire
+	public void saveAndAcquire(){
+		getObjectByXpath("//input[@value='Save & Acquire']").click();
+	}
+	
+	// Save and Release
+	public void saveAndRelease(){
+		getObjectByXpath("//input[@value='Save & Release']").click();
+	}
+	
+	// Help Link
+	public void help(){
+		getObjectByLinkText("Help").click();
+	}
+	
+	// Returns true if the element is present.
+	public boolean isElementExist(By by){
+		
+		this.changeTimeOut(5);
+		try{
+			driver.findElement(by);
+		}catch (Exception e){
+			try{
+				driver.findElement(by);
+			}catch(Exception e1){
+				this.changeTimeOut(50);
+				return false;
+			}
+		}
+		this.changeTimeOut(50);
+		return true;
+	}
+	
+	// Change overall timeout settings
+	public void changeTimeOut(int timeToWait){
+		driver.manage().timeouts().implicitlyWait(timeToWait, TimeUnit.SECONDS);
+	}
+	
+	// Info page message comparison
+	public boolean pageInfoBoxContains(String str){
+		
+		WebElement wb = driver.findElement(By.id("InfoBox"));
+		if(wb == null || !wb.isDisplayed()){
+			wb = driver.findElement(By.name("InfoBox"));
+		}
+		//System.out.println("info message "+wb.getText());	
+		return wb.getText().toLowerCase().contains(str.toLowerCase());
+		
+	}
+	
+	// Alert  message comparison
+	
+	public boolean pageAlertBoxContains(String str){
+	try{	WebElement wb = driver.findElement(By.xpath("//div[@class='alert_1']"));
+		if(wb == null || !wb.isDisplayed()){
+			wb = driver.findElement(By.xpath("//div[@class='alert_1']"));
+		}
+		System.out.println("info message "+wb.getText());	
+		return wb.getText().trim().toLowerCase().contains(str.toLowerCase());
+	} 
+	catch(NoSuchElementException exception){
+		return false;
+	}
+	}
+	
+	// Alert 2 message comparision
+	
+	public boolean pageAlert2BoxContains(String str){
+	try{	WebElement wb = driver.findElement(By.xpath("//div[@class='alert_2']"));
+		if(wb == null || !wb.isDisplayed()){
+			wb = driver.findElement(By.xpath("//div[@class='alert_2']"));
+		}
+		System.out.println("info message "+wb.getText());	
+		return wb.getText().trim().toLowerCase().contains(str.toLowerCase());
+		}
+	catch(NoSuchElementException exception){
+		return false;
+	}
+	}
+	
+	// Alert 3 message comparision
+	
+	public boolean pageAlert3BoxContains(String str){
+		try{
+		WebElement wb = driver.findElement(By.xpath("//div[@class='alert_3']"));
+		if(wb == null || !wb.isDisplayed()){
+			wb = driver.findElement(By.xpath("//div[@class='alert_3']"));
+		}
+		System.out.println("info message "+wb.getText());	
+		return wb.getText().trim().toLowerCase().contains(str.toLowerCase());}
+		catch(NoSuchElementException exception){
+			return false;
+		}
+	}
+	
+	// Deselect multiple items 
+	
+	public boolean deselectOptions(String optionName, String[] optionsToBeDeselected){
+		
+		int count = 0;
+		select = new Select(driver.findElement(By.name(optionName)));
+		for(int i=0;i<optionsToBeDeselected.length;i++){
+			select.deselectByVisibleText(optionsToBeDeselected[i]);
+			count++;
+		}
+		if(count == optionsToBeDeselected.length){
+			return true;
+		}
+		return false;
+	}
+	
+	// Select multiple items in a dropdown.
+	public boolean selectOptions(String optionName, String[] optionsToBeSelected){
+		
+		int count = 0;
+		select = new Select(driver.findElement(By.name(optionName)));
+		for(int i=0;i<optionsToBeSelected.length;i++){
+			//System.out.println("Options are "+optionsToBeSelected[i]);
+			select.selectByVisibleText(optionsToBeSelected[i]);
+			count++;
+		}
+		if(count == optionsToBeSelected.length){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	//Select drop down option. Gets option name and option to be selected
+	public boolean selectOption(String optionName, String optionToBeSelected){
+		
+		int count =0;
+		select = new Select(driver.findElement(By.name(optionName)));
+		//select.selectByVisibleText(optionToBeSelected);
+				
+		List<WebElement> options = select.getOptions();
+		//System.out.println("Options size "+options.size());		
+		if(options.size()>0){
+			for(WebElement option:options){
+				//System.out.println("selected options are : "+option.getText());
+				if(option.getText().equals(optionToBeSelected)){
+					option.click();
+					return true;
+				}else{
+					count++;
+				}
+			}
+			if(count == options.size()){
+				System.out.println(optionToBeSelected+" not available to select.");
+				return false;
+			}
+		}else{
+			System.out.println("No options available to select.");
+		}
+		return false;
+	}
+	
+	// Get The count of options
+	public int getOptionSize(String optionName){
+		
+		select = new Select(driver.findElement(By.name(optionName)));
+		//System.out.println("Option size is "+select.getOptions().size());
+		return select.getOptions().size();
+	}
+	
+	// page size option
+		
+	public void pageSizeOption(String number){
+		if(driver.findElements(By.name("pageSize")).size()>0){
+			select = new Select(driver.findElement(By.name("pageSize")));
+			select.selectByVisibleText(number);
+		}
+	}
+	
+	// Refresh current page
+	public void refreshCurrentPage(){
+		driver.navigate().refresh();
+	}
+	
+	public WebElement emptyTaskNameField(WebElement fieldName ){
+		
+		JavascriptExecutor js = (JavascriptExecutor)driver;
+		js.executeScript("arguments[0].value = '';",fieldName );
+		
+		return fieldName;
+		
+	}
+	// Generating random strings appended with name and without
+	public String generateRandomString(){
+		return generateRandomString(null);
+	}
+	
+	public String generateRandomString(String appendName){
+		String name = String.format( RandomStringUtils.randomAlphanumeric(8));
+		if(appendName != null){
+			name = appendName+name;
+		}else{
+			name = "Automation"+name;
+		}
+		//System.out.println("Random string is "+name);
+		return name;
+	}
+	
+	// Generate random number between 1 to 100 or specify the high and low
+	
+	public int generateRandomNumber(){
+		return generateRandomNumber(100, 1);
+	}
+	
+	public int generateRandomNumber(int high, int low){
+		Random r = new Random();
+		return r.nextInt(high-low) + low;
+	}
+	
+	// Split a string 
+	public String[] splitSting(String toSplit){
+		return toSplit.trim().split("\\s*,\\s*");
+	}
+	
+	// Return object with xpathKey. xpathKey is mentioned in the OR.properties
+	public WebElement getObjectByXpath(String xpathKey){
+		//Reporter.log("Trying to Find object having Xpath as : "+xpathKey+"<br>");
+		try{
+			return driver.findElement(By.xpath(xpathKey));
+		}catch(Throwable t){
+			System.out.println("Object having Xpath as "+xpathKey+" not found.");
+			Assert.assertTrue(false, "Object having Xpath as "+xpathKey+" not found.");
+			return null;
+		}
+		
+	}
+	
+	// Return object with class 
+	public WebElement getObjectByClass(String objectClass){
+		//Reporter.log("Trying to Find object having Class name as : "+objectClass+"<br>");
+		try{
+			return driver.findElement(By.className(objectClass));
+		}catch(Throwable t){
+			System.out.println("Object having class name as "+objectClass+" not found."+"<br>");
+			Assert.assertTrue(false, "Object having class name as "+objectClass+" not found.");
+			return null;
+		}
+	}
+	
+	// Return object with name
+	public WebElement getObjectByName(String name){
+		//Reporter.log("Trying to Find object having name as : "+name+"<br>");
+		try{
+			return driver.findElement(By.name(name));
+		}catch(Throwable t){
+			System.out.println("Object having name as "+name+" not found."+"<br>");
+			Assert.assertTrue(false, "Object having name as "+name+" not found.");
+			return null;
+		}
+	}
+	
+	// Return object with id
+	public WebElement getObjectById(String id){
+		//Reporter.log("Trying to Find object having ID as : "+id+"<br>");
+		
+		try{
+			return driver.findElement(By.id(id));
+		}catch(Throwable t){
+			System.out.println("Object having id as "+id+" not found."+"<br>");
+			Assert.assertTrue(false, "Object having id as "+id+" not found.");
+			return null;
+		}
+	}
+	
+	// Return object with linkText
+	public WebElement getObjectByLinkText(String linkText){
+		//Reporter.log("Trying to Find Link with the LinkText as : "+linkText+"<br>");
+		try{
+			return driver.findElement(By.linkText(linkText));
+		}catch(Throwable t){
+			System.out.println("Link with the text "+linkText+" not found "+"<br>");
+			Assert.assertTrue(false,"Link with the text "+linkText+" not found ");
+			return null;
+		}
+	}
+	
+	// Return object with CSS selector
+	public WebElement getObjectByCssSelector(String selector){
+		//Reporter.log("Trying to Find object having CssSelector as : "+selector+"<br>");
+		try{
+			return driver.findElement(By.cssSelector(selector));
+		}catch(Throwable t){
+			System.out.println("Object having CssSelector as "+selector+" not found"+"<br>");
+			Assert.assertTrue(false, "Object having CssSelector as "+selector+" not found");
+			return null;
+		}
+	}
+	
+	// Returns the default Password
+	public String getDefaultPassword(){
+		return "password";
+	}
+	
+	//Returns the new password
+	public String getNewPassword(){
+		return "password1";
+	}
+	
+	// Return Table Column Names as a string
+	public String getTableCollumNames(String xpath){
+		
+		table = common.getObjectByXpath(xpath);
+		rows = table.findElements(By.tagName("tr"));
+		String columnName = rows.get(0).getText();
+		System.out.println("Column Names are "+columnName);
+		return columnName.trim();
+	}
+	
+	/*
+	 *  Get Devices  from xml 
+	 */
+	
+	public String[] getDevices() throws Exception {
+
+		ArrayList<String> ips = new ArrayList<String>();
+
+	   DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+	   DocumentBuilder db = dbf.newDocumentBuilder();
+	   InputStream is =this.
+				getClass().getClassLoader().
+				getResourceAsStream("test/java/input/Devices.xml");  // Divesh - added complete path of Devices.xml
+		Document doc = db.parse(is);
+		
+		NodeList devicesNodes = doc.getElementsByTagName("devices_list");
+
+		if (devicesNodes.getLength() > 0) {
+			NodeList devicesNode = devicesNodes.item(0).getChildNodes();
+			for (int i = 0; i < devicesNode.getLength(); i++) {
+				Node device = devicesNode.item(i);
+				if (device.hasAttributes()) {
+					// System.out.println("ip is "+device.getAttributes().getNamedItem("ip").getTextContent());
+					ips.add(device.getAttributes().getNamedItem("ip")
+							.getTextContent());
+				}
+			}
+		}
+		String[] result = new String[ips.size()];
+		return ips.toArray(result);
+	}
+	
+	
+	
+	/*
+	 *  Add Device Password Attributes
+	 */
+	
+	private String String(InputStream is) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void addDevicePasswordRulesIfNotExists() {
+
+		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+		try {
+			Navigate.Admin.devicePasswordRules();
+			driver.findElement(By.id("dataListTable"));
+			// Check if Manager is already there. If not create a new one.
+			// webTable.getCellElement("table[@id='dataListTable']", "Manager",
+			// "Rule Name").equals("Manager");
+		} catch (NoSuchElementException e) {
+			try {
+				System.out.println("Adding new device password rules");
+				addDevicePasswordRules();
+			} catch (Exception e1) {
+				System.out.println("Not able to add device rules");
+				//Assert.assertTrue("Not able to add password rules", false);
+				Assert.assertTrue(false, "Not able to add password rules");
+			}
+		}
+		driver.manage().timeouts().implicitlyWait(50, TimeUnit.SECONDS);
+	}
+
+	public void addDevicePasswordRules() throws Exception {
+
+		Navigate.Admin.devicePasswordRules();
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db = dbf.newDocumentBuilder();
+		InputStream is = this
+				.getClass()
+				.getClassLoader()
+				.getResourceAsStream(
+						"test/java/input/Devices.xml");  // Divesh -added complete path for devices.xml
+		Document doc = db.parse(is);
+
+		NodeList passwordNodes = doc
+				.getElementsByTagName("device_password_rules");
+
+		if (passwordNodes.getLength() > 0) {
+			NodeList passwordNode = passwordNodes.item(0).getChildNodes();
+			for (int i = 0; i < passwordNode.getLength(); i++) {
+				Node password = passwordNode.item(i);
+				if (password.hasAttributes()) {
+					
+					common.getObjectByLinkText("New Password Rule").click();
+					common.getObjectByName("ruleName").sendKeys(
+							password.getAttributes().getNamedItem("ruleName")
+									.getTextContent());
+					common.getObjectByName("telnetUsername").sendKeys(
+							password.getAttributes().getNamedItem("userName")
+									.getTextContent());
+					common.getObjectByName("telnetPassword").sendKeys(
+							password.getAttributes().getNamedItem("password")
+									.getTextContent());
+					common.getObjectByName("confirmTelnetPassword").sendKeys(
+							password.getAttributes().getNamedItem("password")
+									.getTextContent());
+					common.getObjectByName("enablePassword").sendKeys(
+							password.getAttributes()
+									.getNamedItem("enablePassword")
+									.getTextContent());
+					common.getObjectByName("confirmEnablePassword").sendKeys(
+							password.getAttributes()
+									.getNamedItem("enablePassword")
+									.getTextContent());
+					common.getObjectByName("snmpRead").sendKeys(
+							password.getAttributes()
+									.getNamedItem("snmpReadCommunity")
+									.getTextContent());
+					common.getObjectByName("snmpWrite").sendKeys(
+							password.getAttributes()
+									.getNamedItem("snmpReadWriteCommunity")
+									.getTextContent());
+					common.getObjectByName("SNMPv3UserName").sendKeys(
+							password.getAttributes()
+									.getNamedItem("snmpV3Username")
+									.getTextContent());
+					common.getObjectByName("SNMPv3AuthenticationPassword")
+							.sendKeys(
+									password.getAttributes()
+											.getNamedItem(
+													"snmpV3AuthenticationPassword")
+											.getTextContent());
+					common.getObjectByName(
+							"confirmSNMPv3AuthenticationPassword").sendKeys(
+							password.getAttributes()
+									.getNamedItem(
+											"snmpV3AuthenticationPassword")
+									.getTextContent());
+					common.getObjectByName("SNMPv3EncryptionPassword")
+							.sendKeys(
+									password.getAttributes()
+											.getNamedItem(
+													"snmpV3EncryptionPassword")
+											.getTextContent());
+					common.getObjectByName("confirmSNMPv3EncryptionPassword")
+							.sendKeys(
+									password.getAttributes()
+											.getNamedItem(
+													"snmpV3EncryptionPassword")
+											.getTextContent());
+					common.save();
+					break;
+				}
+			}
+		}
+
+		/*Assert.assertTrue("Password rule not added",
+		pageInfoBoxContains("Password Rule successfully added."));*/
+		Assert.assertTrue(pageInfoBoxContains("Password Rule successfully added."),"Password rule not added");
+
+	}
+	
+	/*
+	 *  Device Addition to NA
+	 */
+	
+	// Get the device status 
+	
+	public String getDeviceDetails(String ip,String deviceParameter) {
+
+		goToDevice(ip);
+		String paramaterValue = null;
+		table = common
+				.getObjectByXpath("//table[@class='device_table']/tbody/tr/td/table");
+		rows = table.findElements(By.tagName("tr"));
+		// System.out.println("Number of rows is "+ rows.size());
+
+		if (deviceParameter.equals("Comments"))
+			return null;
+
+		for (int i = 1; i < rows.size() - 1; i++) {
+			String deviceParamaterTemp = common
+					.getObjectByXpath(
+							"//table[@class='device_table']/tbody/tr/td/table/tbody/tr[" + i
+									+ "]/td[1]").getText().toLowerCase().trim();
+			// System.out.println("Device parameter temp is "+deviceParamaterTemp);
+			if (deviceParamaterTemp.substring(0,
+					deviceParamaterTemp.length() - 1).equals(
+					deviceParameter.toLowerCase())) {
+				paramaterValue = common.getObjectByXpath(
+						"//table[@class='device_table']/tbody/tr/td/table/tbody/tr[" + i + "]/td[2]")
+						.getText().trim();
+				if (paramaterValue.isEmpty()) {
+					System.out.println("Parameter value is empty");
+					return null;
+				}
+				break;
+			}
+		}
+		return paramaterValue;
+	}
+	
+	public DeviceStatus getDeviceStatus(String ip) {
+
+		goToDevice(ip);
+		if (this.checkTitleContains("Search Results")) {
+
+			this.sleepInSeconds(2);
+			this.goToDevice(ip);
+
+			if (this.checkTitleContains("Search Results")) {
+				System.out.println("No Device found in NA");
+				return DeviceStatus.DoesNotExist;
+			}
+
+		}
+		DeviceNavigate.View.DeviceDetail.deviceHome();
+		DeviceHomePage homePage = new DeviceHomePage();
+
+		// Check if the driver is present
+		if (getDeviceDetails(ip, homePage.driverName).toLowerCase().trim()
+				.equals("none")
+				|| getDeviceDetails(ip, homePage.driverName).toLowerCase()
+						.trim().equals(null)) {
+			System.out.println("No driver present for the device");
+			return DeviceStatus.NoDriver;
+		}
+
+		// Check if the device is inaccessible
+		if (!homePage.lastSnapshotResult.isEmpty()
+				&& homePage.lastSnapshotResult.toLowerCase().trim()
+						.contains("problem accessing device")) {
+			System.out.println("Problem accessing device");
+			return DeviceStatus.Inaccessible;
+		}
+
+		// Check if the device is inactive
+		if (!getDeviceDetails(ip, homePage.managementStatus).equals(null)
+				&& !getDeviceDetails(ip, homePage.managementStatus)
+						.toLowerCase().trim().equals("active")) {
+			System.out.println("Device is inactive");
+			return DeviceStatus.Inactive;
+		}
+		System.out.println("Device is Good");
+		return DeviceStatus.Good;
+
+	}
+
+	//  Go to device in NA
+	public void goToDevice(String ip) {
+		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+		common.getObjectByName("device").sendKeys(ip);
+		common.getObjectByXpath("//input[@value='Search' and @name='Submit']")
+				.click();
+		try {
+			driver.findElement(By.xpath("//a[contains(text(),'" + ip + "')]"))
+					.getText().contains(ip);
+		} catch (Exception e) {
+			System.out.println("No device found in NA");
+		}
+		driver.manage().timeouts().implicitlyWait(50, TimeUnit.SECONDS);
+	}
+
+	// Add Device to NA
+	
+	public int addDevice(String ip,boolean autoDiscoverDriver){
+		try {
+			int[] deviceGroupIDs = new int[]{1};
+			return addDevice(ip, null, null, autoDiscoverDriver,deviceGroupIDs);
+		} catch (Exception e) {
+			return -1;
+		}
+	}
+	public int addDevice(String ip, String hostName, String partition,
+			boolean autoDiscoverDriver, int[] groupIDs) throws Exception {
+
+		Navigate.Devices.New.device();
+		NewDevice newDevice = new NewDevice();
+
+		if (this.getOptionSize(newDevice.passwordRules) == 0) {
+			this.home();
+			common.addDevicePasswordRules();
+			Navigate.Devices.New.device();
+		}
+
+		newDevice.ipAddress.sendKeys(ip);
+		newDevice.hostName.sendKeys(hostName);
+		System.out.println("After");
+		
+		if (!this.isElementExist(By.name(newDevice.site))
+				&& common.getOptionSize(newDevice.site) != 0) {
+			this.selectOption(newDevice.site, partition);
+		}
+/*		for(int j=0;j<groupNames.length;j++){
+			
+    		NewDevice NewDevice= new NewDevice();		
+    		NewDevice.EnterGroupName(groupNames);            
+        }*/
+        
+		 if (groupIDs.length != 0)
+			 addGroupToGroupSelector_device(groupIDs);
+		//common.addGroupToGroupSelector(groupIDs);
+        //newDevice.comments.sendKeys("Added by Bender");
+        newDevice.comments.sendKeys("Added by Selenium");
+       
+        
+        
+		if (autoDiscoverDriver) {
+			System.out.println("device discovery");
+			newDevice.driverDiscoverEnable.click();
+			this.save();
+			TaskResult result = this.getNATaskResult(200);
+			if (result == TaskResult.Failed) {
+				System.out.println("Driver discovery Failed");
+				return -1;
+			}
+
+		} else {
+			newDevice.driverDiscoverDisable.click();
+			this.selectOption(newDevice.driver, "No Driver");
+			this.save();
+			return -1;
+		}
+
+		String link = driver.findElement(By.partialLinkText(ip))
+				.getAttribute("href").trim();
+		if (!link.isEmpty())
+			return Integer.parseInt(link.substring(link.lastIndexOf("deviceID=") + 9,
+					link.length()));
+
+		return -1;
+
+	}
+	
+	// Add Device to Device Selector 
+	public void addDeviceToDeviceSelector(int[] deviceIDs) {
+
+		// Wait for the Flash selector to load
+		this.sleepInSeconds(5);
+
+		for (int deviceID : deviceIDs) {
+			System.out.println("Adding device ID " + deviceID
+					+ " to device selector");
+
+			try {
+				jscript.executeScript("addDevice(" + deviceID + ")");
+			} catch (Exception e) {
+				System.out.println("First attempt to add Device ID " + deviceID
+						+ " Failed");
+				this.refreshCurrentPage();
+				this.sleepInSeconds(5);
+				
+				try {
+					jscript.executeScript("addDevice(" + deviceID + ")");
+				} catch (Exception e1) {
+					System.out.println("Second attempt to add Device ID "
+							+ deviceID + " Failed");
+					System.out.println("Device " + deviceID
+							+ " cannot be added in NA");
+					//throw e1;
+				}
+			}
+			System.out.println("Device ID added is " + deviceID);
+			this.sleepInSeconds(5);
+		}
+
+	}
+	
+	// Add Device Group to Device Selector
+	
+	public void addGroupToGroupSelector(int[] groupIDs) {
+
+		// Wait for the Flash selector to load
+		this.sleepInSeconds(5);
+
+		for (int groupID : groupIDs) {
+			System.out.println("Adding Groupd ID " + groupID
+					+ " to group Selector");
+
+			try {
+				jscript.executeScript("addGroup(" + groupID + ")");
+			} catch (Exception e) {
+				System.out.println("First attempt to add Groupd ID " + groupID
+						+ " Failed");
+				this.refreshCurrentPage();
+				this.sleepInSeconds(5);
+				try {
+					jscript.executeScript("addGroup(" + groupID + ")");
+				} catch (Exception e1) {
+					System.out.println("Second attempt to add Group ID "
+							+ groupID + " Failed");
+					System.out.println("Group " + groupID
+							+ " cannot be added in NA");
+					//throw e1;
+				}
+
+			}
+			System.out.println("Group ID added is " + groupID);
+			this.sleepInSeconds(5);
+		}
+
+	}
+	public void addGroupToGroupSelector_device(int[] groupIDs) {
+
+		// Wait for the Flash selector to load
+		this.sleepInSeconds(5);
+
+		for (int groupID : groupIDs) {
+			System.out.println("Adding Groupd ID " + groupID
+					+ " to group Selector");
+
+			try {
+				jscript.executeScript("addDeviceGroup(" + groupID + ")");			
+				
+			} catch (Exception e) {
+				System.out.println("First attempt to add Groupd ID " + groupID
+						+ " Failed");
+				this.refreshCurrentPage();
+				this.sleepInSeconds(5);
+				try {
+					jscript.executeScript("addDeviceGroup(" + groupID + ")");
+				} catch (Exception e1) {
+					System.out.println("Second attempt to add Group ID "
+							+ groupID + " Failed");
+					System.out.println("Group " + groupID
+							+ " cannot be added in NA");
+					//throw e1;
+				}
+
+			}
+			System.out.println("Group ID added is " + groupID);
+			this.sleepInSeconds(5);
+		}
+
+	}
+	// Get Device id from ip
+	public int getDeviceIDFromIP(String ip) {
+		
+		this.goToDevice(ip);
+		DeviceNavigate.View.DeviceDetail.deviceHome();
+		String url = driver.getCurrentUrl().trim();
+		return Integer.parseInt(url.substring(url.lastIndexOf("deviceID=") + 9,
+				url.length()));
+	}
+	
+	public String getDeviceIpAndID(boolean deviceReachabilityCheck){
+		Map<String,Integer> deviceIpAndIds = getDeviceLibrary(1, true, false,true);
+		
+		for(Map.Entry<String, Integer> value:deviceIpAndIds.entrySet()){
+			return value.getKey()+":"+value.getValue();
+		}
+		return null;
+	}
+	
+	public String getDeviceIpAndID(){
+		Map<String,Integer> deviceIpAndIds = getDeviceLibrary(1, true, false,false);
+		
+		for(Map.Entry<String, Integer> value:deviceIpAndIds.entrySet()){
+			return value.getKey()+":"+value.getValue();
+		}
+		return null;
+		
+	}
+	
+	public int[] getDeviceIDs(int numberOfDevices, boolean autoDiscoverDriver){
+		
+		Map<String,Integer> deviceIpAndIds = getDeviceLibrary(numberOfDevices, autoDiscoverDriver, false,false);
+		List<Integer> deviceIDs = new ArrayList<Integer>();
+		
+		for(Map.Entry<String, Integer> value:deviceIpAndIds.entrySet()){
+			deviceIDs.add(value.getValue());
+		}
+		
+		return ArrayUtils.toPrimitive(deviceIDs.toArray(new Integer[deviceIDs.size()]));
+		
+	}
+	
+	public String[] getDeviceIPs(int numberOfDevices, boolean autoDiscoverDriver){
+		
+		Map<String,Integer> deviceIpAndIds = getDeviceLibrary(numberOfDevices, autoDiscoverDriver, false,true);
+		List<String> deviceIPs = new ArrayList<String>();
+		
+		for(Map.Entry<String, Integer> value:deviceIpAndIds.entrySet()){
+			deviceIPs.add(value.getKey());
+		}
+		
+		return deviceIPs.toArray(new String[deviceIPs.size()]);
+		
+	}
+	
+	// Added By Nrao
+	
+	public String[] getDeviceIPs(int numberOfDevices, boolean autoDiscoverDriver, boolean deviceReachabilityCheck){
+		
+		Map<String,Integer> deviceIpAndIds = getDeviceLibrary(numberOfDevices, autoDiscoverDriver, false, deviceReachabilityCheck);
+		List<String> deviceIPs = new ArrayList<String>();
+		
+		for(Map.Entry<String, Integer> value:deviceIpAndIds.entrySet()){
+			deviceIPs.add(value.getKey());
+		}
+		
+		return deviceIPs.toArray(new String[deviceIPs.size()]);
+		
+		}
+
+		
+	public Map<String, Integer> getDeviceLibrary(int numberOfDevices,
+			boolean autoDiscoverDriver, boolean selection,boolean deviceReachabilityCheck) {
+
+		Map<String, Integer> deviceIpsAndIds = new HashMap<String, Integer>();
+
+		if (autoDiscoverDriver) {
+
+			String[] ips = null;
+			// Get the devices from XML
+			try {
+				ips = getDevices();
+			} catch (Exception e) {
+				// e.printStackTrace();
+				System.out.println("Not able to get devices from XML");
+				//Assert.assertTrue("Not able to get the Device list from XML",false);
+				Assert.assertTrue(false, "Not able to get the Device list from XML");
+			}
+
+			int ipsCount = ips.length;
+
+			if (numberOfDevices > ipsCount) {
+				System.out.println("There are no enough devices to test");
+			}
+
+			int i = 0;
+			int devicesAdded = 0;
+			int deviceId = -1;
+
+			while (devicesAdded < numberOfDevices) {
+
+				if (i >= ipsCount) {
+					System.out.println("There are not enough devices to test");
+				}
+
+				String ip = ips[i];
+				System.out.println("Ip to be added is " + ip);
+				
+				// Check if the device is reachable via ping
+				if (deviceReachabilityCheck) {
+					if (!this.checkDeviceReachability(ip)) {
+						i++;
+						System.out
+						.println("Device "
+								+ ip
+								+ " is not reachable. Continuing with the next device.");
+						continue;
+					}
+					System.out
+							.println("Device "
+									+ ip
+									+ " is reachable. Continuing the check the status of the device.");
+				}
+
+				DeviceStatus deviceStatus = this.getDeviceStatus(ip);
+				System.out.println("Device status is " + deviceStatus);
+
+				switch (deviceStatus) {
+
+				case DoesNotExist:
+
+					System.out.println("--- Add the device to NA ---");
+					deviceId = this.addDevice(ip, autoDiscoverDriver);
+					System.out.println("Device id is "+deviceId);
+					if (deviceId == -1) {
+						i++;
+						continue;
+					}
+					deviceIpsAndIds.put(ip, deviceId);
+					devicesAdded++;
+					break;
+
+				case NoDriver:
+
+					this.goToDevice(ip);
+
+					DeviceNavigate.View.DeviceDetail.deviceHome();
+					DeviceHomePage homePage = new DeviceHomePage();
+					
+					if (getDeviceDetails(ip, homePage.managementStatus).equals(
+							null)
+							|| !getDeviceDetails(ip, homePage.managementStatus)
+									.toLowerCase().trim().equals("active")) {
+						DeviceNavigate.Edit.activateDevice();
+						/*Assert.assertTrue(
+						"Not able to enable the device",
+						this.pageInfoBoxContains("Successfully activated 1 device(s)."));*/
+						Assert.assertTrue(this.pageInfoBoxContains("Successfully activated 1 device(s)."), "Not able to enable the device");
+					}
+					this.goToDevice(ip);
+					DeviceNavigate.Edit.discoverDriver();
+					this.sleepInSeconds(5);
+					this.save();
+					if (this.naTaskSucceeded()) {
+						deviceId = this.getDeviceIDFromIP(ip);
+						deviceIpsAndIds.put(ip, deviceId);
+						devicesAdded++;
+					} else {
+						// TBD. If the driver discovery fails even after driver discovery, continue with the next device.
+						//devicesAdded++;
+						i++;
+						continue;
+					}
+					break;
+
+				case Inactive:
+
+					this.goToDevice(ip);
+					DeviceNavigate.Edit.activateDevice();
+					if (this.getDeviceStatus(ip) == DeviceStatus.Good) {
+						deviceId = this.getDeviceIDFromIP(ip);
+						deviceIpsAndIds.put(ip, deviceId);
+						devicesAdded++;
+					} else {
+						// TBD. If the device status is not good even after activating, continue with the next device.
+						//devicesAdded++;
+						i++;
+						continue;
+					}
+					break;
+
+				case Good:
+
+					deviceId = this.getDeviceIDFromIP(ip);
+					deviceIpsAndIds.put(ip, deviceId);
+					devicesAdded++;
+					break;
+
+				case Inaccessible:
+					// TBD
+					break;
+
+				default:
+					// TBD
+					break;
+
+				}
+
+				i++;
+			}
+
+		} else {
+			// TBD
+			// Have to write methods for adding devices without auto discovery.
+		}
+		// Change the return statment after implementing else
+		return deviceIpsAndIds;
+	}
+	
+		
+	/*
+	 *  Get Task Result Methods
+	 */
+	
+	public TaskResult getNATaskResult(int numberOfSecs) {
+		int sleepTimeInSec = 5;
+		int tryCount = numberOfSecs/sleepTimeInSec;
+
+		TaskInformationPage taskPage = new TaskInformationPage();
+		String status = null;
+
+		while (tryCount > 0) {
+			
+			this.sleepInSeconds(sleepTimeInSec);
+			
+			status = (new WebDriverWait(driver, 10))
+					.until(ExpectedConditions.presenceOfElementLocated(By
+							.id(taskPage.taskStatus))).getText().toLowerCase()
+					.trim();
+			if (!status.isEmpty() && !status.contains("running")
+					&& !status.contains("pending")
+					&& !status.contains("waiting")) {
+
+				//System.out.println("status is " + status);
+				System.out.println("status is from NA Result page " + status);
+				return getNATaskResultFromText(status);
+			}
+
+			tryCount--;
+			/*System.out.println("Status is " + status + " try count is "
+					+ tryCount);*/
+		}
+		return TaskResult.Failed;
+
+	}
+	
+		
+	// Get the task Result from the status field
+	private TaskResult getNATaskResultFromText(String text) {
+		String str = text.toLowerCase();
+
+		if (str.contains("succeeded"))
+			return TaskResult.Succeeded;
+		else if (str.contains("failed"))
+			return TaskResult.Failed;
+		else if (str.contains("warning"))
+			return TaskResult.Warning;
+		else if (str.contains("skipped"))
+			return TaskResult.Skipped;
+		else
+			return TaskResult.Failed;
+
+	}
+	
+	public boolean naTaskSucceeded() {
+
+		TaskResult result = this.getNATaskResult(200);
+		if (result == TaskResult.Succeeded || result == TaskResult.Warning
+				|| result == TaskResult.Skipped) {
+			return true;
+		}
+		return false;
+
+	}
+	
+	public boolean naTaskSucceeded(int taskID){
+		
+		driver.get("http://"+System.getProperty("naIpAddress")+"/task.view.htm?taskID="+taskID);
+		TaskResult result = this.getNATaskResult(200);
+		if (result == TaskResult.Succeeded || result == TaskResult.Warning
+				|| result == TaskResult.Skipped) {
+			return true;
+		}
+		return false;
+	}
+	
+	public int getTaskID(){
+		String url = driver.getCurrentUrl().trim();
+		return Integer.parseInt(url.substring(url.lastIndexOf("taskID=") + 7,
+				url.length()));
+	}
+	
+	// Check the reachability frequently  and returns success or failure.
+	public Status deviceReachabilityAfterRestartCheck(String ip,int numberOfSecs){
+		
+		int sleepTimeInSec = 5;
+		int tryCount = numberOfSecs/sleepTimeInSec;
+		int numberOfTimes =0;
+		
+		boolean deviceReachability = this.checkDeviceReachability(ip);
+		
+		while(deviceReachability){
+			while(tryCount>0){
+				this.sleepInSeconds(sleepTimeInSec);
+				deviceReachability = this.checkDeviceReachability(ip);
+				//System.out.println("Device reachability status "+deviceReachability);
+				if(!deviceReachability){
+					// Sometimes even after the device is down, the device is pinging.
+					numberOfTimes++;
+					//System.out.println("Number of time is "+numberOfTimes);
+					tryCount++;
+					if(numberOfTimes==2){
+						System.out.println("Device reachability status is --"+deviceReachability);
+						return Status.Success;
+					}
+				}else{
+					//System.out.println("Device has not shutdown yet.");
+					numberOfTimes = 0;
+				}
+				
+				tryCount--;
+			}
+			return Status.Failure;
+		}
+			
+		while(!deviceReachability){
+			
+			while(tryCount>0){
+				this.sleepInSeconds(sleepTimeInSec);
+				deviceReachability = this.checkDeviceReachability(ip);
+				//System.out.println("Device reachability status is "+deviceReachability);
+				if(deviceReachability){
+					// Sometimes even after the device is up, the device is not pingable.
+					numberOfTimes++;
+					tryCount++;
+					if(numberOfTimes==2){
+						System.out.println("Device reachability status is -- "+deviceReachability);
+						return Status.Success;
+					}
+				}else{
+					//System.out.println("Device still down. Not up yet.");
+					numberOfTimes = 0;
+				}
+				tryCount--;
+			}
+			return Status.Failure;
+		}
+		
+		return Status.Failure;
+	}
+	
+	// Check if the device is reachable
+	public boolean checkDeviceReachability(String ip){
+		
+		try{
+			InetAddress host = InetAddress.getByName(ip);
+			return host.isReachable(10000);
+		}catch(Exception e){
+			System.out.println("Exception occured while pinging the device");
+		}
+		return false;
+	
+	}
+	
+	
+	/*
+	 * Add Device Group
+	 */
+	
+	public String addDeviceGroup() {
+		String groupName = this.generateRandomString();		
+		int groupId = addDeviceGroup(groupName, null, null);
+		if (groupId != -1) {
+			return groupName+":"+groupId;
+		}
+		return null;
+	}
+	
+	public String addDeviceGroup(int[] deviceIDs){
+		String groupName = this.generateRandomString();
+		int groupId = addDeviceGroup(groupName, null,deviceIDs);
+		if (groupId != -1) {
+			return groupName+":"+groupId;
+		}
+		return null;
+	}
+
+	public String addDeviceGroup(String partition) {
+		String groupName = this.generateRandomString();
+		int groupId = addDeviceGroup(groupName, partition,null);
+		if (groupId != -1) {
+			return groupName+":"+groupId;
+		}
+		return null;
+	}
+
+	public int addDeviceGroup(String groupName, String partition, int[] deviceIDs) {
+
+		Navigate.Devices.New.deviceGroup();
+		NewDeviceGroup deviceGroup = new NewDeviceGroup();
+		deviceGroup.groupName.sendKeys(groupName);
+		deviceGroup.description.sendKeys("Added by Automation");
+
+		if (partition != null
+				&& this.isElementExist(By.name(deviceGroup.site))) {
+			this.getObjectByName(deviceGroup.site);
+		}
+		
+		if(deviceIDs.length !=0){
+			this.addDeviceToDeviceSelector(deviceIDs);
+		}
+
+		driver.findElement(By.xpath("//*[@value='Save' and @type='submit']")).click();
+		if (this.pageInfoBoxContains("New device group")) {
+			return getDeviceGroupId(groupName);
+		}
+		return -1;
+	}
+	
+	public int getDeviceGroupId(String groupName) {
+
+		int groupId = -1;
+		Navigate.Devices.Inventory();
+		InventoryPage invPage = new InventoryPage();
+		
+		//common.getObjectByName(invPage.currentWorkingGroup).sendKeys(groupName);
+		select  = new Select(driver.findElement(By.name("deviceGroupID")));
+		List<WebElement> options = select.getOptions();
+		for(WebElement option:options){
+			if(option.getText().equals(groupName)){
+				groupId = Integer.parseInt(option.getAttribute("value").toString());
+			}
+		}
+		
+		return groupId;
+
+	}
+	
+	
+	
+	/*
+	 * Get License Information
+	 */
+	public String getPremiumPack1_50() {
+		String license1 = "# HP Network Automation Premium Nodes\n";
+		String license2 = "YDZE A9EA H9P9 GHU3 UFB4 HWW5 Y9JL KP7L B89H MZVU DXAU 2CSM GHTG L762 LNR3 G4JM KJVT D5KM EFVW TV5J EDHP 8QWG Q9R9 LB2K AARX CL4R M8NX 32C2 JP3E FRRX N4ZF BGWF P8XV H2F5 7SQQ DAJF VSNF KN3P FKC4 EZUH \"TESTHP_NA10 A7Z10AAE^10.00 HP Network Automation Premium Edition 50 Node Pack for 50 to 200 Nodes Software E-LTU \"";
+		return license1 + license2;
+	}
+	
+	public String getPremiumPack2_50() {
+		String license1 = "# HP Network Automation Premium Nodes\n";
+		String license2 = "QDBC B9EA H9PA KHXZ UFB4 HWW5 Y9JL KP7L B89H MZVU DXAU 2CSM GHTG L762 GRZY V3JQ KJVT D5KM EFVW TV5J ED7P 7QWG Q9R9 LB2K AARX CL4R M8NX 32C2 JP3E FRRX N4ZF BGWF P8XV H2F5 7SQQ DAJF VSNF KN3P FKC4 EZUH \"TESTHP_NA10 A7Z10AAE^10.00 HP Network Automation Premium Edition 50 Node Pack for 50 to 200 Nodes Software E-LTU \"";
+		return license1 + license2;
+	}
+	public String getUltimatePack1_50() {
+		String license1 = "# HP Network Automation Ultimate Nodes\n";
+		String license2 = "YDRC A9EA H9P9 KHW3 VFB4 HWWF Y9JL KP7L B89H MZVU DXAU 2CSM GHTG L762 2RZY H5Z4 KJVT D5KM EFVW TV5J 6DPJ PQGG Q9R9 LB2K AARX CL4R M8NX 32C2 JP3E FRRX N4ZF BGWF P8XV H2F5 7SQ9 LAJF VSNF KN3P FKC4 EZUH \"TESTHP_NA10 A7Z17AAE^10.00 HP Network Automation Ultimate Edition 50 Node Pack for 50 to 200 Nodes Software E-LTU \"";
+		return license1 + license2;
+	}
+	public String getPremiumPack3_50() {
+		String license1 = "# HP Network Automation Premium Nodes\n";
+		String license2 = "9DBA D9EA H9P9 8HV3 UFB4 HWW5 Y9JL KP7L B89H MZVU DXAU 2CSM GHTG L762 9XBY E3F4 KJVT D5KM EFVW TV5J 6D3N 6VW8 Q9R9 LB2K AARX CL4R M8NX 32C2 JP3E FRRX N4ZF BGWF P8XV H2F5 7SQQ DAJF VSNF KN3P FKC4 EZUH \"TESTHP_NA10 A7Z10AAE^10.00 HP Network Automation Premium Edition 50 Node Pack for 50 to 200 Nodes Software E-LTU \"";
+		return license1 + license2;
+	}
+	
+	public String getUltimatePack2_500() {
+		String license1 = "# HP Network Automation Ultimate Nodes\n";
+		String license2 = "9DJG B9EA H9PQ CHUZ VFB4 HWWF Y9JL 2L7P B89H MZVU DXAU 2CSM GHTG L762 GD22 XYZM KJVT D5KM GFVW DR5N ADHL NVG6 Q9R9 LB2K AARX CL4R M8NX 32C2 JP3E FRRX N4ZF BGWF P8XV H2F5 7SQQ LAJF VSNF KN3P FKC4 EZUH \"ESTHP_NA10 A7Z18AAE^10.00 HP Network Automation Ultimate Edition 50 Node Pack for 250 to 950 Nodes Software E-LTU \"";
+		return license1 + license2;
+	}
+	
+	public String getEvalLicense_10() {
+		String license1 = "# HP Network Automation Evaluation Extension\n";
+		String license2 = "YA2C D99A H9P9 GHWZ UFB4 HWWF Y9JL KM7L NDJC 8HBE DXAU 2CSM GHTG L762 AFVZ GUN9 KJVT D5KM AFVW TT5J DPPP MQC2 Q9R9 LB2K AARX CL4R M8NX 32C2 JP3E FRRX N4ZF BGWF DRMA YCZF XR3U GZ3V FSM5 CVRY FKN2 FGTD DHNC P33V \"HP Network Automation Ultimate Ed. Evaluation Extension\"";
+		return license1 + license2;
+	}
+
+	public String getEvalLicense_15() {
+		String license1 = "# HP Network Automation Evaluation Extension\n";
+		String license2 = "QASG D99A H9P9 KHX3 UFB4 HWWF Y9JL 2MPL NDJC 8HBE DXAU 2CSM GHTG L762 6FN5 EQNM KJVT D5KM EFVW DTNJ DPXN NQC2 Q9R9 LB2K AARX CL4R M8NX 32C2 JP3E FRRX N4ZF BGWF DRMA YCZF XR3U GZ3V FSM5 CVRY FKN2 FGTD DHNC P33V \"HP Network Automation Ultimate Ed. Evaluation Extension\"";
+		return license1 + license2;
+	}
+
+	public String getPremLicense_200() {
+		String license1 = "# HP Network Automation Premium Nodes\n";
+		String license2 = "ADBE B9EA H9P9 GHV2 UFB4 HWW5 29JL 297L B89H MZVU DXAU 2CSM GHTG L762 UFZ3 UXNA KJVT D5KM AFRW DX5J 3P7L 8QC2 Q9R9 LB2K AARX CL4R M8NX 32C2 JP3E FRRX N4ZF BGWF P8XV H2F5 7SQY HAJF VSNF KN3P FKC4 EZUH \"TESTHP_NA10 A7Z15AAE^10.00 HP Network Automation Premium Edition 50 Node Pack for 7000 to 10950 Nodes Software E-LTU\"";
+		return license1 + license2;
+	}
+
+	public String getPremLicense_650() {
+		String license1 = "# HP Network Automation Premium Nodes\n";
+		String license2 = "YDBG D9EA H9P9 8HW2 UFB4 HWW5 49NL KM7T B89H MZVU DXAU 2CSM GHTG L762 NFR6 FTNQ KJVT D5KM AFRW TT5R JPXJ 7QS2 Q9R9 LB2K AARX CL4R M8NX 32C2 JP3E FRRX N4ZF BGWF P8XV H2F5 7SQQ HAJF VSNF KN3P FKC4 EZUH \"TESTHP_NA10 A7Z14AAE^10.00 HP Network Automation Premium Edition 50 Node Pack for 3500 to 6950 Nodes Software E-LTU\"";
+		return license1 + license2;
+	}
+
+	public String getUltLicense_50() {
+		String license1 = "# HP Network Automation Ultimate Nodes\n";
+		String license2 = "YDBG C9EA H9PQ GHU2 VFB4 HWWF Y9JL KP7L B89H MZVU DXAU 2CSM GHTG L762 7BJ7 XV59 KJVT D5KM EFVW TV5J HPTP 4XC2 Q9R9 LB2K AARX CL4R M8NX 32C2 JP3E FRRX N4ZF BGWF X8XV H2F5 7SQA HAJF VSNF KN3P FKC4 EZUH \"TESTHP_NA10 A7Z22AAE^10.00 HP Network Automation Ultimate Edition 50 Node Pack for 7000 to 10950 Nodes Software E-LTU\"";
+		return license1 + license2;
+	}
+
+	public String getUltLicense_200() {
+		String license1 = "# HP Network Automation Ultimate Nodes\n";
+		String license2 = "ADZC B9EA H9PQ GHU2 VFB4 HWWF 29JL 297L B89H MZVU DXAU 2CSM GHTG L762 5FR4 ETNQ KJVT D5KM AFRW DX5J JPXJ 7QS2 Q9R9 LB2K AARX CL4R M8NX 32C2 JP3E FRRX N4ZF BGWF X8XV H2F5 7SQA HAJF VSNF KN3P FKC4 EZUH \"TESTHP_NA10 A7Z22AAE^10.00 HP Network Automation Ultimate Edition 50 Node Pack for 7000 to 10950 Nodes Software E-LTU\"";
+		return license1 + license2;
+	}
+
+	public String getUltLicense_250() {
+		String license1 = "# HP Network Automation Ultimate Nodes\n";
+		String license2 = "9DJG B9EA H9PA KHWZ VFB4 HWWF 49JL KL7L B89H MZVU DXAU 2CSM GHTG L762 SF52 VVN9 KJVT D5KM AFVW TS5J JPHN MQC2 Q9R9 LB2K AARX CL4R M8NX 32C2 JP3E FRRX N4ZF BGWF X8XV H2F5 7SQA HAJF VSNF KN3P FKC4 EZUH \"TESTHP_NA10 A7Z22AAE^10.00 HP Network Automation Ultimate Edition 50 Node Pack for 7000 to 10950 Nodes Software E-LTU\"";
+		return license1 + license2;
+	}
+
+	public boolean updateLicense(String license) {
+
+		Navigate.Help.aboutHPNetworkAutomation();
+		HelpPageAboutHPNA help = new HelpPageAboutHPNA();
+
+		common.getObjectByLinkText(help.viewLicenseInformation).click();
+		common.getObjectByName("data").sendKeys(license);
+		common.getObjectByXpath("//input[@title='Update License']").click();
+
+		if(!this.isElementExist(By.className("alert_3"))){
+			return true;
+		}
+		
+		/*if (!driver.findElement(By.className("alert_3")).getText()
+				.toLowerCase().contains("failed to update license")
+				|| !driver.findElement(By.className("alert_3")).getText()
+						.trim()
+						.equals("Failed to update license: Invalid License")) {
+			return true;
+		}*/
+		return false;
+	}
+	
+	public String getLicenseDetailsFromNA(LicenseInformation licenseInfo) {
+
+		Navigate.Help.aboutHPNetworkAutomation();
+		HelpPageAboutHPNA help = new HelpPageAboutHPNA();
+		common.getObjectByLinkText(help.viewLicenseInformation).click();
+
+		Map<String, String> licenseInformation = new HashMap<String, String>();
+		licenseInformation
+				.put(LicenseInformation.Product.toString(),
+						common.getObjectByXpath(
+								"//table[@class='table_form_standard']/tbody/tr[2]/td[2]/span")
+								.getText().trim());
+		licenseInformation
+				.put(LicenseInformation.Feature.toString(),
+						common.getObjectByXpath(
+								"//table[@class='table_form_standard']/tbody/tr[3]/td[2]/span")
+								.getText().trim());
+		licenseInformation
+				.put(LicenseInformation.LicensedTo.toString(),
+						common.getObjectByXpath(
+								"//table[@class='table_form_standard']/tbody/tr[4]/td[2]/span")
+								.getText().trim());
+		licenseInformation
+				.put(LicenseInformation.NumberOfNodesLicensed.toString(),
+						common.getObjectByXpath(
+								"//table[@class='table_form_standard']/tbody/tr[5]/td[2]/span")
+								.getText().trim());
+		licenseInformation
+				.put(LicenseInformation.NumberOfNodesInUse.toString(),
+						common.getObjectByXpath(
+								"//table[@class='table_form_standard']/tbody/tr[6]/td[2]/span")
+								.getText().trim());
+		licenseInformation
+				.put(LicenseInformation.LicenseExpiration.toString(),
+						common.getObjectByXpath(
+								"//table[@class='table_form_standard']/tbody/tr[7]/td[2]/span")
+								.getText().trim());
+
+		return licenseInformation.get(licenseInfo.toString());
+
+	}
+	
+	public String getLicenseDetailsFromFile(String nameOfFeature)
+			throws Exception {
+
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db = dbf.newDocumentBuilder();
+		URL url = this.getClass().getClassLoader()
+				.getResource("input/Common.xml");
+
+		Document doc = db.parse(url.toURI().getPath());
+
+		NodeList common = doc.getElementsByTagName("License");
+
+		Node item = common.item(0);
+		System.out.println("Current node name is " + item.getNodeName());
+
+		Element element = (Element) item;
+		
+		return element.getElementsByTagName(nameOfFeature).item(0)
+				.getTextContent().toString().trim();
+
+	}
+	
+	public void writeLicenseDetailsToFile(String nameOfFeature,
+			String dataToWrite) throws Exception {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db = dbf.newDocumentBuilder();
+		URL url = this.getClass().getClassLoader()
+				.getResource("input/Common.xml");
+
+		Document doc = db.parse(url.toURI().getPath());
+
+		NodeList common = doc.getElementsByTagName("License");
+
+		Node item = common.item(0);
+		System.out.println("Current node name is " + item.getNodeName());
+		Element element = (Element) item;
+		element.getElementsByTagName(nameOfFeature).item(0)
+				.setTextContent(dataToWrite);
+
+		TransformerFactory transformerFactory = TransformerFactory
+				.newInstance();
+		Transformer transformer = transformerFactory.newTransformer();
+		DOMSource source = new DOMSource(doc);
+		StreamResult result = new StreamResult(new File(url.toURI().getPath()));
+		transformer.transform(source, result);
+	}
+	
+	public void getLicenseNumberOfDays(){
+		try {
+			System.out.println("value is "+this.getLicenseDetailsFromFile("InstallDate"));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	// TBD
+	public void diffDates(){
+		
+		Calendar installDate = Calendar.getInstance();
+		String FORMAT = "MMM-dd-yy";
+		Calendar cal = Calendar.getInstance();
+		SimpleDateFormat sdf = new SimpleDateFormat(FORMAT);;
+		
+		try {
+			
+			if(this.getLicenseDetailsFromFile("InstallDate").isEmpty()){
+				System.out.println("No InstallDate found in xml. Updating it.");
+				installDate = this.updateInstallDate();
+						
+			}else{
+				System.out.println("Install date is "+this.getLicenseDetailsFromFile("InstallDate"));
+				installDate.setTime(sdf.parse(this.getLicenseDetailsFromFile("InstallDate")));
+			}
+			
+			cal.setTime(sdf.parse(common
+					.getLicenseDetailsFromNA(
+							LicenseInformation.LicenseExpiration).toString()
+					.trim()));
+			//String formatedDate = sdf.format(cal.getTime());	
+			System.out.println("cal is "+cal.getTime()+" install date "+installDate.getTime());
+			System.out.println("Number of days "+(cal.get(Calendar.DATE) - installDate.get(Calendar.DATE)));
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			
+		}
+	}
+	
+	public Calendar updateInstallDate() {
+
+		String FORMAT = "MMM-dd-yy";
+		Calendar cal = Calendar.getInstance();
+		SimpleDateFormat sdf;
+
+		try {
+			sdf = new SimpleDateFormat(FORMAT);
+			cal.setTime(sdf.parse(common
+					.getLicenseDetailsFromNA(
+							LicenseInformation.LicenseExpiration).toString()
+					.trim()));
+
+			cal.add(Calendar.DATE, -60);
+			String formatedDate = sdf.format(cal.getTime());
+			System.out.println("date is " + formatedDate);
+			this.writeLicenseDetailsToFile("InstallDate", formatedDate);
+			return cal;
+		} catch (Exception e) {
+			return null;
+		}
+		
+		/*DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db = dbf.newDocumentBuilder();
+		URL url = this
+				.getClass()
+				.getClassLoader()
+				.getResource(
+						"input/Common.xml");
+		
+		Document doc = db.parse(url.toURI().getPath());
+
+		NodeList common = doc.getElementsByTagName("License");
+		
+		Node item = common.item(0);
+		System.out.println("Current node name is "+item.getNodeName());
+			
+		Element element = (Element) item;
+		System.out.println("value is "+element.getElementsByTagName("Feature").item(0).getTextContent());
+		System.out.println("value is "+element.getElementsByTagName("InstallDate").item(0).getTextContent());
+		System.out.println("value is "+element.getElementsByTagName("NumberOfNodes").item(0).getTextContent());
+		System.out.println("value is "+element.getElementsByTagName("LicenseExpiration").item(0).getTextContent());
+		element.getElementsByTagName("LicenseExpiration").item(0).setTextContent("FinallychangedAgain5");
+			
+		
+		
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		Transformer transformer = transformerFactory.newTransformer();
+		DOMSource source = new DOMSource(doc);
+		StreamResult result = new StreamResult(new File(url.toURI().getPath()));
+		transformer.transform(source, result);
+		*/
+	}
+
+	// Create a csv file
+	
+	public void createCSV(){
+		
+		try {
+			PrintWriter write = new PrintWriter("\\\16.78.60.105\\NASeleniumUploadFiles\\test.csv","UTF-8");
+			write.println("id,value,attribute");
+			write.println("30,20,40");
+			write.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	// To Capture Screen Shot
+	public void CaptureScreenShot(WebDriver driver, String fileName)
+	{
+		//EventFiringWebDriver efwd = new EventFiringWebDriver(driver);
+		TakesScreenshot efwd = ((TakesScreenshot)driver);
+		File src = efwd.getScreenshotAs(OutputType.FILE);
+		try
+		{
+		  FileUtils.copyFile(src, new File("./ScreenShotLib/"+fileName));
+		}
+		catch (Exception e)
+		{
+			
+		}
+			
+		
+	}
+	
+	public void verifySortingOrder(String tableXpath, String columnName, boolean descOrder)
+	{
+		List<String> displayedNames = new ArrayList<String>();
+		List<String> SortedNames = new ArrayList<String>();
+		this.sleep(1000);
+		WebElement tableType=driver.findElement(By.xpath(tableXpath));
+		List<WebElement> rowElmt=tableType.findElements(By.xpath(tableXpath+"//tr"));
+		
+		String getData;
+		this.sleep(1000);
+		//System.out.println(rowElmt.size());
+				
+		List<WebElement> columnList = tableType.findElements(By.xpath(tableXpath+"//tr[1]/td"));
+		//System.out.println(columnList);				
+		
+		for(int j=1;j<=columnList.size();j++)
+		{
+			//System.out.println(common.getObjectByXpath(tableXpath+"//tr[1]/td["+j+"]").getText().trim());
+			if(common.getObjectByXpath(tableXpath+"//tr[1]/td["+j+"]").getText().trim().equals(columnName))
+				{
+				for(int i=3;i<=rowElmt.size();i++)
+				{
+					
+					getData=common.getObjectByXpath(tableXpath+"//tr["+i+"]/td["+j+"]").getText().trim().toUpperCase();
+					displayedNames.add(getData);
+				    SortedNames.add(getData);
+				    System.out.println(displayedNames);
+				    
+				}
+				break;
+			} else {
+				Reporter.log("column with the name "+columnName+" not found"+"<br>");
+				Assert.fail("column with the name "+columnName+" not found");
+			}
+			
+		}
+			
+		this.sleep(2000);
+		List<String> sortingOperation = displayedNames;
+		this.listSortEx(sortingOperation, descOrder);
+		System.out.println(sortingOperation);
+		try {
+			Assert.assertEquals(SortedNames, sortingOperation);
+			Reporter.log("Sort order is as expected"+"<br>");
+		} catch (AssertionError e) {
+			Reporter.log("Sort order is not as expected"+"<br>");
+			Assert.fail("Sort order is not as expected", e);
+			e.printStackTrace();
+		}
+	}
+	
+	public void listSortEx(List<String> list, final Boolean descOrder){
+	    Collections.sort(list, new Comparator<String>() {
+	 
+	        @Override
+	        public int compare(String o1, String o2) {
+	            if(descOrder){
+	                return o2.compareTo(o1);
+	            }else{
+	                return o1.compareTo(o2);
+	            }
+	        }
+	    });
+	}
+	
+	public boolean clickOnColumnNameToSort(String tableXpath, String columnName, boolean descOrder)
+	{
+		WebElement tableType=driver.findElement(By.xpath(tableXpath));
+		List<WebElement> rowElmt=tableType.findElements(By.xpath(tableXpath+"//tr"));
+		
+		List<WebElement> columnList = tableType.findElements(By.xpath(tableXpath+"//tr[1]/td"));
+		boolean Status = false;
+		for(int j=1;j<=columnList.size();j++)
+		{
+			//System.out.println(common.getObjectByXpath(tableXpath+"//tr[1]/td["+j+"]").getText().trim());
+			if(common.getObjectByXpath(tableXpath+"//tr[1]/td["+j+"]").getText().trim().equals(columnName))
+				{
+				if(descOrder && common.getObjectByXpath(tableXpath+"//tr[1]/td[1]//span//img[@ src='images/asc.gif']").isDisplayed())
+				{
+					common.getObjectByXpath(tableXpath+"//tr[1]/td["+j+"]/a").click();
+					Status = true;
+				}else if(descOrder && common.getObjectByXpath(tableXpath+"//tr[1]/td[1]//span//img[@ src='images/desc.gif']").isDisplayed())
+				{
+					Reporter.log("column with the name "+columnName+" is already sorted in Descending order"+"<br>");
+					Status = true;
+				}else if(!descOrder && common.getObjectByXpath(tableXpath+"//tr[1]/td[1]//span//img[@ src='images/desc.gif']").isDisplayed())
+				{
+					common.getObjectByXpath(tableXpath+"//tr[1]/td["+j+"]/a").click();
+					Status = true;
+				}else if(!descOrder && common.getObjectByXpath(tableXpath+"//tr[1]/td[1]//span//img[@ src='images/asc.gif']").isDisplayed())
+				{
+					Reporter.log("column with the name "+columnName+" is already sorted in Ascending order"+"<br>");
+					Status = true;
+				}
+				
+				break;
+			} else {
+				Reporter.log("column with the name "+columnName+" not found"+"<br>");
+				Status = false;
+				Assert.fail("column with the name "+columnName+" not found");
+			}
+			
+		}
+		return Status;
+		
+	}
+	
+	public boolean checkExistenceOfOverridelink()
+	{
+		
+		try {
+			
+			driver.findElement(By.id("overridelink")).isDisplayed();
+			System.out.println(driver.findElement(By.id("overridelink")).isDisplayed());
+			return true;
+		} catch (Exception e) {
+			return false;
+			
+		}	
+		
+	}
+	
+	
+	
+	
+	
+	
+	
+   public void IPV4(){
+		
+		System.out.println(this.GetRandomIPv4(1, 256));
+	}
+	
+	
+	public String GetRandomIPv4(int min, int max) 
+    {
+		StringBuilder sb = null;
+        Random rand = new Random();
+        
+        int randomNum1 = rand.nextInt((max - 1) + 1) + min;
+        int randomNum2 = rand.nextInt((max - 1) + 1) + min;
+        int randomNum3 = rand.nextInt((max - 1) + 1) + min;
+        int randomNum4 = rand.nextInt((max - 1) + 1) + min;
+        
+        String ip1 = Integer.toString(randomNum1);
+        String ip2 = Integer.toString(randomNum2);
+        String ip3 = Integer.toString(randomNum3);
+        String ip4 = Integer.toString(randomNum4);
+        sb = new StringBuilder();
+        sb.append(ip1).append(".").append(ip2).append(".").append(ip3).append(".").append(ip4);
+        return sb.toString();
+    }
+	
+		  
+	 public void GetRandomStrin(){
+			
+			System.out.println(this.GetRandomString());
+		}
+		  public String GetRandomString()
+	    {
+	        //makes sure this method does not return
+	        //the same random string for successive
+	        //fast calls	       
+
+	        Random rand = new Random();
+	        char randChar1 = (char)(rand.nextInt(26) + 'a');          
+	        char randChar2 = (char)(rand.nextInt(26) + 'a');
+	        int randNum1 = rand.nextInt(10000) +1000;
+	        int randNum2 = rand.nextInt(10000) +1000; //1000-9999
+	       
+	        String TwoChar = new StringBuilder("").append(randChar1).append(randChar2).toString();
+	        
+	        String strRandom=TwoChar.toString()+"_"+randNum1+"_"+randNum2;
+	        
+	        return strRandom;
+	    }
+          
+	  
+	public void uncheckAllCheckboxes(WebElement table)
+	{
+		
+		//Find all the input tags inside the mainTable and save it to a list
+		//List<WebElement> checkBoxes = table.findElements(By.xpath("//input[@type='checkbox']"));
+		List<WebElement> checkBoxes = table.findElements(By.xpath("//input[@type='checkbox']"));
+
+		//iterate through the list of checkboxes and if checked, uncheck them
+		for (WebElement checkbox : checkBoxes) {
+		
+		    if  (checkbox.isSelected())
+		    {
+		        checkbox.click();
+		    }
+		   
+		    	
+		    
+		}
+	}
+		
+	public void checkAllCheckboxes(WebElement table)
+	{
+		
+		//Find all the input tags inside the mainTable and save it to a list
+		List<WebElement> checkBoxes = table.findElements(By.xpath("//input[@type='checkbox']"));
+
+		//iterate through the list of checkboxes and if uncheck , checked them
+		for (WebElement checkbox : checkBoxes) {
+		
+		    if  (!checkbox.isSelected())
+		    {
+		        checkbox.click();
+		    }
+		   
+		    	
+		    
+		}
+	}
+	
+	public boolean checkForExistenceOfAnElementInTable(String tableXpath, String columnName, String element)
+	{
+		
+		WebElement tableType;
+		try {
+			common.pageSizeOption("All");
+			common.sleep(3000);
+			tableType = driver.findElement(By.xpath(tableXpath));
+			
+			List<WebElement> rowElmt=tableType.findElements(By.xpath(tableXpath+"//tr"));
+			
+			common.sleep(1000);
+			//System.out.println(rowElmt.size());
+					
+			List<WebElement> columnList = tableType.findElements(By.xpath(tableXpath+"//tr[1]/td"));
+
+		System.out.println(columnList);				
+		
+		for(int j=2;j<=columnList.size();j++)
+		{
+			System.out.println(common.getObjectByXpath(tableXpath+"//tr[1]/td["+j+"]").getText().trim());
+			if(common.getObjectByXpath(tableXpath+"//tr[1]/td["+j+"]").getText().trim().equals(columnName))
+				{
+				for(int i=2;i<=rowElmt.size();i++)
+				{					
+					
+						System.out.println(common.getObjectByXpath(tableXpath+"//tbody//tr["+i+"]/td["+j+"]/a").getText().trim());
+						String actual = common.getObjectByXpath(tableXpath+"//tbody//tr["+i+"]/td["+j+"]/a").getText().trim();
+						//int check = actual.compareToIgnoreCase(element);
+						if(actual.equalsIgnoreCase(element))
+						{
+							return true;	
+							//common.getObjectByXpath(tableXpath+"//tbody//tr["+i+"]/td["+j+"]/a").click();
+						}		
+					
+				    
+				}
+				break;
+			} else {
+				System.out.println(("column with the name "+columnName+" not found"+"<br>"));
+				//Assert.fail("column with the name "+columnName+" not found");
+			}
+			
+		}
+		} catch (Exception e1) {
+			return false;
+		}
+		return false;
+	
+	}
+
+}

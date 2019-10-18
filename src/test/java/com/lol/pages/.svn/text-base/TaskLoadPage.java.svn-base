@@ -1,0 +1,13 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import org.openqa.selenium.WebElement;
+
+public class TaskLoadPage extends Page{
+	
+	public WebElement tasksRunning = common.getObjectByXpath("//table[@class='TableBorder']/tbody/tr[2]/td[2]");
+	public WebElement tasksWaiting = common.getObjectByXpath("//table[@class='TableBorder']/tbody/tr[3]/td[2]");
+	public WebElement message = common.getObjectByXpath("//table[@class='TableBorder']/tbody/tr[4]/td[2]");
+	public WebElement efficiency = common.getObjectByXpath("//table[@class='TableBorder']/tbody/tr[5]/td[2]");
+	
+	
+}

@@ -1,0 +1,8 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+public class InventoryPage extends Page{
+
+	public String currentWorkingGroup = "deviceGroupID";
+	public String groupAction = "grpaction";
+	
+}

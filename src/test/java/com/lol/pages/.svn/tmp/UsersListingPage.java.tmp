@@ -1,0 +1,125 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.testng.Assert;
+import org.testng.Reporter;
+
+public class UsersListingPage extends Page
+{
+	WebElement table =null;
+	List<WebElement> rows = null;
+	
+		
+	public void deleteUser(String userName){
+		Navigate.Admin.users();
+		common.pageSizeOption("All");
+		
+		table = common.getObjectById("dataListTable");;
+		rows = driver.findElements(By.tagName("tr"));
+		
+		for(int i=3;i<rows.size();i++){
+			
+			if(common.getObjectByXpath("//table[@ id='dataListTable']/tbody/tr["+i+"]/td[1]").getText().trim().equals(userName)){
+				common.getObjectByXpath("//table[@ id='dataListTable']/tbody/tr["+i+"]/td[5]/a[2][contains(text(), 'Delete')]").click();
+				common.handleAlert(true);
+				if(common.pageInfoBoxContains("Successfully deleted 1 user(s)."))
+				{
+					Reporter.log(" Successfully deleted the User : "+userName+"<br>");
+				}else
+					Reporter.log(" Unable to delete the User : "+userName+"<br>");
+				break;
+			}
+		}
+		
+	}
+	
+	public void editUser(String userTobeModified, String newUserName, boolean userMustChange, boolean userCannotChange,
+			boolean passwordNever, boolean accountLockedOut){
+		
+		Navigate.Admin.users();
+		common.pageSizeOption("All");
+		
+		table = common.getObjectById("dataListTable");;
+		rows = driver.findElements(By.tagName("tr"));
+		
+		for(int i=3;i<rows.size();i++){
+			
+			if(common.getObjectByXpath("//table[@ id='dataListTable']/tbody/tr["+i+"]/td[1]").getText().trim().equals(userTobeModified)){
+				common.getObjectByXpath("//table[@ id='dataListTable']/tbody/tr["+i+"]/td[5]/a[1]").click();
+				break;
+			}
+		}
+		
+		if (!StringUtils.isEmpty(newUserName) | !StringUtils.isBlank(newUserName))
+		{
+		common.getObjectByName("userName").clear();
+		common.getObjectByName("userName").sendKeys(newUserName);
+		}
+		
+		if (userMustChange)
+		{
+			if(!common.getObjectByName("userMustChangePasswordAtNextLogon").isSelected())
+			{	
+				common.getObjectByName("userMustChangePasswordAtNextLogon").click();
+			}
+		}else if(common.getObjectByName("userMustChangePasswordAtNextLogon").isSelected())
+		{	
+			common.getObjectByName("userMustChangePasswordAtNextLogon").click();
+		}
+		
+
+		if (userCannotChange)
+		{			
+			if(!common.getObjectByName("userCannotChangePassword").isSelected())
+			{
+				common.getObjectByName("userCannotChangePassword").click();
+			}
+		}else if(common.getObjectByName("userCannotChangePassword").isSelected())
+		{
+			common.getObjectByName("userCannotChangePassword").click();
+		}
+		
+		
+		if (passwordNever)
+		{			
+			if(!common.getObjectByName("passwordNeverExpires").isSelected())
+			{
+				common.getObjectByName("passwordNeverExpires").click();
+			}
+		}else if(common.getObjectByName("passwordNeverExpires").isSelected())
+		{
+			common.getObjectByName("passwordNeverExpires").click();
+		}
+
+		if (accountLockedOut)
+		{			
+			if(!common.getObjectByName("accountIsLockedOut").isSelected())
+			{
+				common.getObjectByName("accountIsLockedOut").click();
+			}
+		}else if(common.getObjectByName("accountIsLockedOut").isSelected())
+		{
+			common.getObjectByName("accountIsLockedOut").click();
+		}
+		
+		
+		common.save();
+		
+		if(common.pageInfoBoxContains("Successfully updated user profile"))
+		{
+			Reporter.log("Successfully updated User"+"<br>");
+		}else
+			Reporter.log(" Unable to update User"+"<br>");
+		
+	}
+	
+
+	
+}

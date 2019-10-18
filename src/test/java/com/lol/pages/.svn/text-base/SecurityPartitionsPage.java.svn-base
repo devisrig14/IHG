@@ -1,0 +1,7 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+public class SecurityPartitionsPage extends Page{
+
+	public String securityPartitionsAvailabeWebTable = "html/body/table[1]/tbody/tr/td[2]/div[3]/table";
+	
+}

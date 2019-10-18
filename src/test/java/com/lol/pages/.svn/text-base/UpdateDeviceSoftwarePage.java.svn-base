@@ -1,0 +1,12 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import org.openqa.selenium.WebElement;
+
+public class UpdateDeviceSoftwarePage extends Page{
+
+	public String deploymentTableAlert1 = "alert_2";
+	public String deploymentTableAlert2 = "html/task.deploysoftware.uploadnotsupport";
+	public String fileSystemDiagnostic = "File System Diagnostic";
+	public WebElement reboot = common.getObjectByName("rebootDevice");
+	
+}

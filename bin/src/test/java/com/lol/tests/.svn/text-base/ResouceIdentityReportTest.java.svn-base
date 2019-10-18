@@ -1,0 +1,3122 @@
+package test.java.com.hp.fc.usa.nmc.na.tests;
+
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Listeners;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.Assert;
+import org.testng.AssertJUnit;
+import org.testng.Reporter;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import test.java.com.hp.fc.usa.nmc.na.listener.GenerateCustomReport;
+import test.java.com.hp.fc.usa.nmc.na.pages.ResourceIdentitySearchPage;
+
+@Listeners(GenerateCustomReport.class)
+public class ResouceIdentityReportTest extends TestExecutor{
+
+	WebElement table=null;
+	List<WebElement> rows = null;
+	
+	
+	@BeforeMethod(enabled = true, groups = {"BAT", "ART"})
+	public void startTest() throws IOException, InterruptedException{
+		initialize();
+		
+		driver.get("http://"+System.getProperty("naIpAddress"));
+		
+		if(common.checkExistenceOfOverridelink())
+		{
+			common.getObjectById("overridelink").click();
+			Thread.sleep(3000);			
+		}
+		//driver.navigate().to("javascript:document.getElementById('overridelink').click();");
+		
+		login.loginAsUser("admin");
+		if(!isLoggedIn){
+			System.out.println("Invalid Username/password");
+			Assert.assertTrue( false,"Not able to login to NA Server");
+			// report error
+		}
+		driver.manage().window().maximize();
+		
+	}
+	
+	// Verify 'Resource Identity' Search Functionality (Search Criteria: 'Resource Identity' -> 'contains' )
+	
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchDefaultSearchReturnsAllResouceIdentities_001(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235177  "+"<br>");
+		Reporter.log("===============Start testRegularSearchDefaultSearchReturnsAllResouceIdentities_001========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");
+		String resoucePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resoucePool,idName,null),"Not able to add id to the pool ");
+		
+ 		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select 'Resource Identity' dropdown field as 'contains'> Search with above created ID name"+"<br>");
+ 		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+			
+		resourceIdentitySearch.resourceIdentityOperationName.sendKeys("contains");
+		resourceIdentitySearch.resourceIdentityValue.sendKeys(idName);
+		common.search();
+			
+		Reporter.log("Step 4: Verify if searched 'id' is available in search results or not? :: expected :should be available "+"<br>");
+		common.pageSizeOption("All");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()>0, "ID not found ");	
+		
+		Reporter.log("===============End testRegularSearchDefaultSearchReturnsAllResouceIdentities_001========================"+"<br>");
+	}
+		
+	// Verify 'Resource Identity' Search Functionality (Search Criteria: 'Resource Identity' -> 'does not contain' )
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchDoesnotContainRID_002(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235115  "+"<br>");
+		Reporter.log("===============Start testRegularSearchDoesnotContainRID_002========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");
+		String resoucePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resoucePool,idName,null),"Not able to add id to the pool ");
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity > select 'Resource Identity' dropdown field as 'does not contain' > Search with above created ID name"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+			
+		resourceIdentitySearch.resourceIdentityOperationName.sendKeys("does not contain");
+		resourceIdentitySearch.resourceIdentityValue.sendKeys(idName);
+		common.search();
+		
+		Reporter.log("Step 4: Verify if searched 'id' is available in search results or not? :: expected :should not be available "+"<br>");
+		common.pageSizeOption("All");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()<=0,"ID is present");
+			
+			
+		Reporter.log("===============End testRegularSearchDoesnotContainRID_002========================"+"<br>");
+	}
+		
+	// Verify 'Resource Identity' Search Functionality (Search Criteria: 'Resource Identity' -> 'matches' )
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchMatchesRID_003(){		
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235169 "+"<br>");
+		Reporter.log("===============Start testRegularSearchMatchesRID_003========================"+"<br>");
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");
+		String resoucePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resoucePool,idName,null),"Not able to add id to the pool ");
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity > select 'Resource Identity' dropdown field as 'matches' > Search with above created ID name"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		
+		resourceIdentitySearch.resourceIdentityOperationName.sendKeys("matches");
+		resourceIdentitySearch.resourceIdentityValue.sendKeys(idName);
+		common.search();
+		
+		Reporter.log("Step 4: Verify if searched 'id' is available in search results or not? :: expected :should be displayed "+"<br>");	
+		common.pageSizeOption("All");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()>0,"ID is present");
+			
+		Reporter.log("===============End testRegularSearchMatchesRID_003========================"+"<br>");
+	}
+		
+	// Verify 'Resource Identity' Search Functionality (Search Criteria: 'Resource Identity' -> 'equals' )
+	
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchEquals_004(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235119  "+"<br>");
+		Reporter.log("===============Start testRegularSearchEquals_004========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");		
+		String resoucePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resoucePool,idName,null),"Not able to add id to the pool ");
+			
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity > select 'Resource Identity' dropdown field as 'equals' > Search with above created ID name"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+			
+		resourceIdentitySearch.resourceIdentityOperationName.sendKeys("equals");
+		resourceIdentitySearch.resourceIdentityValue.sendKeys(idName);
+		common.search();
+		
+		Reporter.log("Step 4: Verify if searched 'id' is available in search results or not? :: expected :should be displayed "+"<br>");
+		common.pageSizeOption("All");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()>0,"ID is present");
+		
+		Reporter.log("===============End testRegularSearchEquals_004========================"+"<br>");
+	}
+		
+	// Verify 'Resource Identity' Search Functionality (Search Criteria: 'Resource Identity' -> 'does not equal' )
+	
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchDoesNotEquals_005(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235166 "+"<br>");
+		Reporter.log("===============Start testRegularSearchDoesNotEquals_005========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");	
+		String resoucePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resoucePool,idName,null),"Not able to add id to the pool ");
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity > select 'Resource Identity' dropdown field as 'does not equal' > Search with above created ID name"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		
+		resourceIdentitySearch.resourceIdentityOperationName.sendKeys("does not equal");
+		resourceIdentitySearch.resourceIdentityValue.sendKeys(idName);		
+		common.search();
+		
+		Reporter.log("Step 4: Verify if searched 'id' is available in search results or not? :: expected :should not be displayed "+"<br>");
+		common.pageSizeOption("All");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()<=0,"ID is present");
+			
+		Reporter.log("===============End testRegularSearchDoesNotEquals_005========================"+"<br>");
+	}
+		
+	// Navigate to Reports > Search For > Resource Identity > verify 'Page Title'  
+	@Test (enabled = true, groups= {"ART"})
+	public void testResourceIdenititySearchPage_138(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235168  "+"<br>");
+		Reporter.log("===============Start testResourceIdenititySearchPage_138========================"+"<br>");
+				
+		Reporter.log("Step 1: Navigate to Reports > Search For > Resource Identity"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		
+		Reporter.log("Step 2: verify page Title : expected : 'HP Network Automation: Search For Resource Identity' "+"<br>");
+		Assert.assertTrue(common.checkTitle("HP Network Automation: Search For Resource Identity"),"Resouce identity Search Page not launched ");
+			
+		Reporter.log("===============End testResourceIdenititySearchPage_138========================"+"<br>");
+	}
+	
+	// Navigate to Reports > Search For > Resource Identity > Add to Favorites > verify  Favorites link
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchAddToFavorites_127(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235148  "+"<br>");
+		Reporter.log("===============Start testRegularSearchAddToFavorites_127========================"+"<br>");
+		
+		Reporter.log("Step 1: Navigate to Reports > Search For > Resource Identity"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		
+		Reporter.log("Step 2: click on 'Add to Favorites' link "+"<br>");
+		common.getObjectByLinkText("Add to Favorites").click();
+		
+		Alert alert = driver.switchTo().alert();
+		
+		Reporter.log("Step 3: Enter Favorite Name in Alert Box and accept"+"<br>");
+		String favName = "SearchRIM_"+common.generateRandomNumber();
+		alert.sendKeys(favName);
+		alert.accept();
+		
+		Reporter.log("Step 4: click on Home link "+"<br>");
+		common.home();
+		
+		Reporter.log("Step 5: verify if Favorite with name" + favName +"  got created or not? "+"<br>");
+		Assert.assertTrue(common.checkFav(favName),"Search Page not added to Favorites");
+		
+		Reporter.log("Step 6: click on Favorite link "+"<br>");
+		common.getObjectByLinkText(favName).click();
+		
+		Reporter.log("Step 7: verify page Title : expected : 'HP Network Automation: Search For Resource Identity' "+"<br>");
+		Assert.assertTrue(common.checkTitle("HP Network Automation: Search For Resource Identity"),"Search for Resouce Identity Page didnt open");
+		
+		
+		Reporter.log("===============End testRegularSearchAddToFavorites_127========================"+"<br>");
+	}
+	
+	// Navigate to Reports > Advanced Search > Add to Favorites > verify  Favorites link
+	@Test (enabled = true, groups= {"ART"})
+	public void testAdvanceSearchAddToFavorites_128(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235146 "+"<br>");
+		Reporter.log("===============Start testAdvanceSearchAddToFavorites_128========================"+"<br>");
+		
+		Reporter.log("Step 1: Navigate to Reports > Advanced Search "+"<br>");
+		Navigate.Reports.AdvancedSearch();
+		String favName = "Advanced Search";
+		
+		Reporter.log("Step 2: click on 'Add to Favorites' link "+"<br>");
+		common.getObjectByLinkText("Add to Favorites").click();
+		
+		Reporter.log("Step 3: Enter Favorite Name in Alert Box and accept"+"<br>");
+		if(common.ifAlertPresent()){
+			Alert alert = driver.switchTo().alert();
+			favName= "AdvanceSearchRIM_"+common.generateRandomNumber();
+			alert.sendKeys(favName);
+			alert.accept();
+		}
+		common.sleepInSeconds(2);
+		
+		Reporter.log("Step 4: click on Home link "+"<br>");
+		common.home();
+		
+		Reporter.log("Step 5: verify if Favorite with name" + favName +"  got created or not? "+"<br>");
+		Assert.assertTrue(common.checkFav(favName),"Search Page not added to Favorites");
+		
+		Reporter.log("Step 6: click on Favorite link "+"<br>");
+		common.getObjectByLinkText(favName).click();
+		
+		Reporter.log("Step 7: verify page Title : expected : 'HP Network Automation: Advanced Search' "+"<br>");
+		Assert.assertTrue(common.checkTitle("HP Network Automation: Advanced Search"),"Advance Search Page didnt open");
+		
+		
+		Reporter.log("===============End testAdvanceSearchAddToFavorites_128========================"+"<br>");
+	}
+	
+	//verify the 'Modify this search' link
+	@Test (enabled = true, groups= {"ART"})
+	public void testResouceIdentitySearchResultsPageModifyThisSearch_129(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235173  "+"<br>");
+		Reporter.log("===============Start testResouceIdentitySearchResultsPageModifyThisSearch_129========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select 'Resource Identity' dropdown field as 'contains'> Search with above created ID name"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		
+		resourceIdentitySearch.resourceIdentityOperationName.sendKeys("contains");
+		resourceIdentitySearch.resourceIdentityValue.sendKeys(idName);
+		common.search();
+		
+		Reporter.log("Step 4: click on the link Modify this search"+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText("Modify this search")).size()>0,"Not able to find Modify Search Link ");
+		
+		common.getObjectByLinkText("Modify this search").click();
+		
+		Reporter.log("Step 5: Retrieve text present in field 'Resource Identity' and compare with ID NAME Generated in step 2"+"<br>");
+		Assert.assertTrue(common.getObjectByName("expressions[0].values").getAttribute("value").equals(idName),"Not able to modify the search ");
+		
+		Reporter.log("===============End testResouceIdentitySearchResultsPageModifyThisSearch_129========================"+"<br>");
+		
+	}
+	
+	// Verify  Resource ID deletion   
+	
+	@Test (enabled = true, groups= {"ART"})
+	public void testResouceIdentitySearchResultsPageDeleteResouceIdentityIDs_132(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235142  "+"<br>");
+		Reporter.log("===============Start testResouceIdentitySearchResultsPageDeleteResouceIdentityIDs_132========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select 'Resource Identity' dropdown field as 'contains'> Search with above created ID name"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		
+		resourceIdentitySearch.resourceIdentityOperationName.sendKeys("contains");
+		resourceIdentitySearch.resourceIdentityValue.sendKeys(idName);
+		common.search();
+		
+		Reporter.log("Step 4: click on the Resource Identity check box and Delete"+"<br>");
+		common.getObjectByXpath("//input[@type='checkbox' and @name='resourceIdentityID']").click();
+		common.selectOption("select_options", "Delete");
+		common.handleAlert(true);
+		
+		Reporter.log("Step 5: verify the success message after deletion of resource identity"+"<br>");
+		Assert.assertTrue(common.pageInfoBoxContains("1 IDs deleted."), "Didn't delete the resource id ");
+		
+		Reporter.log("===============End testResouceIdentitySearchResultsPageDeleteResouceIdentityIDs_132========================"+"<br>");
+		
+	}
+	
+	//Navigate to Reports > Search For > Resource Identity  >  perform search > verify the 'Acquire ID' link
+	@Test (enabled = true, groups= {"ART"})
+	public void testResouceIdentitySearchResultsPageAcquireID_133(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235156 "+"<br>");
+		Reporter.log("===============Start testResouceIdentitySearchResultsPageAcquireID_133========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select 'Resource Identity' dropdown field as 'contains'> Search with above created ID name"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		
+		resourceIdentitySearch.resourceIdentityOperationName.sendKeys("contains");
+		resourceIdentitySearch.resourceIdentityValue.sendKeys(idName);
+		common.search();
+		
+		Reporter.log("Step 4: click on the link Acquire ID"+"<br>");
+		common.getObjectByLinkText("Acquire ID").click();
+		
+		Reporter.log("Step 5: verify if 'Release ID' link got displayed or not? :: Expected : should be displayed "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText("Release ID")).size()>0,"Not acquired ID ");
+		
+		Reporter.log("===============End testResouceIdentitySearchResultsPageAcquireID_133========================"+"<br>");
+	}
+	
+	//Navigate to Reports > Search For > Resource Identity  >  perform search > verify the 'Release ID' link
+	@Test (enabled = true, groups= {"ART"})
+	public void testResouceIdentitySearchResultsPageReleaseID_134(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235116  "+"<br>");
+		Reporter.log("===============Start testResouceIdentitySearchResultsPageReleaseID_134========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select 'Resource Identity' dropdown field as 'contains'> Search with above created ID name"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		
+		resourceIdentitySearch.resourceIdentityOperationName.sendKeys("contains");
+		resourceIdentitySearch.resourceIdentityValue.sendKeys(idName);
+		common.search();
+		
+		Reporter.log("Step 4: click on the link Acquire ID"+"<br>");
+		common.getObjectByLinkText("Acquire ID").click();
+		
+		Reporter.log("Step 5: verify if 'Release ID' link got displayed or not? :: Expected : should be displayed "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText("Release ID")).size()>0,"Not acquired ID ");
+		
+		Reporter.log("Step 6: click on the link Release ID"+"<br>");
+		common.getObjectByLinkText("Release ID").click();
+		
+		Reporter.log("Step 7: verify if 'Acquire ID' link got displayed or not? :: Expected : should be displayed "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText("Acquire ID")).size()>0,"Not acquired ID ");
+		
+		Reporter.log("===============End testResouceIdentitySearchResultsPageReleaseID_134========================"+"<br>");
+	}
+	
+	
+	//modify Resource ID name > perform Search operations with OLD name and NEW name
+	@Test (enabled = true, groups= {"ART"})
+	public void testResouceIdentitySearchResultsPageEditID_135(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235158 "+"<br>");
+		Reporter.log("===============Start testResouceIdentitySearchResultsPageEditID_135========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select 'Resource Identity' dropdown field as 'contains'> Search with above created ID name"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		
+		resourceIdentitySearch.resourceIdentityOperationName.sendKeys("contains");
+		resourceIdentitySearch.resourceIdentityValue.sendKeys(idName);
+		common.search();
+		
+		Reporter.log("Step 4: click on the link Edit ID"+"<br>");
+		common.getObjectByLinkText("Edit ID").click();
+		
+		Reporter.log("Step 5: Retrieve text present in field 'ID' and compare with ID NAME Generated in step 2"+"<br>");
+		Assert.assertTrue(common.getObjectByName("name").getAttribute("value").equals(idName),"Not able to Edit ID");
+		
+		Reporter.log("Step 5: modify 'ID' Name and save"+"<br>");
+		String newIdName = common.generateRandomString();
+		common.getObjectByName("name").clear();
+		common.getObjectByName("name").sendKeys(newIdName);
+		common.save();
+		
+		Reporter.log("Step 6: Navigate to Reports > Search For > Resource Identity  > select 'Resource Identity' dropdown field as 'contains'> Search with OLD ID name"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.resourceIdentityOperationName.sendKeys("contains");
+		resourceIdentitySearch.resourceIdentityValue.sendKeys(idName);
+		common.search();
+		
+		
+		WebElement wb = driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/div[2]"));
+		if(wb == null || !wb.isDisplayed()){
+			wb = driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/div[2]"));
+		}
+		//System.out.println("info message "+wb.getText());	
+		
+		Reporter.log("Step 7: verify search results message displayed :: expected : 'Your search returned 0 results.'"+"<br>");
+		Assert.assertTrue(wb.getText().equals("Your search returned 0 results."),"Old Name still shown");
+		
+		Reporter.log("Step 8: Navigate to Reports > Search For > Resource Identity  > select 'Resource Identity' dropdown field as 'contains'> Search with Modified ID name"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.resourceIdentityOperationName.sendKeys("contains");
+		resourceIdentitySearch.resourceIdentityValue.sendKeys(newIdName);
+		common.search();
+		
+		Reporter.log("Step 9: verify if search results displays 'ID' with the modified name or not? "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(newIdName)).size()>0,"Edited Name not reflected.");
+		
+		Reporter.log("===============End testResouceIdentitySearchResultsPageEditID_135========================"+"<br>");
+	}
+	
+	// Navigate> Reports > Advanced Search > Search For Resource Identity > click on Resource Identity > verify page title 
+	@Test (enabled = true, groups= {"ART"})
+	public void testResouceIdentitySearchResultsPageBackButton_136(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235137  "+"<br>");
+		Reporter.log("===============Start testResouceIdentitySearchResultsPageBackButton_136========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		Reporter.log("Step 3: Navigate> Reports > Advanced Search > select 'Search For' as 'Resource Identity' > search"+"<br>");
+		Navigate.Reports.AdvancedSearch();
+		common.selectOption("queryName", "Resource Identity");
+		common.search();
+		
+		Reporter.log("Step 4: click on ID name displayed in search results and verify the page title ::Expected : HP Network Automation: Resource Identity: "+"<br>");
+		common.pageSizeOption("All");
+		common.getObjectByLinkText(idName).click();
+		Assert.assertTrue(common.checkTitle("HP Network Automation: Resource Identity: "+idName),"Resource Identity not launched ");
+		
+		Reporter.log("Step 5: click on back and verify the page title ::Expected : HP Network Automation: Resource Identity Search Results"+"<br>");
+		common.back();
+		
+		Assert.assertTrue(common.checkTitle("HP Network Automation: Resource Identity Search Results"),"Results page not launched");
+		
+		Reporter.log("===============End testResouceIdentitySearchResultsPageBackButton_136========================"+"<br>");
+	}
+	
+	// Navigate> Reports > Advanced Search > Search For Resource Identity > check for the existence of the Resource Identity
+	@Test (enabled = true, groups= {"ART"})
+	public void testResouceIdentitySearchResultsViewSearchCriteria_130(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235164  "+"<br>");
+		Reporter.log("===============Start testResouceIdentitySearchResultsViewSearchCriteria_130========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select 'Resource Identity' dropdown field as 'contains'> Search with above created ID name"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		
+		resourceIdentitySearch.resourceIdentityOperationName.sendKeys("contains");
+		resourceIdentitySearch.resourceIdentityValue.sendKeys(idName);
+		common.search();
+		
+		Reporter.log("Step 4: check for the existence of the  ID name in search results "+"<br>");
+		Assert.assertTrue(common.getObjectByCssSelector(("ul li")).getText().trim().equals("Resource Identity contains '"+idName+"'"),"Search Criteria not found in search page ");
+		
+		Reporter.log("===============End testResouceIdentitySearchResultsViewSearchCriteria_130========================"+"<br>");
+	}
+	
+	
+	// Defect ID -QCCR1B132264 - Date - 11/02/2015
+	// User should not be allowed to Un-Check the check box 'Resource identity' 
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchRIDDoesNotShowUpInReport_006(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235126  "+"<br>");
+		Reporter.log("===============Start testRegularSearchRIDDoesNotShowUpInReport_006========================"+"<br>");
+		
+		Reporter.log("Step 1: create Resource Identity Pool"+"<br>");
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2: Add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();			
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > Un-Check the checkbox 'Resource Identity' > search  "+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		
+		Reporter.log("Step 4: Verify if Resource Identity check box is Selected by default or not? ::Excepted: should be Selected "+"<br>");
+		Assert.assertTrue(resourceIdentitySearch.resourceIdentityCheckBox.isSelected(),"Resource Identity check box is not Selected by default");
+		
+		Reporter.log("Step 5: Try to un-check  Resource Identity check box ::Excepted: should not be allowed "+"<br>");
+		resourceIdentitySearch.resourceIdentityCheckBox.click();
+		Assert.assertTrue(resourceIdentitySearch.resourceIdentityCheckBox.isSelected()," able to un-check Resource Identity check box");
+		
+		Reporter.log("Step 6: Select 'Resource Identity' dropdown field as 'contains'> Search with above created ID name"+"<br>");	
+		resourceIdentitySearch.resourceIdentityOperationName.sendKeys("contains");
+		resourceIdentitySearch.resourceIdentityValue.sendKeys(idName);
+		
+		Reporter.log("Step 7: Click on search and verify Resource identity coloumn is present or not? :: Expected : should be seen "+"<br>");
+		common.search();
+		
+        Assert.assertTrue(common.getTableCollumNames("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table").contains("Resource Identity"), "Resource Identity shows up in the report");
+        
+        Reporter.log("Step 8: check for the existence of the  ID name in search results "+"<br>");
+		Assert.assertTrue(common.getObjectByCssSelector(("ul li")).getText().trim().equals("Resource Identity contains '"+idName+"'"),"Search Criteria not found in search page ");
+		       			
+		Reporter.log("===============End testRegularSearchRIDDoesNotShowUpInReport_006========================"+"<br>");
+	
+      
+	}
+	//Navigate to Reports > Search For > Resource Identity  > Un-Check the checkbox 'Pool' > search  > verify if Pool column  is Hidden in search  results 
+	
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchPoolDoesNotShowUpInReport_007(){		
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235129  "+"<br>");
+		Reporter.log("===============Start testRegularSearchPoolDoesNotShowUpInReport_007========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null), "Not able to add ids to resouce pool "+resourcePool);
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > Un-Check the checkbox 'Pool' > search  "+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.poolNameCheckBox.click();
+		common.search();
+		
+		Reporter.log("Step 4: check for the existence of the  column 'Pool' in search results :: Expected: 'Pool' column should not be seen "+"<br>");
+		Assert.assertFalse(common.getTableCollumNames("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table").contains("Pool"), "Pool shows up in the report");
+		
+		Reporter.log("===============End testRegularSearchPoolDoesNotShowUpInReport_007========================"+"<br>");
+	}
+	
+	// Nrao - partitionCheckBox field is not available in Search page. Need to be discussed
+	//Navigate to Reports > Search For > Resource Identity  > Un-Check the checkbox 'partition' > search  > verify if partition column  is Hidden in search  results
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchPartitionDoesNotShowUpInReport_008(){		
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235175 "+"<br>");
+		Reporter.log("===============Start testRegularSearchPartitionDoesNotShowUpInReport_008========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");		
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null), "Not able to add ids to resouce pool "+resourcePool);
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > Un-Check the checkbox 'Pool' > search  "+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.partitionCheckBox.click();
+		common.search();
+		
+		Reporter.log("Step 4: check for the existence of the  column 'Partition' in search results :: Expected: 'Partition' column should not be seen "+"<br>");
+		Assert.assertFalse(common.getTableCollumNames("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table").contains("Partition"),"Partition shows up in the report");
+		
+		Reporter.log("===============End testRegularSearchPartitionDoesNotShowUpInReport_008========================"+"<br>");
+	}
+	
+	//Defect ID -QCCR1B132264 - Date - 11/02/2015
+	// User should not be allowed to Un-Check the check box 'Status'
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchStatusDoesNotShowUpInReport_009(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235123  "+"<br>");
+		Reporter.log("===============Start testRegularSearchStatusDoesNotShowUpInReport_009========================"+"<br>");
+		
+		Reporter.log("Step 1: create Resource Identity Pool"+"<br>");				
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2: Add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > Un-Check the checkbox 'Status' > search  "+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		
+		
+		Reporter.log("Step 4: Verify if Status check box is Selected by default or not? ::Excepted: should be Selected "+"<br>");
+		Assert.assertTrue(resourceIdentitySearch.statusCheckBox.isSelected(),"Status check box is not Selected by default");
+		
+		Reporter.log("Step 5: Try to un-check  Status check box ::Excepted: should not be allowed "+"<br>");
+		resourceIdentitySearch.statusCheckBox.click();
+		Assert.assertTrue(resourceIdentitySearch.statusCheckBox.isSelected()," able to un-check Status check box");
+				
+		Reporter.log("Step 6: Click on search and verify Status column is present or not? :: Expected : should be seen "+"<br>");
+		common.search();		
+		Assert.assertTrue(common.getTableCollumNames("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table").contains("Status"),"Status shows up in the report");
+		
+		Reporter.log("===============End testRegularSearchStatusDoesNotShowUpInReport_009========================"+"<br>");
+	}
+	
+	// Verify 'Resource Identity' Search Functionality (Search Criteria: 'Status' -> 'In Use' )
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchOnePoolAndStatusShowUpInReport_010(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235139  "+"<br>");
+		Reporter.log("===============Start testRegularSearchOnePoolAndStatusShowUpInReport_010========================"+"<br>");
+		
+		Reporter.log("Step 1 : Generate Random 'Resource Identity Pool' Name and 'ID Name' and Add those to an Map"+"<br>");				
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(1);
+		String [] resourcePools = getPoolNameAndIds.keySet().toArray(new String[getPoolNameAndIds.size()]);
+		
+		Reporter.log("Step 2 : create Resource Identity Pool with the Above generated name > Click on 'Add IDs' > Add a ID with the above generated Name upon selecting 'Status' as 'In Use'> "+"<br>");
+		Assert.assertTrue(createMultiplePoolsWithIds(getPoolNameAndIds, "In Use"), "Not able to create Multiple pools with partition ");
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > Select above Created 'Resource Identity Pool' > select 'Status' as 'In Use' > search  "+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		common.selectOptions(resourceIdentitySearch.poolsAvailableList, resourcePools);
+		resourceIdentitySearch.statusInUseCheckBox.click();
+		common.search();
+		
+		Reporter.log("Step 4: Check for the existence of the 'Resource Id' in Search Results"+"<br>");
+		for(String id : getPoolNameAndIds.values()){
+			Assert.assertTrue(driver.findElements(By.linkText(id)).size()>0, "Not able to see Resource Id: "+id);
+		}
+	
+		Reporter.log("===============End testRegularSearchOnePoolAndStatusShowUpInReport_010========================"+"<br>");
+	}
+	
+	// Verify 'Resource Identity' Search Functionality (Search Criteria: 'Status' -> 'Available' )
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchThreePoolsAndStatusShownUpInReport_011(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235155 "+"<br>");
+		
+		Reporter.log("===============Start testRegularSearchThreePoolsAndStatusShownUpInReport_011========================"+"<br>");
+		
+		Reporter.log("Step 1 : Generate 3 Random 'Resource Identity Pool' Names and 3 'ID Names' and Add those to an Map"+"<br>");		
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(3);
+		String [] resourcePools = getPoolNameAndIds.keySet().toArray(new String[getPoolNameAndIds.size()]);
+		
+		Reporter.log("Step 2 : create 3 Resource Identity Pools with the Above generated names > Click on 'Add IDs' > Add a ID with the above generated Name> "+"<br>");
+		Assert.assertTrue(createMultiplePoolsWithIds(getPoolNameAndIds, null), "Not able to create Multiple pools with partition ");
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > Select all 3 above Created 'Resource Identity Pools' > select 'Status' as 'Available' > search  "+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		common.selectOptions(resourceIdentitySearch.poolsAvailableList, resourcePools);
+		resourceIdentitySearch.statusAvailableCheckBox.click();
+		common.search();
+		
+		Reporter.log("Step 4: Check for the existence of all 3 'Resource Id' in Search Results"+"<br>");
+		for(String id : getPoolNameAndIds.values()){
+			
+			Assert.assertTrue(driver.findElements(By.linkText(id)).size()>0, "Not able to see Resource Id: "+id);
+		}
+	
+		Reporter.log("===============End testRegularSearchThreePoolsAndStatusShownUpInReport_011========================"+"<br>");
+	}
+	
+	
+	// Verify 'Resource Identity' Search Functionality with 5 Resource IDs (Search Criteria: 'Status' -> 'In Use' )
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchFiveePoolsAndStatusShownUpInReport_012(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235121 "+"<br>");		
+		Reporter.log("===============Start testRegularSearchFiveePoolsAndStatusShownUpInReport_012========================"+"<br>");
+		
+		Reporter.log("Step 1 : Generate 5 Random 'Resource Identity Pool' Names and 5 'ID Names' and Add those to an Map"+"<br>");				
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(5);
+		String [] resourcePools = getPoolNameAndIds.keySet().toArray(new String[getPoolNameAndIds.size()]);
+		
+		Reporter.log("Step 2 : create 5 Resource Identity Pools with the Above generated names > Click on 'Add IDs' > Add a ID with the above generated Name> "+"<br>");
+		Assert.assertTrue(createMultiplePoolsWithIds(getPoolNameAndIds, "In Use"),"Not able to create Multiple pools with partition ");
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > Select all 5 above Created 'Resource Identity Pools' > select 'Status' as 'In Use' > search  "+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		common.selectOptions(resourceIdentitySearch.poolsAvailableList, resourcePools);
+		resourceIdentitySearch.statusInUseCheckBox.click();
+		common.search();
+		
+		Reporter.log("Step 4: Check for the existence of all 5 'Resource Id' in Search Results"+"<br>");
+		for(String id : getPoolNameAndIds.values()){
+			//System.out.println("id value is : "+id);
+			Assert.assertTrue(driver.findElements(By.linkText(id)).size()>0,"Not able to see Resource Id: "+id);
+		}
+	
+		Reporter.log("===============End testRegularSearchFiveePoolsAndStatusShownUpInReport_012========================"+"<br>");
+	}
+	
+	//verify the Resource ID in search Results  (Search Criteria: 'Partition' -> 'Default Site' )
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchDefaultSiteAndStatusShownUpInReport_013(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235153  "+"<br>");		
+		Reporter.log("===============Start testRegularSearchDefaultSiteAndStatusShownUpInReport_013========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool with 'Partition' as 'Default Site' "+"<br>");
+		String resourcePool = NAUtils.createResourceIdentityPools(common.generateRandomString(), "Default Site", null);
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, "In Use"),"Not able to add ids to resouce pool "+resourcePool);
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select 'Status' as 'In Use' > select 'Partition' as 'Default Site' >search  "+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		common.selectOption(resourceIdentitySearch.partitionsAvailableList,"Default Site");
+		resourceIdentitySearch.statusInUseCheckBox.click();
+		common.search();
+		
+		Reporter.log("Step 4: Check for the existence of 'Resource Id' in Search Results"+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()>0,"Not able to see Resouce Id "+idName);
+		
+		
+		Reporter.log("===============End testRegularSearchDefaultSiteAndStatusShownUpInReport_013========================"+"<br>");
+	}
+	
+	// Verify 'Resource Identity' Search Functionality with 2 Partitions (Search Criteria: Select two 'Partitions' created & 'Status' as 'Available '  )
+	
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchTwoPartitionsAndStatusShownUpInReport_014(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235144  "+"<br>");		
+		Reporter.log("===============Start testRegularSearchTwoPartitionsAndStatusShownUpInReport_014========================"+"<br>");
+		
+		Reporter.log("Step 1 : create 2 'securityPartitions'"+"<br>");		
+		String[] securityPartitions = addMultipleSecurityPartitions(2);
+		
+		Reporter.log("Step 2 : Generate 2 Random 'Resource Identity Pool' Names and 2 'ID Names' and Add those to an Map"+"<br>");	
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(securityPartitions.length);
+		String[] poolNames = getPoolNameAndIds.keySet().toArray(new String[getPoolNameAndIds.size()]);
+		String[] ids = getPoolNameAndIds.values().toArray(new String[getPoolNameAndIds.size()]);
+		
+		Map<String, String> getPoolNamesAndPartition  = getPoolNameAndPartition(poolNames, securityPartitions);
+		
+				
+		Map<String , String> getPartitionAndIds = getPartitionAndIds(securityPartitions,ids);
+		
+		Reporter.log("Step 3: create 2 Resource Identity Pools with respective 'Partition' created in 'Step 1' > Also add respective IDs"+"<br>");
+		Assert.assertTrue(createMultiplePoolsWithPartition(getPoolNameAndIds, getPoolNamesAndPartition, null), "Not able to create Multiple pools with partition ");
+				
+		
+		Reporter.log("Step 4: Navigate to Reports > Search For > Resource Identity  > select 'Status' as 'Available' > select respective 'Partition' created in 'Step 1' > search > Check for the existence of 'Resource Id' in Search Results (This step will be repeated for all the available  Partitions.) "+"<br>");
+		for(String partition: getPoolNamesAndPartition.values()){
+			Navigate.Reports.SearchFor.resourceIdentity();
+			ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+			common.selectOption(resourceIdentitySearch.partitionsAvailableList, partition);
+			resourceIdentitySearch.statusAvailableCheckBox.click();
+			common.search();
+			System.out.println("resouce id is "+getPartitionAndIds.get(partition));
+			
+			Assert.assertTrue(driver.findElements(By.linkText(getPartitionAndIds.get(partition))).size()>0, "Resource id not found");
+			
+		}
+		
+			
+		Reporter.log("===============End testRegularSearchTwoPartitionsAndStatusShownUpInReport_014========================"+"<br>");
+	}
+	
+	// Verify 'Resource Identity' Search Functionality with 4 Partitions (Search Criteria: Select Four 'Partitions' created & 'Status' as 'Available '  )
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchFourPartitionsAndStatusShownUpInReport_015(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235132  "+"<br>");
+		Reporter.log("===============Start testRegularSearchFourPartitionsAndStatusShownUpInReport_015========================"+"<br>");
+		
+		Reporter.log("Step 1 : create 4 'securityPartitions'"+"<br>");		
+		String[] securityPartitions = addMultipleSecurityPartitions(4);
+		
+		Reporter.log("Step 2 : Generate 4 Random 'Resource Identity Pool' Names and 4 'ID Names' and Add those to an Map"+"<br>");			
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(securityPartitions.length);
+		String[] poolNames = getPoolNameAndIds.keySet().toArray(new String[getPoolNameAndIds.size()]);
+		String[] ids = getPoolNameAndIds.values().toArray(new String[getPoolNameAndIds.size()]);
+		
+		Map<String, String> getPoolNamesAndPartition  = getPoolNameAndPartition(poolNames, securityPartitions);
+				
+		Map<String , String> getPartitionAndIds = getPartitionAndIds(securityPartitions,ids);
+		
+		Reporter.log("Step 3: create 4 Resource Identity Pools with respective 'Partition' created in 'Step 1' > Also add respective IDs"+"<br>");
+		Assert.assertTrue(createMultiplePoolsWithPartition(getPoolNameAndIds, getPoolNamesAndPartition, null),"Not able to create Multiple pools with partition ");
+				
+		Reporter.log("Step 4: Navigate to Reports > Search For > Resource Identity  > select 'Status' as 'Available' > select respective 'Partition' created in 'Step 1' > search > Check for the existence of 'Resource Id' in Search Results (This step will be repeated for all the available  Partitions.) "+"<br>");
+		for(String partition: getPoolNamesAndPartition.values()){
+			Navigate.Reports.SearchFor.resourceIdentity();
+			ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+			common.selectOption(resourceIdentitySearch.partitionsAvailableList, partition);
+			resourceIdentitySearch.statusAvailableCheckBox.click();
+			common.search();
+			System.out.println("resouce id is "+getPartitionAndIds.get(partition));
+			
+			Assert.assertTrue(driver.findElements(By.linkText(getPartitionAndIds.get(partition))).size()>0,"Resource id not found");
+			
+		}
+		Reporter.log("===============End testRegularSearchFourPartitionsAndStatusShownUpInReport_015========================"+"<br>");
+	}
+
+	// Verify 'Resource Identity' Search Functionality with 4 Partitions  (Search Criteria: Select three 'Partitions' created and one as 'Default Site' & 'Status' as 'InUse '  )
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchThreePartitionsAndDefaultSiteAndStatusShownUpInReport_016(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235159  "+"<br>");
+		Reporter.log("===============Start testRegularSearchThreePartitionsAndDefaultSiteAndStatusShownUpInReport_016========================"+"<br>");
+		
+		Reporter.log("Step 1 : create 3 'securityPartitions'"+"<br>");		
+		String[] securityPartitionsTemp = addMultipleSecurityPartitions(3);
+		
+		String[] securityPartitions = new String[4];		
+		System.arraycopy(securityPartitionsTemp, 0, securityPartitions, 0, 3);
+		securityPartitions[3] = "Default Site";
+		
+		Reporter.log("Step 2 : Generate 4 Random 'Resource Identity Pool' Names and 4 'ID Names' and Add those to an Map"+"<br>");
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(securityPartitions.length);
+		String[] poolNames = getPoolNameAndIds.keySet().toArray(new String[getPoolNameAndIds.size()]);
+		String[] ids = getPoolNameAndIds.values().toArray(new String[getPoolNameAndIds.size()]);
+		
+		Map<String, String> getPoolNamesAndPartition  = getPoolNameAndPartition(poolNames, securityPartitions);
+		
+				
+		Map<String , String> getPartitionAndIds = getPartitionAndIds(securityPartitions,ids);
+		
+		Reporter.log("Step 3: create 4 Resource Identity Pools with respective 'Partition'(3 Partition created in 'Step 1' and 4th as 'Default Site' > Also add respective IDs upon selecting 'Status' as 'In Use' "+"<br>");
+		Assert.assertTrue(createMultiplePoolsWithPartition(getPoolNameAndIds, getPoolNamesAndPartition, "In Use"), "Not able to create Multiple pools with partition ");
+				
+		Reporter.log("Step 4: Navigate to Reports > Search For > Resource Identity  > select 'Status' as 'In Use' > select respective 'Partition' created in 'Step 1' > search > Check for the existence of 'Resource Id' in Search Results (This step will be repeated for all the available  Partitions.) "+"<br>");		
+		for(String partition: getPoolNamesAndPartition.values()){
+			Navigate.Reports.SearchFor.resourceIdentity();
+			ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+			common.selectOption(resourceIdentitySearch.partitionsAvailableList, partition);
+			resourceIdentitySearch.statusInUseCheckBox.click();
+			common.search();
+			System.out.println("resouce id is "+getPartitionAndIds.get(partition));
+			
+			Assert.assertTrue(driver.findElements(By.linkText(getPartitionAndIds.get(partition))).size()>0, "Resource id not found");
+			
+		}
+	
+		Reporter.log("===============Start testRegularSearchThreePartitionsAndDefaultSiteAndStatusShownUpInReport_016========================"+"<br>");
+	}
+	
+	// Verify 'Resource Identity' Search Functionality (Search Criteria: 'description' -> 'contains' )
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchDescriptionContainsShowUpInReport_017(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235127  "+"<br>");
+		Reporter.log("===============Start testRegularSearchDescriptionContainsShowUpInReport_017========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");		
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select 'description' dropdown field as 'contains'> Enter Description that has been entered at the time of 'Resource Identity' creation. > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.descriptionCheckBox.click();
+		resourceIdentitySearch.descriptionDropDown.sendKeys("contains");
+		resourceIdentitySearch.descriptionTextBox.sendKeys("Resource ID "+idName+ " created by Automation for pool "+resourcePool);
+		common.search();
+		
+		Reporter.log("Step 4: Check for the existence of the 'Resouce ID' having searched Description "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()>0,"Not able to find the resource Id "+idName);
+		
+		Reporter.log("===============End testRegularSearchDescriptionContainsShowUpInReport_017========================"+"<br>");
+	}
+	
+	// Verify 'Resource Identity' Search Functionality (Search Criteria: 'description' -> 'does not contain' )
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchDescriptionDoesNotContainsShowUpInReport_018(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235130 "+"<br>");
+		Reporter.log("===============Start testRegularSearchDescriptionDoesNotContainsShowUpInReport_018========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select 'description' dropdown field as 'does not contains'> Enter Description that has been entered at the time of 'Resource Identity' creation. > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.descriptionCheckBox.click();
+		resourceIdentitySearch.descriptionDropDown.sendKeys("does not contain");
+		resourceIdentitySearch.descriptionTextBox.sendKeys("Resource ID "+idName+ " created by Automation for pool "+resourcePool);
+		common.search();
+		
+		Reporter.log("Step 4: Check for the existence of the 'Resouce ID' having searched Description:: Expected: Should not be seen "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()<=0,"Resource Id seen after selecting does not contain "+idName);
+		
+		Reporter.log("===============End testRegularSearchDescriptionDoesNotContainsShowUpInReport_018========================"+"<br>");
+	}
+	
+	// Verify 'Resource Identity' Search Functionality (Search Criteria: 'Create Date ' (Select 'since' as 'Anytime' and 'until' as 'Anytime'))
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchCreateDateCustomizeShownUpInReport_019(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235172  "+"<br>");
+		Reporter.log("===============Start testRegularSearchCreateDateCustomizeShownUpInReport_019========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");		
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select 'Create Date' check box(Select 'since' as 'Anytime' and 'until' as 'Anytime') > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.createDateCheckBox.click();
+		resourceIdentitySearch.createSinceDropDown.sendKeys("since");
+		resourceIdentitySearch.createSinceCustomizeDropDown.sendKeys("Anytime");
+		resourceIdentitySearch.createUntilDropDown.sendKeys("until");
+		resourceIdentitySearch.createUntilCustomizeDropDown.sendKeys("Anytime");
+		common.search();
+		
+		Reporter.log("Step 4: Verify if column with the name 'Created' is displayed or not? :: Expected: should be displayed");
+		Assert.assertTrue(common.getTableCollumNames("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table").contains("Created"),"Created field not shown in report ");
+		
+		Reporter.log("Step 5: Check for the existence of the 'Resouce ID' :: Expected: Should be seen "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()>0,"Not able to find the resource Id "+idName);
+			
+		
+		Reporter.log("===============End testRegularSearchCreateDateCustomizeShownUpInReport_019========================"+"<br>");
+	}
+	
+	// Verify 'Resource Identity' Search Functionality (Search Criteria: 'Create Date ' (Select 'since' as '24 hours ago' and 'until' as '1 week ago'))
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchCreateDateTwentyFourHoursAgoUntilOneWeekShownUpInReport_020(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235125  "+"<br>");
+		Reporter.log("===============Start testRegularSearchCreateDateOneWeekAgoShownUpInReport_020========================"+"<br>");
+		
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");	
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select 'Create Date' check box(Select 'since' as '24 hours ago' and 'until' as '1 week ago') > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.createDateCheckBox.click();
+		resourceIdentitySearch.createSinceDropDown.sendKeys("since");
+		resourceIdentitySearch.createSinceCustomizeDropDown.sendKeys("24 hours ago");
+		resourceIdentitySearch.createUntilDropDown.sendKeys("until");
+		resourceIdentitySearch.createUntilCustomizeDropDown.sendKeys("1 week ago");
+		common.search();
+		
+		Reporter.log("Step 4: Check for the existence of the 'Resouce ID' :: Expected: Should not be displayed "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()<=0,"Not able to find the resource Id "+idName);
+				
+		Reporter.log("===============End testRegularSearchCreateDateOneWeekAgoShownUpInReport_020========================"+"<br>");
+	}
+	
+	// Verify 'Resource Identity' Search Functionality (Search Criteria: 'Create Date ' (Select 'since' as '2 weeks ago' and 'until' as '2 months ago'))
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchCreateDateTwoWeeksAgoUntilTwoMonthsShownUpInReport_021(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235151  "+"<br>");
+		Reporter.log("===============Start testRegularSearchCreateDateThreeMonthsAgoShownUpInReport_021========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select 'Create Date' check box(Select 'since' as '2 weeks ago' and 'until' as '2 months ago') > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.createDateCheckBox.click();
+		resourceIdentitySearch.createSinceDropDown.sendKeys("since");
+		resourceIdentitySearch.createSinceCustomizeDropDown.sendKeys("2 weeks ago");
+		resourceIdentitySearch.createUntilDropDown.sendKeys("until");
+		resourceIdentitySearch.createUntilCustomizeDropDown.sendKeys("2 months ago");
+		common.search();
+		
+		Reporter.log("Step 4: Check for the existence of the 'Resouce ID' :: Expected: Should not be displayed "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()<=0,"Not able to find the resource Id "+idName);
+		
+		Reporter.log("===============End testRegularSearchCreateDateThreeMonthsAgoShownUpInReport_021========================"+"<br>");
+		
+	}
+	
+	// Verify 'Resource Identity' Search Functionality (Search Criteria: 'Create Date ' (Select 'since' as '2 months ago' and 'until' as '1 year ago'))
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchCreateDateTwoMonthsAgoUntilOneYearShownUpInReport_022(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235138  "+"<br>");
+		Reporter.log("===============Start testRegularSearchCreateDateThreeMonthsAgoUntilOneYearShownUpInReport_022========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");		
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select 'Create Date' check box(Select 'since' as '2 months ago' and 'until' as '1 year ago') > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.createDateCheckBox.click();
+		resourceIdentitySearch.createSinceDropDown.sendKeys("since");
+		resourceIdentitySearch.createSinceCustomizeDropDown.sendKeys("2 months ago");
+		resourceIdentitySearch.createUntilDropDown.sendKeys("until");
+		resourceIdentitySearch.createUntilCustomizeDropDown.sendKeys("1 year ago");
+		common.search();
+		
+		Reporter.log("Step 4: Check for the existence of the 'Resouce ID' :: Expected: Should not be displayed "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()<=0,"Not able to find the resource Id "+idName);
+		
+		
+		Reporter.log("===============End testRegularSearchCreateDateThreeMonthsAgoUntilOneYearShownUpInReport_022========================"+"<br>");
+		
+	}
+	
+	// Verify 'Resource Identity' Search Functionality (Search Criteria: Created By -> 'contains')
+	@Test (enabled = true, groups= {"ART"})
+	
+	public void testRegularSearchCreatedByContainsShownUpInReport_023(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235179 "+"<br>");
+		Reporter.log("===============Start testRegularSearchCreatedByContainsShownUpInReport_023========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");				
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select 'Created By' check box(Search Criteria: 'contains' as 'admin') > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.createdByUserCheckBox.click();
+		resourceIdentitySearch.createdByDropDown.sendKeys("contains");
+		resourceIdentitySearch.createdByTextBox.sendKeys("admin");
+		common.search();
+		
+		Reporter.log("Step 4: Verify if column with the name 'Created By' is displayed or not? :: Expected: should be displayed");
+		AssertJUnit.assertTrue("Column created By not visible", common.getTableCollumNames("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table").contains("Created By"));
+		
+		Reporter.log("Step 5: Check for the existence of the 'Resouce ID' :: Expected: Should be displayed "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()>0,"Not able to find the resource Id "+idName);
+		
+		
+		Reporter.log("===============End testRegularSearchCreatedByContainsShownUpInReport_023========================"+"<br>");
+		
+	}
+	
+	// Verify 'Resource Identity' Search Functionality upon creating 'Resource Identity' with Different Users (Search Criteria: Created By as 'does not contain' -> 'admin')
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchCreatedByDoesNotContainsShownUpInReport_024() throws InterruptedException{
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235167 "+"<br>");
+		Reporter.log("===============Start testRegularSearchCreatedByDoesNotContainsShownUpInReport_024========================"+"<br>");
+		
+		Reporter.log("Step 1 : Create New User"+"<br>");
+		String newAdminUser = NAUtils.addUser(new String[]{"Administrator"});
+
+		Reporter.log("Step 2 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newAdminUser);
+				
+		Reporter.log("Step 3 : login As New User"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newAdminUser));
+				
+		Reporter.log("Step 4 : create Resource Identity Pool"+"<br>");		
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 5 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		AssertJUnit.assertTrue("Not able to add ids to resouce pool "+resourcePool, NAUtils.addResourceIDsToPool(resourcePool, idName, null));
+		
+		login.loginAsUser("admin");
+		
+		Reporter.log("Step 6 : create Resource Identity Pool"+"<br>");		
+		String resourcePool1 = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 7 : add ResourceID To above created Pool "+"<br>");
+		String idName1 = common.generateRandomString();
+		AssertJUnit.assertTrue("Not able to add ids to resouce pool "+resourcePool1, NAUtils.addResourceIDsToPool(resourcePool1, idName1, null));
+		
+		Reporter.log("Step 8: Navigate to Reports > Search For > Resource Identity  > select 'Created By' check box(Search Criteria: 'does not contain' as 'admin') > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.createdByUserCheckBox.click();
+		resourceIdentitySearch.createdByDropDown.sendKeys("does not contain");
+		resourceIdentitySearch.createdByTextBox.sendKeys("admin");
+		common.search();
+		
+		Reporter.log("Step 9: Verify if column with the name 'Created By' is displayed or not? :: Expected: should be displayed");
+		Assert.assertTrue(common.getTableCollumNames("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table").contains("Created By"),"Column created By not visible");
+		
+		Reporter.log("Step 10: Check for the existence of the 'Resouce ID' created as an 'newAdminUser' :: Expected: Should be seen "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()>0,"Not able to find the resource Id "+idName+" for user "+newAdminUser);
+		
+		Reporter.log("Step 11: Check for the existence of the 'Resouce ID' created as an 'admin'  :: Expected: Should not be displayed "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName1)).size()<=0,"Able to see resouce id "+idName+" for admin");
+		
+		Reporter.log("===============End testRegularSearchCreatedByDoesNotContainsShownUpInReport_024========================"+"<br>");
+	}
+	
+	// Verify 'Resource Identity' Search Functionality upon creating 'Resource Identity' with Different Users (Search Criteria: Created By as 'matches' -> 'admin')
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchCreatedByMatchesShownUpInReport_025() throws InterruptedException{
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235124 "+"<br>");
+		Reporter.log("===============Start testRegularSearchCreatedByMatchesShownUpInReport_025========================"+"<br>");
+		
+		Reporter.log("Step 1 : Create New User"+"<br>");
+		String newAdminUser = NAUtils.addUser(new String[]{"Administrator"});
+		
+		Reporter.log("Step 2 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newAdminUser);
+				
+		Reporter.log("Step 3 : login As New User"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newAdminUser));
+		//login.loginAsUser(newAdminUser);
+				
+		Reporter.log("Step 4 : create Resource Identity Pool"+"<br>");			
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 5 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		AssertJUnit.assertTrue("Not able to add ids to resouce pool "+resourcePool, NAUtils.addResourceIDsToPool(resourcePool, idName, null));
+		
+		login.loginAsUser("admin");
+		
+		
+		Reporter.log("Step 6 : create Resource Identity Pool"+"<br>");	
+		String resourcePool1 = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 7 : add ResourceID To above created Pool "+"<br>");
+		String idName1 = common.generateRandomString();
+		AssertJUnit.assertTrue("Not able to add ids to resouce pool "+resourcePool1, NAUtils.addResourceIDsToPool(resourcePool1, idName1, null));
+		
+		
+		Reporter.log("Step 8: Navigate to Reports > Search For > Resource Identity  > select 'Created By' check box(Search Criteria: 'matches' as 'admin') > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.createdByUserCheckBox.click();
+		resourceIdentitySearch.createdByDropDown.sendKeys("matches");
+		resourceIdentitySearch.createdByTextBox.sendKeys("admin");
+		common.search();
+		
+		Reporter.log("Step 9: Verify if column with the name 'Created By' is displayed or not? :: Expected: should be displayed"+"<br>");
+		Assert.assertTrue(common.getTableCollumNames("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table").contains("Created By"),"Column created By not visible");
+		
+		Reporter.log("Step 10: Check for the existence of the 'Resouce ID' created as an 'newAdminUser' :: Expected: Should not be seen "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()<=0,"Able to see resource id "+idName+" for user "+newAdminUser);
+		
+		Reporter.log("Step 11: Check for the existence of the 'Resouce ID' created as an 'admin'  :: Expected: Should  be displayed "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName1)).size()>0,"Not able to see resource id "+idName1+" for admin user");
+		
+		
+		Reporter.log("===============End testRegularSearchCreatedByMatchesShownUpInReport_025========================"+"<br>");
+		
+	}
+	
+	// Verify 'Resource Identity' Search Functionality upon creating 'Resource Identity' with Different Users (Search Criteria: Created By as 'equals' -> 'admin')
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchCreatedByEqualsShownUpInReport_026() throws InterruptedException{
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235120  "+"<br>");
+		Reporter.log("===============Start testRegularSearchCreatedByEqualsShownUpInReport_026========================"+"<br>");
+		
+		Reporter.log("Step 1 : Create New User"+"<br>");
+		String newAdminUser = NAUtils.addUser(new String[]{"Administrator"});
+		
+		Reporter.log("Step 2 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newAdminUser);
+				
+		Reporter.log("Step 3 : login As New User"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newAdminUser));
+		
+		//login.loginAsUser(newAdminUser);
+		
+		Reporter.log("Step 4 : create Resource Identity Pool"+"<br>");		
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 5 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		AssertJUnit.assertTrue("Not able to add ids to resouce pool "+resourcePool, NAUtils.addResourceIDsToPool(resourcePool, idName, null));
+		
+		login.loginAsUser("admin");
+		
+		Reporter.log("Step 6 : create Resource Identity Pool"+"<br>");	
+		String resourcePool1 = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 7 : add ResourceID To above created Pool "+"<br>");
+		String idName1 = common.generateRandomString();
+		AssertJUnit.assertTrue("Not able to add ids to resouce pool "+resourcePool1, NAUtils.addResourceIDsToPool(resourcePool1, idName1, null));
+		
+		
+		Reporter.log("Step 8: Navigate to Reports > Search For > Resource Identity  > select 'Created By' check box(Search Criteria: 'equals' as 'admin') > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.createdByUserCheckBox.click();
+		resourceIdentitySearch.createdByDropDown.sendKeys("equals");
+		resourceIdentitySearch.createdByTextBox.sendKeys("admin");
+		common.search();
+		
+		Reporter.log("Step 9: Verify if column with the name 'Created By' is displayed or not? :: Expected: should be displayed"+"<br>");
+		AssertJUnit.assertTrue("Column created By not visible", common.getTableCollumNames("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table").contains("Created By"));
+		
+		Reporter.log("Step 10: Check for the existence of the 'Resouce ID' created as an 'newAdminUser' :: Expected: Should not be seen "+"<br>");
+		AssertJUnit.assertTrue("Able to see resource id "+idName+" for user "+newAdminUser, driver.findElements(By.linkText(idName)).size()<=0);
+		
+		Reporter.log("Step 11: Check for the existence of the 'Resouce ID' created as an 'admin'  :: Expected: Should  be displayed "+"<br>");
+		AssertJUnit.assertTrue("Not able to see resource id "+idName1+" for admin user", driver.findElements(By.linkText(idName1)).size()>0);
+		
+		Reporter.log("===============End testRegularSearchCreatedByEqualsShownUpInReport_026========================"+"<br>");
+		
+	}
+	
+	// Verify 'Resource Identity' Search Functionality upon creating 'Resource Identity' with Different Users (Search Criteria: Created By as 'does not equal' -> 'admin')
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchCreatedByDoesnotEqualsShownUpInReport_027() throws InterruptedException{
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235143  "+"<br>");
+		Reporter.log("===============Start testRegularSearchCreatedByDoesnotEqualsShownUpInReport_027========================"+"<br>");
+		
+		
+		Reporter.log("Step 1 : Create New User"+"<br>");
+		String newAdminUser = NAUtils.addUser(new String[]{"Administrator"});
+		
+		Reporter.log("Step 2 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newAdminUser);
+				
+		Reporter.log("Step 3 : login As New User"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newAdminUser));
+		
+		//login.loginAsUser(newAdminUser);
+		
+		Reporter.log("Step 4 : create Resource Identity Pool"+"<br>");	
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 5 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		AssertJUnit.assertTrue("Not able to add ids to resouce pool "+resourcePool, NAUtils.addResourceIDsToPool(resourcePool, idName, null));
+		
+		login.loginAsUser("admin");
+		
+		Reporter.log("Step 6 : create Resource Identity Pool"+"<br>");	
+		String resourcePool1 = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 7 : add ResourceID To above created Pool "+"<br>");
+		String idName1 = common.generateRandomString();
+		AssertJUnit.assertTrue("Not able to add ids to resouce pool "+resourcePool1, NAUtils.addResourceIDsToPool(resourcePool1, idName1, null));
+		
+		
+		Reporter.log("Step 8: Navigate to Reports > Search For > Resource Identity  > select 'Created By' check box(Search Criteria: 'does not equal' as 'admin') > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.createdByUserCheckBox.click();
+		resourceIdentitySearch.createdByDropDown.sendKeys("does not equal");
+		resourceIdentitySearch.createdByTextBox.sendKeys("admin");
+		common.search();
+		
+		Reporter.log("Step 9: Verify if column with the name 'Created By' is displayed or not? :: Expected: should be displayed"+"<br>");
+		Assert.assertTrue(common.getTableCollumNames("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table").contains("Created By"),"Column created By not visible");
+		
+		Reporter.log("Step 10: Check for the existence of the 'Resouce ID' created as an 'newAdminUser' :: Expected: Should be seen "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()>0,"Not able to find the resource Id "+idName+" for user "+newAdminUser);
+		
+		Reporter.log("Step 10: Check for the existence of the 'Resouce ID' created as an 'admin' :: Expected: Should not be seen "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName1)).size()<=0,"Able to see resouce id "+idName+" for admin");
+		
+		
+		Reporter.log("===============End testRegularSearchCreatedByDoesnotEqualsShownUpInReport_027========================"+"<br>");
+	}
+	
+	// Verify 'Resource Identity' Search Functionality (Search Criteria: 'Last Modified Date ' (Select 'since' as 'Anytime' and 'until' as 'Anytime'))
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchLastModifiedDateCustomizeShowsUpInReport_028(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235178  "+"<br>");
+		Reporter.log("===============Start testRegularSearchLastModifiedDateCustomizeShowsUpInReport_028========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");	
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select 'Last Modified Date' check box(Select 'since' as 'Anytime' and 'until' as 'Anytime') > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.lastModifiedDateCheckBox.click();
+		resourceIdentitySearch.lastModifiedSinceCustomizeDropDown.sendKeys("since");
+		resourceIdentitySearch.lastModifiedSinceCustomizeDropDown.sendKeys("Anytime");
+		resourceIdentitySearch.lastModifiedUntilDropDown.sendKeys("until");
+		resourceIdentitySearch.lastModifiedUntilCustomizeDropDown.sendKeys("Anytime");
+		common.search();
+		
+		Reporter.log("Step 4: Verify if column with the name 'Last Modified' is displayed or not? :: Expected: should be displayed"+"<br>");
+		Assert.assertTrue(common.getTableCollumNames("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table").contains("Last Modified"),"Created field not shown in report ");
+		
+		Reporter.log("Step 5: Check for the existence of the 'Resouce ID' :: Expected: Should be seen "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()>0,"Not able to find the resource Id "+idName);
+		
+		Reporter.log("===============End testRegularSearchLastModifiedDateCustomizeShowsUpInReport_028========================"+"<br>");
+		
+	}
+	
+	// Verify 'Resource Identity' Search Functionality (Search Criteria: 'Last Modified Date ' (Select 'since' as '24 hours ago' and 'until' as '2 weeks ago'))
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchLastModifiedDateTwentyFourHoursAgoUntilTwoWeeksShowsUpInReport_029(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235171 "+"<br>");
+		Reporter.log("===============Start testRegularSearchLastModifiedDateTwentyFourHoursAgoUntilTwoWeeksShowsUpInReport_029========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");	
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select 'Last Modified Date' check box(Select 'since' as '24 hours ago' and 'until' as '2 weeks ago') > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.lastModifiedDateCheckBox.click();
+		resourceIdentitySearch.lastModifiedSinceCustomizeDropDown.sendKeys("since");
+		resourceIdentitySearch.lastModifiedSinceCustomizeDropDown.sendKeys("24 hours ago");
+		resourceIdentitySearch.lastModifiedUntilDropDown.sendKeys("until");
+		resourceIdentitySearch.lastModifiedUntilCustomizeDropDown.sendKeys("2 weeks ago");
+		common.search();
+		
+		Reporter.log("Step 4: Check for the existence of the 'Resouce ID' :: Expected: Should not be seen "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()<=0,"Not able to find the resource Id "+idName);
+		
+		Reporter.log("===============End testRegularSearchLastModifiedDateTwentyFourHoursAgoUntilTwoWeeksShowsUpInReport_029========================"+"<br>");
+		
+	}
+	
+	// Verify 'Resource Identity' Search Functionality (Search Criteria: 'Last Modified Date ' (Select 'since' as '24 hours ago' and 'until' as '6 months ago'))
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchLastModifiedDateTwentyFourHoursAgoUntilSixMonthsShowsUpInReport_030(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235163 "+"<br>");
+		Reporter.log("===============Start testRegularSearchLastModifiedDateTwentyFourHoursAgoUntilSixMonthsShowsUpInReport_030========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");	
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select 'Last Modified Date' check box(Select 'since' as '24 hours ago' and 'until' as '6 months ago') > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.lastModifiedDateCheckBox.click();
+		resourceIdentitySearch.lastModifiedSinceCustomizeDropDown.sendKeys("since");
+		resourceIdentitySearch.lastModifiedSinceCustomizeDropDown.sendKeys("24 hours ago");
+		resourceIdentitySearch.lastModifiedUntilDropDown.sendKeys("until");
+		resourceIdentitySearch.lastModifiedUntilCustomizeDropDown.sendKeys("6 months ago");
+		common.search();
+		
+		Reporter.log("Step 4: Check for the existence of the 'Resouce ID' :: Expected: Should not be seen "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()<=0,"Not able to find the resource Id "+idName);
+		
+		Reporter.log("===============End testRegularSearchLastModifiedDateTwentyFourHoursAgoUntilSixMonthsShowsUpInReport_030========================"+"<br>");
+		
+	}
+	
+	// Verify 'Resource Identity' Search Functionality (Search Criteria: 'Last Modified Date ' (Select 'since' as '1 month ago' and 'until' as '1 year ago'))
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchLastModifiedDateOneMonthAgoUntilOneYearShowsUpInReport_031(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235150 "+"<br>");
+		Reporter.log("===============Start testRegularSearchLastModifiedDateOneMonthAgoUntilOneYearShowsUpInReport_031========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool"+"<br>");	
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select 'Last Modified Date' check box(Select 'since' as '1 month ago' and 'until' as '1 year ago') > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.lastModifiedDateCheckBox.click();
+		resourceIdentitySearch.lastModifiedSinceCustomizeDropDown.sendKeys("since");
+		resourceIdentitySearch.lastModifiedSinceCustomizeDropDown.sendKeys("1 month ago");
+		resourceIdentitySearch.lastModifiedUntilDropDown.sendKeys("until");
+		resourceIdentitySearch.lastModifiedUntilCustomizeDropDown.sendKeys("1 year ago");
+		common.search();
+		
+		Reporter.log("Step 4: Check for the existence of the 'Resouce ID' :: Expected: Should not be seen "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()<=0,"Not able to find the resource Id "+idName);
+		
+		Reporter.log("===============End testRegularSearchLastModifiedDateOneMonthAgoUntilOneYearShowsUpInReport_031========================"+"<br>");
+	}
+	
+	// Verify 'Resource Identity' Search Functionality (Search Criteria: 'Last Modified Date ' (Select 'since' as '1 month ago' and 'until' as '1 year ago'))
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchChangedByContainsShownUpInReport_032() throws InterruptedException{
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235149 "+"<br>");
+		Reporter.log("===============Start testRegularSearchChangedByContainsShownUpInReport_032========================"+"<br>");
+		
+		Reporter.log("Step 1 : Create New User"+"<br>");
+		String newAdminUser = NAUtils.addUser(new String[]{"Administrator"});
+		
+		Reporter.log("Step 2 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newAdminUser);
+				
+		Reporter.log("Step 3 : login As New User"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newAdminUser));
+		//login.loginAsUser(newAdminUser);
+				
+		Reporter.log("Step 4 : create Resource Identity Pool"+"<br>");	
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 5 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		AssertJUnit.assertTrue("Not able to add ids to resouce pool "+resourcePool, NAUtils.addResourceIDsToPool(resourcePool, idName, null));
+		
+		login.loginAsUser("admin");
+		Reporter.log("Step 6 : create Resource Identity Pool"+"<br>");
+		String resourcePool1 = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 7 : add ResourceID To above created Pool "+"<br>");
+		String idName1 = common.generateRandomString();
+		AssertJUnit.assertTrue("Not able to add ids to resouce pool "+resourcePool1, NAUtils.addResourceIDsToPool(resourcePool1, idName1, null));
+		
+		Reporter.log("Step 8: Navigate to Reports > Search For > Resource Identity  > select 'Last Modified By' check box(Search Criteria: 'contains' as 'admin') > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.lastModifiedByCheckBox.click();
+		resourceIdentitySearch.lastModifiedByDropDown.sendKeys("contains");
+		resourceIdentitySearch.lastModifiedByTextBox.sendKeys("admin");
+		common.search();
+		
+		Reporter.log("Step 9: Verify if column with the name 'Last Modified By' is displayed or not? :: Expected: should be displayed"+"<br>");
+		AssertJUnit.assertTrue("Column created By not visible", common.getTableCollumNames("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table").contains("Last Modified By"));
+		
+		Reporter.log("Step 10: Check for the existence of the 'Resouce ID' created as an 'newAdminUser' :: Expected: Should not be seen "+"<br>");
+		AssertJUnit.assertTrue("Able to see resource id "+idName+" for user "+newAdminUser, driver.findElements(By.linkText(idName)).size()<=0);
+		
+		Reporter.log("Step 11: Check for the existence of the 'Resouce ID' created as an 'admin' :: Expected: Should be seen "+"<br>");
+		AssertJUnit.assertTrue("Not able to find the resource Id "+idName, driver.findElements(By.linkText(idName1)).size()>0);
+				
+		Reporter.log("===============End testRegularSearchChangedByContainsShownUpInReport_032========================"+"<br>");
+		
+	}
+	
+	// Verify 'Resource Identity' Search Functionality upon creating 'Resource Identity' with Different Users (Search Criteria: Last Modified By as 'does not contain' -> 'admin')
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchChangedByDoesNotContainShownUpInReport_033() throws InterruptedException{
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235176 "+"<br>");
+		Reporter.log("===============Start testRegularSearchChangedByDoesNotContainShownUpInReport_033========================"+"<br>");
+		
+		Reporter.log("Step 1 : Create New User"+"<br>");
+		String newAdminUser = NAUtils.addUser(new String[]{"Administrator"});
+		
+		
+		Reporter.log("Step 2 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newAdminUser);
+				
+		Reporter.log("Step 3 : login As New User"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newAdminUser));
+		//login.loginAsUser(newAdminUser);
+		
+		
+		Reporter.log("Step 4 : create Resource Identity Pool"+"<br>");	
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		Reporter.log("Step 5 : add ResourceID To above created Pool "+"<br>");
+		
+		
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resource pool "+resourcePool);
+		
+		login.loginAsUser("admin");
+		
+		Reporter.log("Step 6 : create Resource Identity Pool"+"<br>");
+		String resourcePool1 = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 7 : add ResourceID To above created Pool "+"<br>");
+		String idName1 = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool1, idName1, null),"Not able to add ids to resouce pool "+resourcePool1);
+		
+		Reporter.log("Step 8: Navigate to Reports > Search For > Resource Identity  > select 'Last Modified By' check box(Search Criteria: 'does not contain' as 'admin') > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.lastModifiedByCheckBox.click();
+		resourceIdentitySearch.lastModifiedByDropDown.sendKeys("does not contain");
+		resourceIdentitySearch.lastModifiedByTextBox.sendKeys("admin");
+		common.search();
+		
+		Reporter.log("Step 9: Verify if column with the name 'Last Modified By' is displayed or not? :: Expected: should be displayed"+"<br>");
+		Assert.assertTrue(common.getTableCollumNames("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table").contains("Last Modified By"),"Column created By not visible");
+		
+		Reporter.log("Step 10: Check for the existence of the 'Resouce ID' created as an 'newAdminUser' :: Expected: Should  be seen "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()>0,"Not able to find the resource Id "+idName+" for user "+newAdminUser);
+		
+		Reporter.log("Step 11: Check for the existence of the 'Resouce ID' created as an 'admin' :: Expected: Should not be seen "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName1)).size()<=0,"Able to see resouce id "+idName+" for admin");
+		
+		Reporter.log("===============End testRegularSearchChangedByDoesNotContainShownUpInReport_033========================"+"<br>");
+		
+	}
+	
+	// Verify 'Resource Identity' Search Functionality upon creating 'Resource Identity' with Different Users (Search Criteria: Last Modified By as 'matches' -> 'admin')
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchChangedByMatchesShownUpInReport_034() throws InterruptedException{
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235160  "+"<br>");
+		Reporter.log("===============Start testRegularSearchChangedByMatchesShownUpInReport_034========================"+"<br>");
+		
+		Reporter.log("Step 1 : Create New User"+"<br>");
+		String newAdminUser = NAUtils.addUser(new String[]{"Administrator"});
+		
+		Reporter.log("Step 2 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newAdminUser);
+				
+		Reporter.log("Step 3 : login As New User"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newAdminUser));
+		//login.loginAsUser(newAdminUser);
+				
+		Reporter.log("Step 4 : create Resource Identity Pool"+"<br>");	
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 5 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		login.loginAsUser("admin");
+		Reporter.log("Step 6 : create Resource Identity Pool"+"<br>");
+		String resourcePool1 = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 7 : add ResourceID To above created Pool "+"<br>");
+		String idName1 = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool1, idName1, null),"Not able to add ids to resouce pool "+resourcePool1);
+		
+		Reporter.log("Step 8: Navigate to Reports > Search For > Resource Identity  > select 'Last Modified By' check box(Search Criteria: 'matches' as 'admin') > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.lastModifiedByCheckBox.click();
+		resourceIdentitySearch.lastModifiedByDropDown.sendKeys("matches");
+		resourceIdentitySearch.lastModifiedByTextBox.sendKeys("admin");
+		common.search();
+		
+		Reporter.log("Step 9: Verify if column with the name 'Last Modified By' is displayed or not? :: Expected: should be displayed"+"<br>");
+		Assert.assertTrue(common.getTableCollumNames("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table").contains("Last Modified By"),"Column created By not visible");
+		
+		Reporter.log("Step 10: Check for the existence of the 'Resouce ID' created as an 'newAdminUser' :: Expected: Should  not be seen "+"<br>");
+		AssertJUnit.assertTrue("Able to see resource id "+idName+" for user "+newAdminUser, driver.findElements(By.linkText(idName)).size()<=0);
+		
+		Reporter.log("Step 11: Check for the existence of the 'Resouce ID' created as an 'admin' :: Expected: Should  be seen "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName1)).size()>0,"Not able to see resource id "+idName1+" for admin user");
+		
+		Reporter.log("===============End testRegularSearchChangedByMatchesShownUpInReport_034========================"+"<br>");
+		
+	}
+	
+	// Verify 'Resource Identity' Search Functionality upon creating 'Resource Identity' with Different Users (Search Criteria: Last Modified By as 'equals' -> 'admin')
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchChangedByEqualsShownUpInReport_035() throws InterruptedException{
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235118  "+"<br>");
+		Reporter.log("===============Start testRegularSearchChangedByEqualsShownUpInReport_035========================"+"<br>");
+		
+		Reporter.log("Step 1 : Create New User"+"<br>");
+		String newAdminUser = NAUtils.addUser(new String[]{"Administrator"});
+		
+		Reporter.log("Step 2 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newAdminUser);
+				
+		Reporter.log("Step 3 : login As New User"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newAdminUser));
+		//login.loginAsUser(newAdminUser);
+				
+		Reporter.log("Step 4 : create Resource Identity Pool"+"<br>");	
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 5 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		login.loginAsUser("admin");
+		Reporter.log("Step 6 : create Resource Identity Pool"+"<br>");	
+		String resourcePool1 = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 7 : add ResourceID To above created Pool "+"<br>");
+		String idName1 = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool1, idName1, null),"Not able to add ids to resouce pool "+resourcePool1);
+		
+		Reporter.log("Step 8: Navigate to Reports > Search For > Resource Identity  > select 'Last Modified By' check box(Search Criteria: 'equals' as 'admin') > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.lastModifiedByCheckBox.click();
+		resourceIdentitySearch.lastModifiedByDropDown.sendKeys("equals");
+		resourceIdentitySearch.lastModifiedByTextBox.sendKeys("admin");
+		common.search();
+		common.pageSizeOption("All");
+		
+		Reporter.log("Step 9: Verify if column with the name 'Last Modified By' is displayed or not? :: Expected: should be displayed"+"<br>");
+		Assert.assertTrue(common.getTableCollumNames("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table").contains("Last Modified By"),"Column created By not visible");
+		
+		Reporter.log("Step 10: Check for the existence of the 'Resouce ID' created as an 'newAdminUser' :: Expected: Should be seen "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName1)).size()>0,"Not able to find the resource Id "+idName+" for user admin");
+		
+		Reporter.log("Step 11: Check for the existence of the 'Resouce ID' created as an 'admin' :: Expected: Should not be seen "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()<=0,"Able to see resouce id "+idName+" for "+newAdminUser);
+		
+		Reporter.log("===============End testRegularSearchChangedByEqualsShownUpInReport_035========================"+"<br>");
+		
+	}
+	
+	// Verify 'Resource Identity' Search Functionality upon creating 'Resource Identity' with Different Users (Search Criteria: Last Modified By as 'does not equal' -> 'admin')
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchChangedByDoesNotEqualsShownUpInReport_036() throws InterruptedException{
+		
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235162 "+"<br>");
+		Reporter.log("===============Start testRegularSearchChangedByDoesNotEqualsShownUpInReport_036========================"+"<br>");
+		
+		Reporter.log("Step 1 : Create New User"+"<br>");
+		String newAdminUser = NAUtils.addUser(new String[]{"Administrator"});
+		
+		Reporter.log("Step 2 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newAdminUser);
+				
+		Reporter.log("Step 3 : login As New User"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newAdminUser));
+		
+		//login.loginAsUser(newAdminUser);
+				
+		Reporter.log("Step 4 : create Resource Identity Pool"+"<br>");	
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 5 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		login.loginAsUser("admin");
+		
+		Reporter.log("Step 6 : create Resource Identity Pool"+"<br>");	
+		String resourcePool1 = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 7 : add ResourceID To above created Pool "+"<br>");
+		String idName1 = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool1, idName1, null),"Not able to add ids to resouce pool "+resourcePool1);
+		
+		Reporter.log("Step 8: Navigate to Reports > Search For > Resource Identity  > select 'Last Modified By' check box(Search Criteria: 'does not equal' as 'admin') > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.lastModifiedByCheckBox.click();
+		resourceIdentitySearch.lastModifiedByDropDown.sendKeys("does not equal");
+		resourceIdentitySearch.lastModifiedByTextBox.sendKeys("admin");
+		common.search();
+		
+		Reporter.log("Step 9: Verify if column with the name 'Last Modified By' is displayed or not? :: Expected: should be displayed"+"<br>");
+		Assert.assertTrue(common.getTableCollumNames("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table").contains("Last Modified By"),"Column created By not visible");
+		
+		Reporter.log("Step 10: Check for the existence of the 'Resouce ID' created as an 'newAdminUser' :: Expected: Should be seen "+"<br>");
+		AssertJUnit.assertTrue("Not able to find the resource Id "+idName+" for user "+newAdminUser, driver.findElements(By.linkText(idName)).size()>0);
+		
+		Reporter.log("Step 11: Check for the existence of the 'Resouce ID' created as an 'admin' :: Expected: Should not be seen "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName1)).size()<=0,"Able to see resouce id "+idName+" for admin");
+				
+		Reporter.log("===============End testRegularSearchChangedByDoesNotEqualsShownUpInReport_036========================"+"<br>");
+	}
+	
+		
+	// Verify 'Resource Identity' Search Functionality  (Search Criteria: 1) Created Date-> Select 'since' as 'Anytime'  2)custom field  -> 'contains'))
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchCustomAttributeAndCreateDateShownUpInReport_037(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235157  "+"<br>");
+		Reporter.log("===============Start testRegularSearchCustomAttributeAndCreateDateShownUpInReport_037========================"+"<br>");
+					
+		prerequisites();
+		
+		Reporter.log("Step 1 : Generate 1 Random 'Resource Identity Pool' Names and 1 'ID Name' and Add those to an Map"+"<br>");		
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(1);
+		String[] idNames = getPoolNameAndIds.values().toArray(new String[getPoolNameAndIds.size()]);
+		
+		
+		Reporter.log("Step 2 : Create 'customField' for resource IDs also generate custom field value"+"<br>");		
+		Map<String,String> customFieldsAndValues = addMultipleCustomFieldsAndValues(getPoolNameAndIds.size());
+		String[] customFields = customFieldsAndValues.keySet().toArray(new String[customFieldsAndValues.size()]);
+					
+		Map<String, String> idsAndCustomFields = getidsAndCustomFields(idNames, customFields);
+		
+		Reporter.log("Step 3:  Create a Pool upon selecting above created 'customField' > Add ID upon entering custom field Value"+"<br>");
+		Assert.assertTrue(createMultiplePoolsWithCustom(getPoolNameAndIds,idsAndCustomFields,customFieldsAndValues,"Available"),"Not able to create multiple pools ");
+			
+		Reporter.log("Step 4: Navigate to Reports > Search For > Resource Identity  > select 'Created Date' check box(Search Criteria: 'since ' as 'anytime') > Select 'CustomField field' checkbox (Search Criteria: 'contains ' as 'customField value') > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		
+		table = common.getObjectByXpath(resourceIdentitySearch.resourceIdentitySearchTable);
+		rows = table.findElements(By.tagName("tr"));
+		
+		System.out.println("Number of rows is "+ rows.size());
+		
+		for(int i=12,j=0;j<getPoolNameAndIds.size();i++,j++){
+			
+			resourceIdentitySearch.createDateCheckBox.click();
+			resourceIdentitySearch.createSinceDropDown.sendKeys("since");
+			resourceIdentitySearch.createSinceCustomizeDropDown.sendKeys("Anytime");
+			
+			System.out.println("Value of i : "+i+" value of j is "+ j+ "value of this ");
+			String customField = common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table[2]/tbody/tr["+i+"]/td/table/tbody/tr/td[2]").getText().trim();
+			System.out.println("CustomField Name is "+customField);
+			common.getObjectByName("customFieldExpressions["+j+"].checked").click();
+			common.getObjectByName("customFieldExpressions["+j+"].operationName").sendKeys("contains");
+			common.getObjectByName("customFieldExpressions["+j+"].values").sendKeys(customFieldsAndValues.get(customField));
+			common.search();
+			
+			System.out.println("id is : "+idsAndCustomFields.get(customField));
+			for(String keys : idsAndCustomFields.keySet()){
+				System.out.println("Key : "+keys+" Value: "+idsAndCustomFields.get(keys));
+			}
+			
+			String resultXpath = "html/body/table[1]/tbody/tr/td[2]/div[3]/form/table";
+			
+			Reporter.log("Step 5: Check for the existence of the 'custom field' :: Should be displayed"+"<br>");
+			Assert.assertTrue(idsAndCustomFields.get(common.getObjectByXpath(resultXpath+"/tbody/tr[2]/td[2]/a").getText().trim()).equals(customField),"Not able to find the resouce Id ");
+			
+			Navigate.Reports.SearchFor.resourceIdentity();
+			resourceIdentitySearch = new ResourceIdentitySearchPage();
+		}
+		
+		Reporter.log("===============End testRegularSearchCustomAttributeAndCreateDateShownUpInReport_037========================"+"<br>");
+	}
+	
+	// Verify 'Resource Identity' Search Functionality  (Search Criteria: 1) Created Date-> Select 'since' as 'Anytime', 2) created By-> 'contains' as 'admin' , 3)custom field  -> 'contains'))
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchThreeCustomAttributeCreatedByCreateDateShownUpInReport_038(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235128  "+"<br>");
+		Reporter.log("===============Start testRegularSearchThreeCustomAttributeCreatedByCreateDateShownUpInReport_038========================"+"<br>");
+		
+		
+		prerequisites();
+		
+		Reporter.log("Step 1 : Generate 3 Random 'Resource Identity Pool' Names and 3 'ID Names' and Add those to an Map"+"<br>");		
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(3);
+		String[] idNames = getPoolNameAndIds.values().toArray(new String[getPoolNameAndIds.size()]);
+		
+		
+		Reporter.log("Step 2 : Create 'customField' for resource IDs also generate custom field value"+"<br>");		
+		Map<String,String> customFieldsAndValues = addMultipleCustomFieldsAndValues(getPoolNameAndIds.size());
+		String[] customFields = customFieldsAndValues.keySet().toArray(new String[customFieldsAndValues.size()]);
+		
+		Reporter.log("Step 3:  Create a Pool upon selecting above created 'customField' > Add ID upon entering custom field Value"+"<br>");
+		Map<String, String> idsAndCustomFields = getidsAndCustomFields(idNames, customFields);			
+		Assert.assertTrue(createMultiplePoolsWithCustom(getPoolNameAndIds,idsAndCustomFields,customFieldsAndValues,"Available"),"Not able to create multiple pools ");
+		
+		
+		Reporter.log("Step 4: Navigate to Reports > Search For > Resource Identity  > select 'Created Date' check box(Search Criteria: 'since ' as 'anytime') > Select 'created By' check box(Search Criteria : 'contains' as 'admin')> Select 'CustomField field' checkbox (Search Criteria: 'contains ' as 'customField value') > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		
+		table = common.getObjectByXpath(resourceIdentitySearch.resourceIdentitySearchTable);
+		rows = table.findElements(By.tagName("tr"));
+		
+		System.out.println("Number of rows is "+ rows.size());
+		
+		for(int i=12,j=0;j<getPoolNameAndIds.size();i++,j++){
+			
+			resourceIdentitySearch.createDateCheckBox.click();
+			resourceIdentitySearch.createSinceDropDown.sendKeys("since");
+			resourceIdentitySearch.createSinceCustomizeDropDown.sendKeys("Anytime");
+			resourceIdentitySearch.createdByUserCheckBox.click();
+			resourceIdentitySearch.createdByDropDown.sendKeys("contains");
+			resourceIdentitySearch.createdByTextBox.sendKeys("admin");
+			
+			System.out.println("Value of i : "+i+" value of j is "+ j+ "value of this ");
+			String customField = common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table[2]/tbody/tr["+i+"]/td/table/tbody/tr/td[2]").getText().trim();
+			System.out.println("CustomField Name is "+customField);
+			common.getObjectByName("customFieldExpressions["+j+"].checked").click();
+			common.getObjectByName("customFieldExpressions["+j+"].operationName").sendKeys("contains");
+			common.getObjectByName("customFieldExpressions["+j+"].values").sendKeys(customFieldsAndValues.get(customField));
+			common.search();
+			
+			System.out.println("id is : "+idsAndCustomFields.get(customField));
+			for(String keys : idsAndCustomFields.keySet()){
+				System.out.println("Key : "+keys+" Value: "+idsAndCustomFields.get(keys));
+			}
+			
+			String resultXpath = "html/body/table[1]/tbody/tr/td[2]/div[3]/form/table";
+			
+			
+			Reporter.log("Step 5: Check for the existence of the 'custom field' :: Should be displayed"+"<br>");
+			Assert.assertTrue(idsAndCustomFields.get(common.getObjectByXpath(resultXpath+"/tbody/tr[2]/td[2]/a").getText().trim()).equals(customField),"Not able to find the resouce Id ");
+			
+			Reporter.log("Step 6: Check for the existence of the 'Created By' ::Should be displayed"+"<br>");
+			Assert.assertTrue(common.getObjectByXpath(resultXpath+"/tbody/tr[2]/td[7]").getText().trim().equals("admin"),"Created by shown wrongly");
+			
+			Navigate.Reports.SearchFor.resourceIdentity();
+			resourceIdentitySearch = new ResourceIdentitySearchPage();
+		}
+		
+		Reporter.log("===============End testRegularSearchThreeCustomAttributeCreatedByCreateDateShownUpInReport_038========================"+"<br>");
+	}
+	
+	// Verify 'Resource Identity' Search Functionality  (Search Criteria: 1) Last Modified By-> Select 'since' as '8 hours ago' & 'until' as '48 hours ago', 2)custom field  -> 'contains'))
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchTwoCustomAttributeLastModifiedDateSinceEightHoursUntil48HoursChangedByDateShownUpInReport_039(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235161 "+"<br>");
+		Reporter.log("===============Start testRegularSearchTwoCustomAttributeLastModifiedDateSinceEightHoursUntil48HoursChangedByDateShownUpInReport_039========================"+"<br>");
+		
+		
+		prerequisites();
+		
+		Reporter.log("Step 1 : Generate 2 Random 'Resource Identity Pool' Names and 2 'ID Names' and Add those to an Map"+"<br>");	
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(2);
+		String[] idNames = getPoolNameAndIds.values().toArray(new String[getPoolNameAndIds.size()]);
+		
+		Reporter.log("Step 2 : Create 'customField' for resource IDs also generate custom field value"+"<br>");	
+		Map<String,String> customFieldsAndValues = addMultipleCustomFieldsAndValues(getPoolNameAndIds.size());
+		String[] customFields = customFieldsAndValues.keySet().toArray(new String[customFieldsAndValues.size()]);
+		
+		Reporter.log("Step 3:  Create a Pool upon selecting above created 'customField' > Add ID upon entering custom field Value"+"<br>");
+		Map<String, String> idsAndCustomFields = getidsAndCustomFields(idNames, customFields);
+		
+		AssertJUnit.assertTrue("Not able to create multiple pools ",createMultiplePoolsWithCustom(getPoolNameAndIds,idsAndCustomFields,customFieldsAndValues,"Available"));
+		
+		Reporter.log("Step 4: Navigate to Reports > Search For > Resource Identity  > select 'Last Modified By' check box(Search Criteria: 'since ' as '8 hours ago') > select 'Last Modified By' check box(Search Criteria: 'until ' as '48 hours ago')> Select 'CustomField field' checkbox (Search Criteria: 'contains ' as 'customField value') > Search > Check for the existence of the 'custom field' ::Expected: Should be not displayed"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		
+		table = common.getObjectByXpath(resourceIdentitySearch.resourceIdentitySearchTable);
+		rows = table.findElements(By.tagName("tr"));
+		
+		System.out.println("Number of rows is "+ rows.size());
+		
+		for(int i=12,j=0;j<getPoolNameAndIds.size();i++,j++){
+			
+			resourceIdentitySearch.lastModifiedDateCheckBox.click();
+			resourceIdentitySearch.lastModifiedSinceDropDown.sendKeys("since");
+			resourceIdentitySearch.lastModifiedSinceCustomizeDropDown.sendKeys("8 hours ago");
+			resourceIdentitySearch.lastModifiedUntilDropDown.sendKeys("until");
+			resourceIdentitySearch.lastModifiedUntilCustomizeDropDown.sendKeys("48 hours ago");
+			
+			System.out.println("Value of i : "+i+" value of j is "+ j+ "value of this ");
+			String customField = common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table[2]/tbody/tr["+i+"]/td/table/tbody/tr/td[2]").getText().trim();
+			System.out.println("CustomField Name is "+customField);
+			common.getObjectByName("customFieldExpressions["+j+"].checked").click();
+			common.getObjectByName("customFieldExpressions["+j+"].operationName").sendKeys("contains");
+			common.getObjectByName("customFieldExpressions["+j+"].values").sendKeys(customFieldsAndValues.get(customField));
+			common.search();
+			
+			AssertJUnit.assertTrue("Resource Ids are shown", common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/div[2]").getText().equals("Your search returned 0 results."));
+								
+			Navigate.Reports.SearchFor.resourceIdentity();
+			resourceIdentitySearch = new ResourceIdentitySearchPage();
+		}
+		
+		Reporter.log("===============End testRegularSearchTwoCustomAttributeLastModifiedDateSinceEightHoursUntil48HoursChangedByDateShownUpInReport_039========================"+"<br>");
+	}
+	
+	// Verify 'Resource Identity' Search Functionality  (Search Criteria: 1) Create Date-> Select 'since' as '1 week ago' & 'until' as '1 month ago' , 2) Description - > 'contains')
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchFourCustomAttributeDescContainsCreateDateSinceOneWeekUntilOneMonthShownUpInReport_040(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235174 "+"<br>");
+		Reporter.log("===============Start testRegularSearchFourCustomAttributeDescContainsCreateDateSinceOneWeekUntilOneMonthShownUpInReport_040========================"+"<br>");
+		
+		
+		
+		prerequisites();
+		
+		Reporter.log("Step 1 : Generate 4 Random 'Resource Identity Pool' Names and 4 'ID Names' and Add those to an Map"+"<br>");	
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(4);
+		String[] idNames = getPoolNameAndIds.values().toArray(new String[getPoolNameAndIds.size()]);
+		
+		Reporter.log("Step 2 : Create 'customField' for resource IDs also generate custom field value"+"<br>");	
+		Map<String,String> customFieldsAndValues = addMultipleCustomFieldsAndValues(getPoolNameAndIds.size());
+		String[] customFields = customFieldsAndValues.keySet().toArray(new String[customFieldsAndValues.size()]);
+
+		Reporter.log("Step 3:  Create a Pool upon selecting above created 'customField' > Add ID upon entering custom field Value"+"<br>");
+		Map<String, String> idsAndCustomFields = getidsAndCustomFields(idNames, customFields);
+		
+		Assert.assertTrue(createMultiplePoolsWithCustom(getPoolNameAndIds,idsAndCustomFields,customFieldsAndValues,"Available"),"Not able to create multiple pools ");
+		
+		Reporter.log("Step 4: Navigate to Reports > Search For > Resource Identity  > select 'Create Date' check box(Search Criteria: 'since ' as '1 week ago') > select 'Create Date' check box(Search Criteria: 'until ' as '1 month ago') > Select 'Description' checkbox (Search Criteria: 'contains ' as 'New Resource Identify Pool Created by Automation') > Search > Expected:: 'Your search returned 0 results' Should be displayed"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		
+		table = common.getObjectByXpath(resourceIdentitySearch.resourceIdentitySearchTable);
+		rows = table.findElements(By.tagName("tr"));
+		
+		System.out.println("Number of rows is "+ rows.size());
+		
+		for(int i=12,j=0;j<getPoolNameAndIds.size();i++,j++){
+			
+			resourceIdentitySearch.createDateCheckBox.click();
+			resourceIdentitySearch.createSinceDropDown.sendKeys("since");
+			resourceIdentitySearch.createSinceCustomizeDropDown.sendKeys("1 week ago");
+			resourceIdentitySearch.createUntilDropDown.sendKeys("until");
+			resourceIdentitySearch.createUntilCustomizeDropDown.sendKeys("1 month ago");
+			resourceIdentitySearch.descriptionCheckBox.click();
+			resourceIdentitySearch.descriptionDropDown.sendKeys("contains");
+			resourceIdentitySearch.descriptionTextBox.sendKeys("New Resource Identify Pool Created by Automation");
+			common.search();
+			
+			Assert.assertTrue(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/div[2]").getText().equals("Your search returned 0 results."),"Resource Ids are shown");
+						
+			Navigate.Reports.SearchFor.resourceIdentity();
+			resourceIdentitySearch = new ResourceIdentitySearchPage();
+			
+			
+		}
+		
+		Reporter.log("===============End testRegularSearchFourCustomAttributeDescContainsCreateDateSinceOneWeekUntilOneMonthShownUpInReport_040========================"+"<br>");
+		
+	}
+	
+	//'Resource ID ' that is  created by new user is  not visiable to Admin user with the (Search Criteria: 1) Created By-> Select 'contains' as 'admin' 
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchFiveCustomAttributeCreateByContainsShownUpInReport_041() throws InterruptedException{
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235154  "+"<br>");
+		Reporter.log("===============Start testRegularSearchFiveCustomAttributeCreateByContainsShownUpInReport_041========================"+"<br>");
+		
+		prerequisites();
+		Reporter.log("Step 1 : Create New User"+"<br>");
+		String newAdminUser = NAUtils.addUser(new String[]{"Administrator"});
+		
+		Reporter.log("Step 2 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newAdminUser);
+				
+		Reporter.log("Step 3 : login As New User"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newAdminUser));
+		//login.loginAsUser(newAdminUser);
+		
+		Reporter.log("Step 4 : create Resource Identity Pool"+"<br>");	
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 5 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, null),"Not able to add ids to resouce pool "+resourcePool);
+		
+		
+		
+		
+		login.loginAsUser("admin");
+		
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(5);
+		String[] idNames = getPoolNameAndIds.values().toArray(new String[getPoolNameAndIds.size()]);
+		
+		Map<String,String> customFieldsAndValues = addMultipleCustomFieldsAndValues(getPoolNameAndIds.size());
+		String[] customFields = customFieldsAndValues.keySet().toArray(new String[customFieldsAndValues.size()]);
+		
+		Reporter.log("Step 6:  Create a Pool upon selecting above created 'customField' > Add ID upon entering custom field Value"+"<br>");
+		Map<String, String> idsAndCustomFields = getidsAndCustomFields(idNames, customFields);			
+		Assert.assertTrue(createMultiplePoolsWithCustom(getPoolNameAndIds,idsAndCustomFields,customFieldsAndValues,"Available"),"Not able to create multiple pools ");
+		
+		Reporter.log("Step 7: Navigate to Reports > Search For > Resource Identity  > select 'Created By' check box(Search Criteria: 'contains' as 'admin') > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		
+		table = common.getObjectByXpath(resourceIdentitySearch.resourceIdentitySearchTable);
+		rows = table.findElements(By.tagName("tr"));
+		
+		System.out.println("Number of rows is "+ rows.size());
+		
+		
+		resourceIdentitySearch.createdByUserCheckBox.click();
+		resourceIdentitySearch.createdByDropDown.sendKeys("contains");
+		resourceIdentitySearch.createdByTextBox.sendKeys("admin");
+		common.search();
+		
+		Reporter.log("Step 8: Check for the existence of the 'Resouce ID' created by 'admin' :: Expected: Should be seen "+"<br>");	
+		for(String id:getPoolNameAndIds.values()){
+			System.out.println("Resoure id is : "+id);			
+			Assert.assertTrue(driver.findElements(By.linkText(id)).size()>0,"Resouce Id not found");
+		}
+		
+		Reporter.log("Step 9: Check for the existence of the 'Resouce ID' created by 'newAdminUser' :: Expected: Should not be seen "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()<=0,"Resouce Id found ");
+			
+			
+		Reporter.log("===============End testRegularSearchFiveCustomAttributeCreateByContainsShownUpInReport_041========================"+"<br>");
+		
+	}
+	
+	//'Resource ID ' that is  created by new user is  not visiable to Admin user with the (Search Criteria: 1) Last Modified By search -> Select 'contains' as 'admin' 
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchThreeCustomAttributeChangedByContainsShownUpInReport_042() throws InterruptedException{
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235147 "+"<br>");
+		Reporter.log("===============Start testRegularSearchThreeCustomAttributeChangedByContainsShownUpInReport_042========================"+"<br>");
+		
+		prerequisites();
+		Reporter.log("Step 1 : Create New User"+"<br>");
+		String newAdminUser = NAUtils.addUser(new String[]{"Administrator"});
+		
+		Reporter.log("Step 2 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newAdminUser);
+				
+		Reporter.log("Step 3 : login As New User"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newAdminUser));
+		//login.loginAsUser(newAdminUser);
+				
+		Reporter.log("Step 4 : create Resource Identity Pool"+"<br>");	
+		String resourcePool = NAUtils.createResourceIdentityPools();
+		
+		Reporter.log("Step 5 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		AssertJUnit.assertTrue("Not able to add ids to resouce pool "+resourcePool, NAUtils.addResourceIDsToPool(resourcePool, idName, null));
+		
+		// Step 1
+		System.out.println("***********Step 1**********");
+		
+		login.loginAsUser("admin");
+		
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(5);
+		String[] idNames = getPoolNameAndIds.values().toArray(new String[getPoolNameAndIds.size()]);
+		
+		Reporter.log("Step 6:  Create a Pool upon selecting above created 'customField' > Add ID upon entering custom field Value"+"<br>");
+		Map<String,String> customFieldsAndValues = addMultipleCustomFieldsAndValues(getPoolNameAndIds.size());
+		String[] customFields = customFieldsAndValues.keySet().toArray(new String[customFieldsAndValues.size()]);
+		
+		Map<String, String> idsAndCustomFields = getidsAndCustomFields(idNames, customFields);
+		
+		Assert.assertTrue(createMultiplePoolsWithCustom(getPoolNameAndIds,idsAndCustomFields,customFieldsAndValues,"Available"),"Not able to create multiple pools ");
+		
+		Reporter.log("Step 7: Navigate to Reports > Search For > Resource Identity  > select 'Created By' check box(Search Criteria: 'contains' as 'admin') > Search"+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		
+		table = common.getObjectByXpath(resourceIdentitySearch.resourceIdentitySearchTable);
+		rows = table.findElements(By.tagName("tr"));
+		
+		System.out.println("Number of rows is "+ rows.size());
+		
+		
+		resourceIdentitySearch.lastModifiedByCheckBox.click();
+		resourceIdentitySearch.lastModifiedByDropDown.sendKeys("contains");
+		resourceIdentitySearch.lastModifiedByTextBox.sendKeys("admin");
+		common.search();
+		Reporter.log("Step 8: Check for the existence of the 'Resouce ID' created by 'admin' :: Expected: Should be seen "+"<br>");		
+		for(String id:getPoolNameAndIds.values()){
+			System.out.println("Resoure id is : "+id);
+			Assert.assertTrue(driver.findElements(By.linkText(id)).size()>0,"Resouce Id not found");
+		}
+		Reporter.log("Step 9: Check for the existence of the 'Resouce ID' created by 'newAdminUser' :: Expected: Should not be seen "+"<br>");	
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()<=0,"Resouce Id found ");
+		
+		Reporter.log("===============End testRegularSearchThreeCustomAttributeChangedByContainsShownUpInReport_042========================"+"<br>");
+		
+	}
+	
+	//verify the Resource Identity  (Search Criteria: 1) Resource identity  search -> Select 'contains' 2) select 'Partition' as 'Default Site')
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchResourcIdPoolPartitionDefaultSiteAndStatusShownUpInReport_043(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235133  "+"<br>");
+		Reporter.log("===============Start testRegularSearchResourcIdPoolPartitionDefaultSiteAndStatusShownUpInReport_043========================"+"<br>");
+		
+		Reporter.log("Step 1 : create Resource Identity Pool with 'Partition' as 'Default Site' "+"<br>");		
+		String resourcePool = NAUtils.createResourceIdentityPools(common.generateRandomString(),"Default Site",null);
+		
+		Reporter.log("Step 2 : add ResourceID To above created Pool "+"<br>");
+		String idName = common.generateRandomString();
+		Assert.assertTrue(NAUtils.addResourceIDsToPool(resourcePool, idName, "In Use"),"Not able to add ids to resouce pool "+resourcePool);
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select Resource Identity  as 'contains' > select 'Partition' as 'Default Site' >search  "+"<br>");
+		Navigate.Reports.SearchFor.resourceIdentity();
+		ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+		resourceIdentitySearch.resourceIdentityOperationName.sendKeys("contains");
+		resourceIdentitySearch.resourceIdentityValue.sendKeys(idName);
+		resourceIdentitySearch.statusInUseCheckBox.click();
+		common.selectOption(resourceIdentitySearch.partitionsAvailableList, resourcePool);
+		common.selectOption(resourceIdentitySearch.partitionsAvailableList, "Default Site");
+		common.search();
+		
+		Reporter.log("Step 4: Check for the existence of 'Resource Id' in Search Results :: Expected should be dispalyed "+"<br>");
+		Assert.assertTrue(driver.findElements(By.linkText(idName)).size()>0,"Resouce Id not found");
+			
+		
+		Reporter.log("===============End testRegularSearchResourcIdPoolPartitionDefaultSiteAndStatusShownUpInReport_043========================"+"<br>");
+		
+	}
+	
+	// Verify 'Resource Identity' Search Functionality with 3 Partitions  (Search Criteria: Select three 'Partitions' created   )
+	
+	//partitionCheckBox field is not available in Search page. 	Seems Application Defect , informed Divesh/Niharika to look into this issue.	
+	//Note: This field is seen in the NA URL 16.78.60.134, but not seen in 16.78.59.17. 
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchResourceIdContainsThreePoolsThreePartitionsStatusShownUpInReport_044(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235152 "+"<br>");
+		Reporter.log("===============Start testRegularSearchResourceIdContainsThreePoolsThreePartitionsStatusShownUpInReport_044========================"+"<br>");
+		
+		Reporter.log("Step 1 : create 3 'securityPartitions'"+"<br>");			
+		String[] securityPartitions = addMultipleSecurityPartitions(3);
+		
+		Reporter.log("Step 2 : create 3 'Resource Identity Pool' with 'IDS'"+"<br>");
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(3);
+		String[] poolNames = getPoolNameAndIds.keySet().toArray(new String[getPoolNameAndIds.size()]);
+		
+		Map<String, String> getPoolNamesAndPartition  = getPoolNameAndPartition(poolNames, securityPartitions);
+		
+		Assert.assertTrue(createMultiplePoolsWithPartition(getPoolNameAndIds, getPoolNamesAndPartition, null),"Not able to create Multiple pools with partition ");
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select Resource Identity  as 'contains' > select created 'pool' >  select created 'Partition'  >search  > Check for the existence of 'Resource Id' in Search Results (This step will be repeated for all the available  Partitions.) ::Expected should be displayed    "+"<br>");
+		for(int i=0;i<poolNames.length;i++){
+			Navigate.Reports.SearchFor.resourceIdentity();
+			ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+			resourceIdentitySearch.resourceIdentityOperationName.sendKeys("contains");
+			resourceIdentitySearch.resourceIdentityValue.sendKeys(getPoolNameAndIds.get(poolNames[i]));
+			resourceIdentitySearch.statusAvailableCheckBox.click();
+			common.selectOption(resourceIdentitySearch.poolsAvailableList, poolNames[i]);
+			common.selectOption(resourceIdentitySearch.partitionsAvailableList, getPoolNamesAndPartition.get(poolNames[i]));
+			common.search();
+			
+			Assert.assertTrue(driver.findElements(By.linkText(getPoolNameAndIds.get(poolNames[i]))).size()>0,"Resouce Id not found");
+			
+		}
+				
+		Reporter.log("===============End testRegularSearchResourceIdContainsThreePoolsThreePartitionsStatusShownUpInReport_044========================"+"<br>");
+		
+	}
+	
+	// Verify 'Resource Identity' Search Functionality with 5 Partitions  (Search Criteria: Select three 'Partitions' created and two as 'Default Site'  & 'Resource Identity' -> 'does not contain'    )
+	
+	
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchResouceIdDoesNotContainFivePoolsThreePartitionsDefaultSiteStatusShownUpInReport_045(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235145 "+"<br>");		
+		Reporter.log("===============Start testRegularSearchResouceIdDoesNotContainFivePoolsThreePartitionsStatusShownUpInReport_045========================"+"<br>");
+		
+	
+		Reporter.log("Step 1 : create 3 'securityPartitions'"+"<br>");	
+		
+		String[] securityPartitionsTemp = addMultipleSecurityPartitions(3);
+		String[] securityPartitions = new String[5];
+		
+		System.arraycopy(securityPartitionsTemp, 0, securityPartitions, 0, 3);
+		securityPartitions[3] = "Default Site";
+		securityPartitions[4] = "Default Site";
+		
+		Reporter.log("Step 2 : create 5 'Resource Identity Pool' with 'IDS'"+"<br>");
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(5);
+		String[] poolNames = getPoolNameAndIds.keySet().toArray(new String[getPoolNameAndIds.size()]);
+		
+		Map<String, String> getPoolNamesAndPartition  = getPoolNameAndPartition(poolNames, securityPartitions);
+		
+		Assert.assertTrue(createMultiplePoolsWithPartition(getPoolNameAndIds, getPoolNamesAndPartition, null),"Not able to create Multiple pools with partition ");
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select Resource Identity  as 'does not contain' > select created 'pool' >  select created 'Partition'  >search  > Check for the existence of 'Resource Id' in Search Results (This step will be repeated for all the available  Partitions.) ::Expected should not be displayed    "+"<br>");
+		for(int i=0;i<poolNames.length;i++){
+			System.out.println("Pool name is "+poolNames[i]);
+			Navigate.Reports.SearchFor.resourceIdentity();
+			ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+			resourceIdentitySearch.resourceIdentityOperationName.sendKeys("does not contain");
+			resourceIdentitySearch.resourceIdentityValue.sendKeys(getPoolNameAndIds.get(poolNames[i]));
+			resourceIdentitySearch.statusAvailableCheckBox.click();
+			common.selectOption(resourceIdentitySearch.poolsAvailableList, poolNames[i]);
+			common.selectOption(resourceIdentitySearch.partitionsAvailableList, getPoolNamesAndPartition.get(poolNames[i]));
+			
+			common.search();
+			
+			Assert.assertTrue(driver.findElements(By.linkText(getPoolNameAndIds.get(poolNames[i]))).size()<=0,"Resouce Id not found");
+		}
+		
+		Reporter.log("===============End testRegularSearchResouceIdDoesNotContainFivePoolsThreePartitionsStatusShownUpInReport_045========================"+"<br>");
+		
+	}
+	
+	// Verify 'Resource Identity' Search Functionality with 5 Partitions  (Search Criteria: 1) Select five 'Partitions'  2) 'Resource Identity' -> 'contains'  3) 'Customfield' as 'contains')
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchResouceIdContainFourPoolsFivePartitionsCustomAttributeAndStatusShownUpInReport_046(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235134 "+"<br>");
+		Reporter.log("===============Start testRegularSearchResouceIdContainFourPoolsFivePartitionsCustomAttributeAndStatusShownUpInReport_046========================"+"<br>");
+		
+		
+		
+		prerequisites();
+		Reporter.log("Step 1 : create 5 'securityPartitions'"+"<br>");	
+		String[] securityPartitions = addMultipleSecurityPartitions(5);
+		
+		Reporter.log("Step 2 : create 5 'Resource Identity Pool' with 'IDS'"+"<br>");
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(5);
+		String[] poolNames = getPoolNameAndIds.keySet().toArray(new String[getPoolNameAndIds.size()]);
+		String[] idNames = getPoolNameAndIds.values().toArray(new String[getPoolNameAndIds.size()]);
+		
+		Map<String, String> getPoolNamesAndPartition  = getPoolNameAndPartition(poolNames, securityPartitions);
+		
+		Map<String,String> customFieldsAndValues = addMultipleCustomFieldsAndValues(getPoolNameAndIds.size());
+		String[] customFields = customFieldsAndValues.keySet().toArray(new String[customFieldsAndValues.size()]);
+		
+		Map<String, String> idsAndCustomFields = getidsAndCustomFields(idNames, customFields);
+		
+		Assert.assertTrue(createMultiplePools(getPoolNameAndIds, getPoolNamesAndPartition, idsAndCustomFields, customFieldsAndValues, null),"Not able to create Multiple pools with partition ");
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select Resource Identity  as 'contains' > select created 'pool' >  select created 'Partition' > select the 'Customfield' as 'contains'  >search  > Check for the existence of 'Resource Id' in Search Results (This step will be repeated for all the available  Partitions.) ::Expected should  be displayed    "+"<br>");
+		for(int i=0;i<poolNames.length;i++){
+			
+			Navigate.Reports.SearchFor.resourceIdentity();
+			ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+			resourceIdentitySearch.resourceIdentityOperationName.sendKeys("contains");
+			resourceIdentitySearch.resourceIdentityValue.sendKeys(getPoolNameAndIds.get(poolNames[i]));
+			
+			common.selectOption(resourceIdentitySearch.poolsAvailableList, poolNames[i]);
+			common.selectOption(resourceIdentitySearch.partitionsAvailableList, getPoolNamesAndPartition.get(poolNames[i]));
+			
+			for(int j=12;j<idsAndCustomFields.size();j++){
+				System.out.println("Value of i : "+i+" value of j is "+ j+ "value of this ");
+				String customField = common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table[2]/tbody/tr["+j+"]/td/table/tbody/tr/td[2]").getText().trim();
+				System.out.println("CustomField Name is "+customField);
+				System.out.println("idsAndCustomFields is "+idsAndCustomFields.get(poolNames[i]));
+				if(customField.equals(idsAndCustomFields.get(poolNames[i]))){
+					common.getObjectByName("customFieldExpressions["+i+"].checked").click();
+					common.getObjectByName("customFieldExpressions["+i+"].operationName").sendKeys("contains");
+					common.getObjectByName("customFieldExpressions["+i+"].values").sendKeys(customFieldsAndValues.get(customField));
+					break;
+				}
+			}
+			common.search();
+			
+			Assert.assertTrue(driver.findElements(By.linkText(getPoolNameAndIds.get(poolNames[i]))).size()>0,"Resouce Ids not found ");
+			
+		}
+		
+		Reporter.log("===============Start testRegularSearchResouceIdContainFourPoolsFivePartitionsCustomAttributeAndStatusShownUpInReport_046========================"+"<br>");
+		
+	}
+	
+	//Verify 'Resource Identity' Search Functionality with 5 Partitions  (Search Criteria: 1) Select four 'Partitions' created and one as 'Default Site'  2) 'Resource Identity' -> 'does not contain')
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchResouceIdDoesNotContainTwoPoolsFourPartitionsDefaultSiteAndStatusShownUpInReport_047(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235170  "+"<br>");
+		Reporter.log("===============Start testRegularSearchResouceIdContainTwoPoolsFourPartitionsDefaultSiteAndStatusShownUpInReport_047========================"+"<br>");
+						
+		prerequisites();
+		
+		Reporter.log("Step 1 : create 5 'securityPartitions'"+"<br>");	
+		String[] securityPartitionsTemp = addMultipleSecurityPartitions(5);
+		
+		String[] securityPartitions = new String[6];
+		System.arraycopy(securityPartitionsTemp, 0, securityPartitions, 0, 3);
+		securityPartitions[5] = "Default Site";
+		
+		Reporter.log("Step 2 : create 6 'Resource Identity Pool' with 'IDS'"+"<br>");
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(6);
+		String[] poolNames = getPoolNameAndIds.keySet().toArray(new String[getPoolNameAndIds.size()]);
+		
+		Map<String, String> getPoolNamesAndPartition  = getPoolNameAndPartition(poolNames, securityPartitions);
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select Resource Identity  as 'does not contain' > select created 'pool' >  select created 'Partition' > select the 'Customfield' as 'contains'  >search  > Check for the existence of 'Resource Id' in Search Results (This step will be repeated for all the available  Partitions.) ::Expected should not be displayed    "+"<br>");
+		Assert.assertTrue(createMultiplePoolsWithPartition(getPoolNameAndIds, getPoolNamesAndPartition, null),"Not able to create Multiple pools with partition ");
+		
+		for(int i=0;i<poolNames.length;i++){
+			
+			Navigate.Reports.SearchFor.resourceIdentity();
+			ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+			resourceIdentitySearch.resourceIdentityOperationName.sendKeys("does not contain");
+			resourceIdentitySearch.resourceIdentityValue.sendKeys(getPoolNameAndIds.get(poolNames[i]));
+			resourceIdentitySearch.statusAvailableCheckBox.click();
+			
+			common.selectOption(resourceIdentitySearch.poolsAvailableList, poolNames[i]);
+			common.selectOption(resourceIdentitySearch.partitionsAvailableList, getPoolNamesAndPartition.get(poolNames[i]));
+			
+			common.search();
+			
+			Assert.assertTrue(driver.findElements(By.linkText(getPoolNameAndIds.get(poolNames[i]))).size()<=0,"Resouce Id not found");
+		}
+		
+		Reporter.log("===============End testRegularSearchResouceIdContainTwoPoolsFourPartitionsDefaultSiteAndStatusShownUpInReport_047========================"+"<br>");
+	}
+	
+	//Verify 'Resource Identity' Search Functionality with 3 Partitions  (Search Criteria: 1) Select three 'Partitions'  2) 'Resource Identity' -> 'contains' 3) 'Customfield' -> 'contains')
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchResouceIdContainsThreePoolsTwoPartitionsThreeCustomStatusShownUpInReport_048(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235122  "+"<br>");
+		Reporter.log("===============Start testRegularSearchResouceIdContainsThreePoolsTwoPartitionsThreeCustomStatusShownUpInReport_048========================"+"<br>");
+		
+		
+		prerequisites();
+		
+		Reporter.log("Step 1 : create 3 'securityPartitions'"+"<br>");	
+		String[] securityPartitions = addMultipleSecurityPartitions(3);
+		
+		Reporter.log("Step 2 : create 3 'Resource Identity Pool' with 'IDS'"+"<br>");
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(3);
+		String[] poolNames = getPoolNameAndIds.keySet().toArray(new String[getPoolNameAndIds.size()]);
+		String[] idNames = getPoolNameAndIds.values().toArray(new String[getPoolNameAndIds.size()]);
+		
+		Map<String, String> getPoolNamesAndPartition  = getPoolNameAndPartition(poolNames, securityPartitions);
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select Resource Identity  as 'contains' > select created 'pool' >  select created 'Partition' > select the 'Customfield' as 'contains'  >search  > Check for the existence of 'Resource Id' in Search Results (This step will be repeated for all the available  Partitions.) ::Expected should  be displayed "+"<br>"); 
+		
+		Map<String,String> customFieldsAndValues = addMultipleCustomFieldsAndValues(getPoolNameAndIds.size());
+		String[] customFields = customFieldsAndValues.keySet().toArray(new String[customFieldsAndValues.size()]);
+		
+		Map<String, String> idsAndCustomFields = getidsAndCustomFields(idNames, customFields);
+		
+		Assert.assertTrue(createMultiplePools(getPoolNameAndIds, getPoolNamesAndPartition, idsAndCustomFields, customFieldsAndValues, null),"Not able to create Multiple pools with partition ");
+		
+		for(int i=0;i<poolNames.length;i++){
+			
+			Navigate.Reports.SearchFor.resourceIdentity();
+			ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+			resourceIdentitySearch.resourceIdentityOperationName.sendKeys("contains");
+			resourceIdentitySearch.resourceIdentityValue.sendKeys(getPoolNameAndIds.get(poolNames[i]));
+			
+			common.selectOption(resourceIdentitySearch.poolsAvailableList, poolNames[i]);
+			common.selectOption(resourceIdentitySearch.partitionsAvailableList, getPoolNamesAndPartition.get(poolNames[i]));
+			
+			for(int j=12;j<idsAndCustomFields.size();j++){
+				System.out.println("Value of i : "+i+" value of j is "+ j+ "value of this ");
+				String customField = common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table[2]/tbody/tr["+j+"]/td/table/tbody/tr/td[2]").getText().trim();
+				System.out.println("CustomField Name is "+customField);
+				if(customField.equals(idsAndCustomFields.get(poolNames[i]))){
+					common.getObjectByName("customFieldExpressions["+i+"].checked").click();
+					common.getObjectByName("customFieldExpressions["+i+"].operationName").sendKeys("contains");
+					common.getObjectByName("customFieldExpressions["+i+"].values").sendKeys(customFieldsAndValues.get(customField));
+				break;
+				}
+			}
+			common.search();
+			
+			Assert.assertTrue(driver.findElements(By.linkText(getPoolNameAndIds.get(poolNames[i]))).size()>0,"Resouce Ids not found ");
+		}
+		
+		
+		Reporter.log("===============End testRegularSearchResouceIdContainsThreePoolsTwoPartitionsThreeCustomStatusShownUpInReport_048========================"+"<br>");
+		
+		
+	}
+	
+	//Verify 'Resource Identity' Search Functionality with 3 Partitions  (Search Criteria: 1) Select three 'Partitions'  2) 'Resource Identity' -> 'does not equal' 3) 'Description' -> 'contains' 4)'Created By -> 'contains')
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchResouceIdDoesNotEqualThreePoolsThreePartitionsStatusDescCreatedByShownUpInReport_050(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235131  "+"<br>");
+		Reporter.log("===============Start testRegularSearchResouceIdDoesNotEqualThreePoolsThreePartitionsStatusDescCreatedByShownUpInReport_050========================"+"<br>");
+				
+		prerequisites();
+
+		Reporter.log("Step 1 : create 3 'securityPartitions'"+"<br>");	
+		String[] securityPartitions = addMultipleSecurityPartitions(3);
+		
+		Reporter.log("Step 2 : create 3 'Resource Identity Pool' with 'IDS'"+"<br>");
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(3);
+		String[] poolNames = getPoolNameAndIds.keySet().toArray(new String[getPoolNameAndIds.size()]);
+		
+		Map<String, String> getPoolNamesAndPartition  = getPoolNameAndPartition(poolNames, securityPartitions);
+		
+		Assert.assertTrue(createMultiplePoolsWithPartition(getPoolNameAndIds, getPoolNamesAndPartition, null),"Not able to create Multiple pools with partition ");
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select Resource Identity  as 'does not equal' > select created 'pool' >  select created 'Partition' > select the 'Description' as 'contains'  > select the 'Created By' as 'contains'  > search  > Check for the existence of 'Resource Id' in Search Results (This step will be repeated for all the available  Partitions.) ::Expected should not be displayed "+"<br>"); 
+		for(int i=0;i<poolNames.length;i++){
+			Navigate.Reports.SearchFor.resourceIdentity();
+			ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+			resourceIdentitySearch.resourceIdentityOperationName.sendKeys("does not equal");
+			resourceIdentitySearch.resourceIdentityValue.sendKeys(getPoolNameAndIds.get(poolNames[i]));
+			resourceIdentitySearch.statusAvailableCheckBox.click();
+						
+			common.selectOption(resourceIdentitySearch.poolsAvailableList, poolNames[i]);
+			common.selectOption(resourceIdentitySearch.partitionsAvailableList, getPoolNamesAndPartition.get(poolNames[i]));
+			
+			resourceIdentitySearch.descriptionCheckBox.click();
+			resourceIdentitySearch.descriptionDropDown.sendKeys("contains");
+			resourceIdentitySearch.descriptionTextBox.sendKeys("New Resource Identify Pool Created by Automation");
+			
+			resourceIdentitySearch.createdByUserCheckBox.click();
+			resourceIdentitySearch.createdByDropDown.sendKeys("contains");
+			resourceIdentitySearch.createdByTextBox.sendKeys("admin");
+			
+			common.search();
+			
+			Assert.assertTrue(driver.findElements(By.linkText(getPoolNameAndIds.get(poolNames[i]))).size()<=0,"Resouce Id not found");
+			
+		}
+		
+		Reporter.log("===============End testRegularSearchResouceIdDoesNotEqualThreePoolsThreePartitionsStatusDescCreatedByShownUpInReport_050========================"+"<br>");
+		
+	}
+	
+	//Verify 'Resource Identity' Search Functionality with 4 Partitions  (Search Criteria: 1) Select four 'Partitions'  2) 'Resource Identity' -> 'contains' 3) 'Created By' as 'contains' 4)'Last Modified By' as 'contains' 5)'Customfield' as 'contains' )
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchResouceIdcontainsFourPoolsFourPartitionsTwoCustomCreatedByLastModifiedChangedAndStatusShownUpInReport_051(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235140  "+"<br>");
+		Reporter.log("===============Start testRegularSearchResouceIdcontainsFourPoolsFourPartitionsTwoCustomCreatedByLastModifiedChangedAndStatusShownUpInReport_051========================"+"<br>");
+		
+		
+		prerequisites();
+		Reporter.log("Step 1 : create 4 'securityPartitions'"+"<br>");	
+		String[] securityPartitions = addMultipleSecurityPartitions(4);
+		
+		Reporter.log("Step 2 : create 4 'Resource Identity Pool' with 'IDS'"+"<br>");
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(4);
+		
+		String[] poolNames = getPoolNameAndIds.keySet().toArray(new String[getPoolNameAndIds.size()]);
+		String[] idNames = getPoolNameAndIds.values().toArray(new String[getPoolNameAndIds.size()]);
+		
+		Map<String, String> getPoolNamesAndPartition  = getPoolNameAndPartition(poolNames, securityPartitions);
+		
+		Map<String,String> customFieldsAndValues = addMultipleCustomFieldsAndValues(getPoolNameAndIds.size());
+		String[] customFields = customFieldsAndValues.keySet().toArray(new String[customFieldsAndValues.size()]);
+		
+		Map<String, String> idsAndCustomFields = getidsAndCustomFields(idNames, customFields);
+		
+		Assert.assertTrue(createMultiplePools(getPoolNameAndIds, getPoolNamesAndPartition, idsAndCustomFields, customFieldsAndValues, "In Use"),"Not able to create Multiple pools with partition ");
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select Resource Identity  as 'contains' > select created 'pool' >  select created 'Partition' > select the 'Created By' as 'contains'  > select the 'Last Modified By' as 'contains' > select the 'Customfield' as 'contains' > search  > Check for the existence of 'Resource Id' in Search Results (This step will be repeated for all the available  Partitions.) ::Expected should  be displayed "+"<br>"); 
+		for(int i=0;i<poolNames.length;i++){
+			
+			
+			Navigate.Reports.SearchFor.resourceIdentity();
+			ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+			
+			resourceIdentitySearch.resourceIdentityOperationName.sendKeys("contains");
+			resourceIdentitySearch.resourceIdentityValue.sendKeys(getPoolNameAndIds.get(poolNames[i]));
+			
+			common.selectOption(resourceIdentitySearch.poolsAvailableList, poolNames[i]);
+			common.selectOption(resourceIdentitySearch.partitionsAvailableList, getPoolNamesAndPartition.get(poolNames[i]));
+			
+			resourceIdentitySearch.statusInUseCheckBox.click();
+			
+			resourceIdentitySearch.createdByUserCheckBox.click();
+			resourceIdentitySearch.createdByDropDown.sendKeys("contains");
+			resourceIdentitySearch.createdByTextBox.sendKeys("admin");
+			
+			resourceIdentitySearch.lastModifiedByCheckBox.click();
+			resourceIdentitySearch.lastModifiedByDropDown.sendKeys("contains");
+			resourceIdentitySearch.lastModifiedByTextBox.sendKeys("admin");
+			
+			table = common.getObjectByXpath(resourceIdentitySearch.resourceIdentitySearchTable);
+			rows = table.findElements(By.tagName("tr"));
+			
+			System.out.println("Number of rows is "+ rows.size());
+						
+			for(int j=12,k=0;j<rows.size();j++,k++){
+				System.out.println("Value of i : "+i+" value of j is "+ j+ "value of this ");
+				String customField = common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table[2]/tbody/tr["+j+"]/td/table/tbody/tr/td[2]").getText().trim();
+				System.out.println("CustomField Name is "+customField);
+				System.out.println("Pool Name is "+poolNames[i]+" custom Filed name from pool is "+idsAndCustomFields.get(getPoolNameAndIds.get(poolNames[i])));
+				
+				if(customField.equals(idsAndCustomFields.get(getPoolNameAndIds.get(poolNames[i])))){
+					common.getObjectByName("customFieldExpressions["+k+"].checked").click();
+					common.getObjectByName("customFieldExpressions["+k+"].operationName").sendKeys("contains");
+					common.getObjectByName("customFieldExpressions["+k+"].values").sendKeys(customFieldsAndValues.get(customField));
+				break;
+				}
+			}
+			common.search();
+			
+			Assert.assertTrue(driver.findElements(By.linkText(getPoolNameAndIds.get(poolNames[i]))).size()>0,"Resouce Ids not found ");
+		}
+		
+		
+		Reporter.log("===============End testRegularSearchResouceIdcontainsFourPoolsFourPartitionsTwoCustomCreatedByLastModifiedChangedAndStatusShownUpInReport_051========================"+"<br>");
+		
+	}
+	
+	//Verify 'Resource Identity' Search Functionality with 4 Partitions  (Search Criteria: 1) Select three 'Partitions' & one partition as 'Default Site'  2) 'Resource Identity' -> 'contains' 3) 'Created By' as 'contains' 4)'Create Date' -> 'since' as 'Anytime' &  'until' as 'Anytime' 5)'Customfield' as 'contains' )
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchResouceIdcontainsThreePoolsThreePartitionsFiveCustomCreateDateCreatedByAndStatusShownUpInReport_052(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235136 "+"<br>");
+		Reporter.log("===============Start testRegularSearchResouceIdcontainsThreePoolsThreePartitionsFiveCustomCreateDateCreatedByAndStatusShownUpInReport_052========================"+"<br>");
+		
+		
+		prerequisites();
+		
+		Reporter.log("Step 1 : create 4 'securityPartitions'"+"<br>");	
+		String[] securityPartitionsTemp = addMultipleSecurityPartitions(4);
+		String[] securityPartitions = new String[5];
+		System.arraycopy(securityPartitionsTemp, 0, securityPartitions, 0, 3);
+		securityPartitions[4] = "Default Site";
+		
+		Reporter.log("Step 2 : create 5 'Resource Identity Pool' with 'IDS'"+"<br>");
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(5);
+		String[] poolNames = getPoolNameAndIds.keySet().toArray(new String[getPoolNameAndIds.size()]);
+		String[] idNames = getPoolNameAndIds.values().toArray(new String[getPoolNameAndIds.size()]);
+		
+		Map<String, String> getPoolNamesAndPartition  = getPoolNameAndPartition(poolNames, securityPartitions);
+		
+		Map<String,String> customFieldsAndValues = addMultipleCustomFieldsAndValues(getPoolNameAndIds.size());
+		String[] customFields = customFieldsAndValues.keySet().toArray(new String[customFieldsAndValues.size()]);
+		
+		Map<String, String> idsAndCustomFields = getidsAndCustomFields(idNames, customFields);
+		
+		Assert.assertTrue(createMultiplePools(getPoolNameAndIds, getPoolNamesAndPartition, idsAndCustomFields, customFieldsAndValues, null),"Not able to create Multiple pools with partition ");
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select Resource Identity  as 'equals' > select created 'pool' >  select created 'Partition' > select the 'Created By' as 'contains'  > select the 'Create Date' -> 'since' as 'Anytime' &  'until' as 'Anytime' > select the 'Customfield' as 'contains' > search  > Check for the existence of 'Resource Id' in Search Results (This step will be repeated for all the available  Partitions.) ::Expected should  be displayed "+"<br>"); 
+		for(int i=0;i<poolNames.length;i++){
+			
+			Navigate.Reports.SearchFor.resourceIdentity();
+			ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+			resourceIdentitySearch.resourceIdentityOperationName.sendKeys("equals");
+			resourceIdentitySearch.resourceIdentityValue.sendKeys(getPoolNameAndIds.get(poolNames[i]));
+			
+			common.selectOption(resourceIdentitySearch.poolsAvailableList, poolNames[i]);
+			common.selectOption(resourceIdentitySearch.partitionsAvailableList, getPoolNamesAndPartition.get(poolNames[i]));
+			
+			resourceIdentitySearch.statusAvailableCheckBox.click();
+			
+			resourceIdentitySearch.createdByUserCheckBox.click();
+			resourceIdentitySearch.createdByDropDown.sendKeys("contains");
+			resourceIdentitySearch.createdByTextBox.sendKeys("admin");
+			
+			resourceIdentitySearch.createDateCheckBox.click();
+			resourceIdentitySearch.createSinceDropDown.sendKeys("since");
+			resourceIdentitySearch.createSinceCustomizeDropDown.sendKeys("Anytime");
+			resourceIdentitySearch.createUntilDropDown.sendKeys("until");
+			resourceIdentitySearch.createUntilCustomizeDropDown.sendKeys("Anytime");
+			
+					
+			table = common.getObjectByXpath(resourceIdentitySearch.resourceIdentitySearchTable);
+			rows = table.findElements(By.tagName("tr"));
+			
+			System.out.println("Number of rows is "+ rows.size());
+			
+			for(int j=12,k=0;j<rows.size();j++,k++){
+				System.out.println("Value of i : "+i+" value of j is "+ j+ "value of this ");
+				String customField = common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table[2]/tbody/tr["+j+"]/td/table/tbody/tr/td[2]").getText().trim();
+				System.out.println("CustomField Name is "+customField);
+				System.out.println("Pool Name is "+poolNames[i]+" custom Filed name from pool is "+idsAndCustomFields.get(getPoolNameAndIds.get(poolNames[i])));
+				
+				if(customField.equals(idsAndCustomFields.get(getPoolNameAndIds.get(poolNames[i])))){
+					common.getObjectByName("customFieldExpressions["+k+"].checked").click();
+					common.getObjectByName("customFieldExpressions["+k+"].operationName").sendKeys("contains");
+					common.getObjectByName("customFieldExpressions["+k+"].values").sendKeys(customFieldsAndValues.get(customField));
+				break;
+				}
+			}
+			common.search();
+			
+			Assert.assertTrue(driver.findElements(By.linkText(getPoolNameAndIds.get(poolNames[i]))).size()>0,"Resouce Ids not found ");
+		}
+		
+		
+		Reporter.log("===============End testRegularSearchResouceIdcontainsThreePoolsThreePartitionsFiveCustomCreateDateCreatedByAndStatusShownUpInReport_052========================"+"<br>");
+		
+	}
+	
+	//Verify 'Resource Identity' Search Functionality with 5 Partitions  (Search Criteria: 1) Select five 'Partitions'  2) 'Resource Identity' -> 'does not equal' 3)'Last Modified By' as 'contains' 4)'Customfield' as 'contains' )
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchResouceIdDoesNotEqualFivePoolsTwoPartitionsTwoCustomLastModifiedAndStatusShownUpInReport_053(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235117 "+"<br>");
+		Reporter.log("===============Start testRegularSearchResouceIdDoesNotEqualFivePoolsTwoPartitionsTwoCustomLastModifiedAndStatusShownUpInReport_053========================"+"<br>");
+		
+		
+		prerequisites();
+		Reporter.log("Step 1 : create 5 'securityPartitions'"+"<br>");	
+		String[] securityPartitions = addMultipleSecurityPartitions(5);
+		
+		Reporter.log("Step 2 : create 5 'Resource Identity Pool' with 'IDS'"+"<br>");
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(5);
+		
+		String[] poolNames = getPoolNameAndIds.keySet().toArray(new String[getPoolNameAndIds.size()]);
+		String[] idNames = getPoolNameAndIds.values().toArray(new String[getPoolNameAndIds.size()]);
+		
+		Map<String, String> getPoolNamesAndPartition  = getPoolNameAndPartition(poolNames, securityPartitions);
+		
+		Map<String,String> customFieldsAndValues = addMultipleCustomFieldsAndValues(getPoolNameAndIds.size());
+		String[] customFields = customFieldsAndValues.keySet().toArray(new String[customFieldsAndValues.size()]);
+		
+		Map<String, String> idsAndCustomFields = getidsAndCustomFields(idNames, customFields);
+		
+		Assert.assertTrue(createMultiplePools(getPoolNameAndIds, getPoolNamesAndPartition, idsAndCustomFields, customFieldsAndValues, null),"Not able to create Multiple pools with partition ");
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select Resource Identity  as 'does not equal' > select created 'pool' >  select created 'Partition' > select the 'Last Modified By' as 'contains'  > select the 'Customfield' as 'contains' > search  > Check for the existence of 'Resource Id' in Search Results (This step will be repeated for all the available  Partitions.) ::Expected should not be displayed "+"<br>"); 
+		for(int i=0;i<poolNames.length;i++){
+			
+			Navigate.Reports.SearchFor.resourceIdentity();
+			ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+			resourceIdentitySearch.resourceIdentityOperationName.sendKeys("does not equal");
+			resourceIdentitySearch.resourceIdentityValue.sendKeys(getPoolNameAndIds.get(poolNames[i]));
+			
+			common.selectOption(resourceIdentitySearch.poolsAvailableList, poolNames[i]);
+			common.selectOption(resourceIdentitySearch.partitionsAvailableList, getPoolNamesAndPartition.get(poolNames[i]));
+			
+			resourceIdentitySearch.statusAvailableCheckBox.click();
+			
+			resourceIdentitySearch.lastModifiedByCheckBox.click();
+			resourceIdentitySearch.lastModifiedByDropDown.sendKeys("contains");
+			resourceIdentitySearch.lastModifiedByTextBox.sendKeys("admin");
+			
+			table = common.getObjectByXpath(resourceIdentitySearch.resourceIdentitySearchTable);
+			rows = table.findElements(By.tagName("tr"));
+			
+			System.out.println("Number of rows is "+ rows.size());
+			
+			for(int j=12,k=0;j<rows.size();j++,k++){
+				System.out.println("Value of i : "+i+" value of j is "+ j+ "value of this ");
+				String customField = common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table[2]/tbody/tr["+j+"]/td/table/tbody/tr/td[2]").getText().trim();
+				System.out.println("CustomField Name is "+customField);
+				System.out.println("Pool Name is "+poolNames[i]+" custom Filed name from pool is "+idsAndCustomFields.get(getPoolNameAndIds.get(poolNames[i])));
+				
+				if(customField.equals(idsAndCustomFields.get(getPoolNameAndIds.get(poolNames[i])))){
+					common.getObjectByName("customFieldExpressions["+k+"].checked").click();
+					common.getObjectByName("customFieldExpressions["+k+"].operationName").sendKeys("contains");
+					common.getObjectByName("customFieldExpressions["+k+"].values").sendKeys(customFieldsAndValues.get(customField));
+				break;
+				}
+			}
+			common.search();
+			
+			Assert.assertTrue(driver.findElements(By.linkText(getPoolNameAndIds.get(poolNames[i]))).size()<=0,"Resouce Ids not found ");
+			
+		}
+		
+		
+		Reporter.log("===============End testRegularSearchResouceIdDoesNotEqualFivePoolsTwoPartitionsTwoCustomLastModifiedAndStatusShownUpInReport_053========================"+"<br>");
+		
+		
+	}
+	
+	//Verify 'Resource Identity' Search Functionality with 4 Partitions  (Search Criteria: 1) Select three 'Partitions' & one partition 'Default Site'   2) 'Resource Identity' -> 'contains' 3)'Last Modified Date'-> 'since' as '1 month ago' & 'until' as 'now' 4)'Customfield' as 'contains' )
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchResouceIdcontainsFourPoolsFourPartitionsDefaultSiteTwoCustomCreateByChangedByAndStatusShownUpInReport_054(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235135 "+"<br>");
+		Reporter.log("===============Start testRegularSearchResouceIdcontainsFourPoolsFourPartitionsDefaultSiteTwoCustomCreateByChangedByAndStatusShownUpInReport_054========================"+"<br>");
+		
+
+		prerequisites();
+		
+		Reporter.log("Step 1 : create 4 'securityPartitions'"+"<br>");	
+		String[] securityPartitionsTemp = addMultipleSecurityPartitions(3);
+		String[] securityPartitions = new String[4];
+		System.arraycopy(securityPartitionsTemp, 0, securityPartitions, 0, 3);
+		securityPartitions[3] = "Default Site";
+		
+		Reporter.log("Step 2 : create 4 'Resource Identity Pool' with 'IDS'"+"<br>");
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(4);
+		String[] poolNames = getPoolNameAndIds.keySet().toArray(new String[getPoolNameAndIds.size()]);
+		String[] idNames = getPoolNameAndIds.values().toArray(new String[getPoolNameAndIds.size()]);
+		
+		Map<String, String> getPoolNamesAndPartition  = getPoolNameAndPartition(poolNames, securityPartitions);
+		
+		Map<String,String> customFieldsAndValues = addMultipleCustomFieldsAndValues(getPoolNameAndIds.size());
+		String[] customFields = customFieldsAndValues.keySet().toArray(new String[customFieldsAndValues.size()]);
+		
+		Map<String, String> idsAndCustomFields = getidsAndCustomFields(idNames, customFields);
+		
+		Assert.assertTrue(createMultiplePools(getPoolNameAndIds, getPoolNamesAndPartition, idsAndCustomFields, customFieldsAndValues, null),"Not able to create Multiple pools with partition ");
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select Resource Identity  as 'contains' > select created 'pool' >  select created 'Partition' > select the 'Last Modified Date'-> 'since' as '1 month ago' & 'until' as 'now' > select the 'Customfield' as 'contains' > search  > Check for the existence of 'Resource Id' in Search Results (This step will be repeated for all the available  Partitions.) ::Expected should be displayed "+"<br>");
+		for(int i=0;i<poolNames.length;i++){
+			
+			Navigate.Reports.SearchFor.resourceIdentity();
+			ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+			resourceIdentitySearch.resourceIdentityOperationName.sendKeys("contains");
+			resourceIdentitySearch.resourceIdentityValue.sendKeys(getPoolNameAndIds.get(poolNames[i]));
+			
+			common.selectOption(resourceIdentitySearch.poolsAvailableList, poolNames[i]);
+			common.selectOption(resourceIdentitySearch.partitionsAvailableList, getPoolNamesAndPartition.get(poolNames[i]));
+			
+			resourceIdentitySearch.statusAvailableCheckBox.click();
+			
+			resourceIdentitySearch.createdByUserCheckBox.click();
+			resourceIdentitySearch.createdByDropDown.sendKeys("contains");
+			resourceIdentitySearch.createdByTextBox.sendKeys("admin");
+			
+			
+			resourceIdentitySearch.lastModifiedDateCheckBox.click();
+			resourceIdentitySearch.lastModifiedSinceDropDown.sendKeys("since");
+			resourceIdentitySearch.lastModifiedSinceCustomizeDropDown.sendKeys("1 month ago");
+			
+			resourceIdentitySearch.lastModifiedUntilDropDown.sendKeys("until");
+			resourceIdentitySearch.lastModifiedUntilCustomizeDropDown.sendKeys("now");
+			
+			table = common.getObjectByXpath(resourceIdentitySearch.resourceIdentitySearchTable);
+			rows = table.findElements(By.tagName("tr"));
+			
+			System.out.println("Number of rows is "+ rows.size());
+			
+			for(int j=12,k=0;j<rows.size();j++,k++){
+				System.out.println("Value of i : "+i+" value of j is "+ j+ "value of this ");
+				String customField = common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table[2]/tbody/tr["+j+"]/td/table/tbody/tr/td[2]").getText().trim();
+				System.out.println("CustomField Name is "+customField);
+				System.out.println("Pool Name is "+poolNames[i]+" custom Filed name from pool is "+idsAndCustomFields.get(getPoolNameAndIds.get(poolNames[i])));
+				
+				if(customField.equals(idsAndCustomFields.get(getPoolNameAndIds.get(poolNames[i])))){
+					common.getObjectByName("customFieldExpressions["+k+"].checked").click();
+					common.getObjectByName("customFieldExpressions["+k+"].operationName").sendKeys("contains");
+					common.getObjectByName("customFieldExpressions["+k+"].values").sendKeys(customFieldsAndValues.get(customField));
+				break;
+				}
+			}
+			common.search();
+			
+			Assert.assertTrue(driver.findElements(By.linkText(getPoolNameAndIds.get(poolNames[i]))).size()>0,"Resouce Ids not found ");
+			
+		}
+		
+		
+		Reporter.log("===============End testRegularSearchResouceIdcontainsFourPoolsFourPartitionsDefaultSiteTwoCustomCreateByChangedByAndStatusShownUpInReport_054========================"+"<br>");
+		
+		
+	}
+	
+	//Verify 'Resource Identity' Search Functionality with 4 Partitions  (Search Criteria: 1) Select three 'Partitions' & one partition 'Default Site'   2) 'Resource Identity' -> 'matches' 3)'Created By' as 'contains'  4)'Description' as 'contains '5) 'Last Modified By' as 'contains' 6)'Customfield' as 'contains' )
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchResouceIdMatchesFivePoolsFourPartitionsFourCustomDescChangedByAndStatusShownUpInReport_055(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235165 "+"<br>");
+		Reporter.log("===============Start testRegularSearchResouceIdMatchesFivePoolsFourPartitionsFourCustomDescChangedByAndStatusShownUpInReport_055========================"+"<br>");
+		
+		
+		prerequisites();
+		Reporter.log("Step 1 : create 5 'securityPartitions'"+"<br>");	
+		String[] securityPartitions = addMultipleSecurityPartitions(5);
+		
+		Reporter.log("Step 2 : create 5 'Resource Identity Pool' with 'IDS'"+"<br>");		
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(5);
+		String[] poolNames = getPoolNameAndIds.keySet().toArray(new String[getPoolNameAndIds.size()]);
+		String[] idNames = getPoolNameAndIds.values().toArray(new String[getPoolNameAndIds.size()]);
+		
+		Map<String, String> getPoolNamesAndPartition  = getPoolNameAndPartition(poolNames, securityPartitions);
+		
+		Map<String,String> customFieldsAndValues = addMultipleCustomFieldsAndValues(getPoolNameAndIds.size());
+		String[] customFields = customFieldsAndValues.keySet().toArray(new String[customFieldsAndValues.size()]);
+		
+		Map<String, String> idsAndCustomFields = getidsAndCustomFields(idNames, customFields);
+		
+		Assert.assertTrue(createMultiplePools(getPoolNameAndIds, getPoolNamesAndPartition, idsAndCustomFields, customFieldsAndValues, "In Use"),"Not able to create Multiple pools with partition ");
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select Resource Identity  as 'matches' > select created 'pool' >  select created 'Partition' >select the 'Created By' as 'contains' > Select the  'Description' as 'contains '>  select the 'Last Modified By' as 'contains' > select the 'Customfield' as 'contains' > search  > Check for the existence of 'Resource Id' in Search Results (This step will be repeated for all the available  Partitions.) ::Expected should be displayed "+"<br>");
+		for(int i=0;i<poolNames.length;i++){
+			
+			Navigate.Reports.SearchFor.resourceIdentity();
+			ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+			resourceIdentitySearch.resourceIdentityOperationName.sendKeys("matches");
+			resourceIdentitySearch.resourceIdentityValue.sendKeys(getPoolNameAndIds.get(poolNames[i]));
+			
+			common.selectOption(resourceIdentitySearch.poolsAvailableList, poolNames[i]);
+			common.selectOption(resourceIdentitySearch.partitionsAvailableList, getPoolNamesAndPartition.get(poolNames[i]));
+			
+			resourceIdentitySearch.statusInUseCheckBox.click();
+			
+			resourceIdentitySearch.createdByUserCheckBox.click();
+			resourceIdentitySearch.createdByDropDown.sendKeys("contains");
+			resourceIdentitySearch.createdByTextBox.sendKeys("admin");
+			
+			resourceIdentitySearch.lastModifiedByCheckBox.click();
+			resourceIdentitySearch.lastModifiedByDropDown.sendKeys("contains");
+			resourceIdentitySearch.lastModifiedByTextBox.sendKeys("admin");
+			
+			resourceIdentitySearch.descriptionCheckBox.click();
+			resourceIdentitySearch.descriptionDropDown.sendKeys("contains");
+			resourceIdentitySearch.descriptionTextBox.sendKeys("Resource ID "+getPoolNameAndIds.get(poolNames[i])+ " created by Automation for pool "+poolNames[i]);
+					
+			table = common.getObjectByXpath(resourceIdentitySearch.resourceIdentitySearchTable);
+			rows = table.findElements(By.tagName("tr"));
+			
+			System.out.println("Number of rows is "+ rows.size());
+			
+			for(int j=12,k=0;j<rows.size();j++,k++){
+				System.out.println("Value of i : "+i+" value of j is "+ j+ "value of this ");
+				String customField = common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table[2]/tbody/tr["+j+"]/td/table/tbody/tr/td[2]").getText().trim();
+				System.out.println("CustomField Name is "+customField);
+				System.out.println("Pool Name is "+poolNames[i]+" custom Filed name from pool is "+idsAndCustomFields.get(getPoolNameAndIds.get(poolNames[i])));
+				
+				if(customField.equals(idsAndCustomFields.get(getPoolNameAndIds.get(poolNames[i])))){
+					common.getObjectByName("customFieldExpressions["+k+"].checked").click();
+					common.getObjectByName("customFieldExpressions["+k+"].operationName").sendKeys("contains");
+					common.getObjectByName("customFieldExpressions["+k+"].values").sendKeys(customFieldsAndValues.get(customField));
+				break;
+				}
+			}
+			common.search();
+			
+			Assert.assertTrue(driver.findElements(By.linkText(getPoolNameAndIds.get(poolNames[i]))).size()>0,"Resouce Ids not found ");
+			
+		}
+		
+		
+		Reporter.log("===============End testRegularSearchResouceIdMatchesFivePoolsFourPartitionsFourCustomDescChangedByAndStatusShownUpInReport_055========================"+"<br>");
+		
+	}
+	
+	//Verify 'Resource Identity' Search Functionality with 5 Partitions  (Search Criteria: 1) Select five 'Partitions' 2) 'Resource Identity' -> 'contains' 3)  'Created Date'-> 'since' as 'Anytime' & 'until' as 'Anytime'  4) 'Created By' as 'contains' 5) 'Description' as 'contains'  6)'Customfield' as 'contains')
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchResouceIdContainsFourPoolsFivePartitionsFiveCustomCreateDateCreatedByAndStatusShownUpInReport_056(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235141 "+"<br>");
+		Reporter.log("===============Start testRegularSearchResouceIdContainsFourPoolsFivePartitionsFiveCustomCreateDateCreatedByAndStatusShownUpInReport_056========================"+"<br>");
+		
+		
+		prerequisites();
+		
+		Reporter.log("Step 1 : create 5 'securityPartitions'"+"<br>");	
+		String[] securityPartitions = addMultipleSecurityPartitions(5);
+		
+		Reporter.log("Step 2 : create 5 'Resource Identity Pool' with 'IDS'"+"<br>");			
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(5);
+		String[] poolNames = getPoolNameAndIds.keySet().toArray(new String[getPoolNameAndIds.size()]);
+		String[] idNames = getPoolNameAndIds.values().toArray(new String[getPoolNameAndIds.size()]);
+		
+		Map<String, String> getPoolNamesAndPartition  = getPoolNameAndPartition(poolNames, securityPartitions);
+		
+		Map<String,String> customFieldsAndValues = addMultipleCustomFieldsAndValues(getPoolNameAndIds.size());
+		String[] customFields = customFieldsAndValues.keySet().toArray(new String[customFieldsAndValues.size()]);
+		
+		Map<String, String> idsAndCustomFields = getidsAndCustomFields(idNames, customFields);
+		
+		Assert.assertTrue(createMultiplePools(getPoolNameAndIds, getPoolNamesAndPartition, idsAndCustomFields, customFieldsAndValues, "In Use"),"Not able to create Multiple pools with partition ");
+		
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select Resource Identity  as 'contains' > select created 'pool' >  select created 'Partition' >select the select the 'Created Date'-> 'since' as 'Anytime' & 'until' as 'Anytime' > Select the 'Created By' as 'contains' Select the  'Description' as 'contains '> Select the 'Customfield' as 'contains' > search  > Check for the existence of 'Resource Id' in Search Results (This step will be repeated for all the available  Partitions.) ::Expected should be displayed "+"<br>");
+		for(int i=0;i<poolNames.length;i++){
+			
+			Navigate.Reports.SearchFor.resourceIdentity();
+			ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+			resourceIdentitySearch.resourceIdentityOperationName.sendKeys("contains");
+			resourceIdentitySearch.resourceIdentityValue.sendKeys(getPoolNameAndIds.get(poolNames[i]));
+			
+			common.selectOption(resourceIdentitySearch.poolsAvailableList, poolNames[i]);
+			common.selectOption(resourceIdentitySearch.partitionsAvailableList, getPoolNamesAndPartition.get(poolNames[i]));
+			
+			resourceIdentitySearch.statusInUseCheckBox.click();
+			
+			resourceIdentitySearch.createDateCheckBox.click();
+			resourceIdentitySearch.createSinceDropDown.sendKeys("since");
+			resourceIdentitySearch.createSinceCustomizeDropDown.sendKeys("Anytime");
+			resourceIdentitySearch.createUntilDropDown.sendKeys("until");
+			resourceIdentitySearch.createUntilCustomizeDropDown.sendKeys("Anytime");
+			
+			resourceIdentitySearch.createdByUserCheckBox.click();
+			resourceIdentitySearch.createdByDropDown.sendKeys("contains");
+			resourceIdentitySearch.createdByTextBox.sendKeys("admin");
+			
+			resourceIdentitySearch.descriptionCheckBox.click();
+			resourceIdentitySearch.descriptionDropDown.sendKeys("contains");
+			resourceIdentitySearch.descriptionTextBox.sendKeys("Resource ID "+getPoolNameAndIds.get(poolNames[i])+ " created by Automation for pool "+poolNames[i]);
+			
+			table = common.getObjectByXpath(resourceIdentitySearch.resourceIdentitySearchTable);
+			rows = table.findElements(By.tagName("tr"));
+			
+			System.out.println("Number of rows is "+ rows.size());
+			
+			for(int j=12,k=0;j<rows.size();j++,k++){
+				System.out.println("Value of i : "+i+" value of j is "+ j+ "value of this ");
+				String customField = common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table[2]/tbody/tr["+j+"]/td/table/tbody/tr/td[2]").getText().trim();
+				System.out.println("CustomField Name is "+customField);
+				System.out.println("Pool Name is "+poolNames[i]+" custom Filed name from pool is "+idsAndCustomFields.get(getPoolNameAndIds.get(poolNames[i])));
+				
+				if(customField.equals(idsAndCustomFields.get(getPoolNameAndIds.get(poolNames[i])))){
+					common.getObjectByName("customFieldExpressions["+k+"].checked").click();
+					common.getObjectByName("customFieldExpressions["+k+"].operationName").sendKeys("contains");
+					common.getObjectByName("customFieldExpressions["+k+"].values").sendKeys(customFieldsAndValues.get(customField));
+				break;
+				}
+			}
+			common.search();
+			
+			Assert.assertTrue(driver.findElements(By.linkText(getPoolNameAndIds.get(poolNames[i]))).size()>0,"Resouce Ids not found ");
+			
+		}
+		
+		
+		Reporter.log("===============End testRegularSearchResouceIdContainsFourPoolsFivePartitionsFiveCustomCreateDateCreatedByAndStatusShownUpInReport_056========================"+"<br>");
+		
+	}
+	
+	//Verify 'Resource Identity' Search Functionality with 5 Partitions  (Search Criteria: 1) Select five 'Partitions' 2) 'Resource Identity' -> 'contains' 3)  'Created Date'-> 'since' as '6 months ago' & 'until' as '1 month ago'  4) 'Created By' as 'contains' 5)'Customfield' as 'contains'
+	@Test (enabled = true, groups= {"ART"})
+	public void testRegularSearchResouceIdContainsFivePoolsFivePartitionsFiveCustomCreatedByAndStatusShownUpInReport_057(){
+		Reporter.log("ALM Global ID For this test Case: QCTP1B235114 "+"<br>");
+		Reporter.log("===============Start testRegularSearchResouceIdContainsFivePoolsFivePartitionsFiveCustomCreatedByAndStatusShownUpInReport_057========================"+"<br>");
+		
+		
+		prerequisites();
+		Reporter.log("Step 1 : create 5 'securityPartitions'"+"<br>");	
+		String[] securityPartitions = addMultipleSecurityPartitions(5);
+		
+		Reporter.log("Step 2 : create 5 'Resource Identity Pool' with 'IDS'"+"<br>");		
+		Map<String,String> getPoolNameAndIds = getPoolNameAndIds(5);
+		String[] poolNames = getPoolNameAndIds.keySet().toArray(new String[getPoolNameAndIds.size()]);
+		String[] idNames = getPoolNameAndIds.values().toArray(new String[getPoolNameAndIds.size()]);
+		
+		Map<String, String> getPoolNamesAndPartition  = getPoolNameAndPartition(poolNames, securityPartitions);
+		
+		Map<String,String> customFieldsAndValues = addMultipleCustomFieldsAndValues(getPoolNameAndIds.size());
+		String[] customFields = customFieldsAndValues.keySet().toArray(new String[customFieldsAndValues.size()]);
+		
+		Map<String, String> idsAndCustomFields = getidsAndCustomFields(idNames, customFields);
+		
+		Assert.assertTrue(createMultiplePools(getPoolNameAndIds, getPoolNamesAndPartition, idsAndCustomFields, customFieldsAndValues, "In Use"),"Not able to create Multiple pools with partition ");
+		Reporter.log("Step 3: Navigate to Reports > Search For > Resource Identity  > select Resource Identity  as 'contains' > select created 'pool' >  select created 'Partition' > select the 'Created Date'-> 'since' as '6 months ago' & 'until' as '1 month ago' > Select the 'Created By' as 'contains' > Select the 'Customfield' as 'contains' > search  > Check for the existence of 'Resource Id' in Search Results (This step will be repeated for all the available  Partitions.) ::Expected should not be displayed "+"<br>");
+		for(int i=0;i<poolNames.length;i++){
+			
+			Navigate.Reports.SearchFor.resourceIdentity();
+			ResourceIdentitySearchPage resourceIdentitySearch = new ResourceIdentitySearchPage();
+			resourceIdentitySearch.resourceIdentityOperationName.sendKeys("contains");
+			resourceIdentitySearch.resourceIdentityValue.sendKeys(getPoolNameAndIds.get(poolNames[i]));
+			
+			common.selectOption(resourceIdentitySearch.poolsAvailableList, poolNames[i]);
+			common.selectOption(resourceIdentitySearch.partitionsAvailableList, getPoolNamesAndPartition.get(poolNames[i]));
+			
+			resourceIdentitySearch.statusInUseCheckBox.click();
+			
+			resourceIdentitySearch.createDateCheckBox.click();
+			resourceIdentitySearch.createSinceDropDown.sendKeys("since");
+			resourceIdentitySearch.createSinceCustomizeDropDown.sendKeys("6 months ago");
+			resourceIdentitySearch.createUntilDropDown.sendKeys("until");
+			resourceIdentitySearch.createUntilCustomizeDropDown.sendKeys("1 month ago");
+			
+			resourceIdentitySearch.createdByUserCheckBox.click();
+			resourceIdentitySearch.createdByDropDown.sendKeys("contains");
+			resourceIdentitySearch.createdByTextBox.sendKeys("admin");
+			
+					
+			table = common.getObjectByXpath(resourceIdentitySearch.resourceIdentitySearchTable);
+			rows = table.findElements(By.tagName("tr"));
+			
+			System.out.println("Number of rows is "+ rows.size());
+			
+			for(int j=12,k=0;j<rows.size();j++,k++){
+				System.out.println("Value of i : "+i+" value of j is "+ j+ "value of this ");
+				String customField = common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table[2]/tbody/tr["+j+"]/td/table/tbody/tr/td[2]").getText().trim();
+				System.out.println("CustomField Name is "+customField);
+				System.out.println("Pool Name is "+poolNames[i]+" custom Filed name from pool is "+idsAndCustomFields.get(getPoolNameAndIds.get(poolNames[i])));
+				
+				if(customField.equals(idsAndCustomFields.get(getPoolNameAndIds.get(poolNames[i])))){
+					common.getObjectByName("customFieldExpressions["+k+"].checked").click();
+					common.getObjectByName("customFieldExpressions["+k+"].operationName").sendKeys("contains");
+					common.getObjectByName("customFieldExpressions["+k+"].values").sendKeys(customFieldsAndValues.get(customField));
+				break;
+				}
+			}
+			common.search();
+			
+			Assert.assertTrue(driver.findElements(By.linkText(getPoolNameAndIds.get(poolNames[i]))).size()<=0,"Resouce Ids not found ");
+			
+		}
+		
+		
+		Reporter.log("===============End testRegularSearchResouceIdContainsFivePoolsFivePartitionsFiveCustomCreatedByAndStatusShownUpInReport_057========================"+"<br>");
+		
+	}
+	
+	/* 
+	 * Helper Methods
+	 */
+	
+	public String[] addMultipleSecurityPartitions(int numberOfSecurityPartitions){
+		
+		String[] securityPartitions = new String[numberOfSecurityPartitions];
+		for(int i=0;i<numberOfSecurityPartitions;i++){
+			securityPartitions[i] = NAUtils.addNewSecurityPartition();
+		}
+		return securityPartitions;
+	}
+	
+	public Map<String, String> addMultipleCustomFieldsAndValues(int numberOfCustomFields){
+		
+		Map<String, String> customFieldValues = new HashMap<String, String>();
+		String customField;
+		for(int i=0;i<numberOfCustomFields;i++){
+			customField = common.generateRandomString();
+			AssertJUnit.assertTrue("Not able to create custom Fields ", NAUtils.createCustomFieldsForResourceIDs(customField));
+			customFieldValues.put(customField, common.generateRandomString());
+		}
+		return customFieldValues;
+	}
+	
+	public Map<String, String> getPartitionAndIds(String[] securityPartitions,String[] ids){
+		
+		Map<String,String> idsAndParition = new HashMap<String,String>();
+		for(int i=0;i<securityPartitions.length;i++){
+			idsAndParition.put(securityPartitions[i],ids[i]);
+		}
+		return idsAndParition;
+	}
+	
+	public Map<String,String> getPoolNameAndPartition(String[] poolNames, String[] securityPartitions){
+		
+		Map<String, String> poolNamesAndPartitions = new HashMap<String, String>();
+		for(int i=0;i<securityPartitions.length;i++){
+			poolNamesAndPartitions.put(poolNames[i], securityPartitions[i]);
+		}
+		return poolNamesAndPartitions;
+				
+	}
+	
+	public Map<String,String> getPoolNameAndIds(int numberOfPools){
+				
+		Map<String,String> poolNamesAndIds = new HashMap<String,String>();
+		for(int i=0;i<numberOfPools;i++){
+			poolNamesAndIds.put(common.generateRandomString(), common.generateRandomString());
+		}
+		return poolNamesAndIds;
+	}
+	
+	public Map<String, String> getidsAndCustomFields(String[] ids, String[] customFields){
+		
+		Map<String,String> idsAndCustomFields = new HashMap<String, String>();
+		if(ids.length == customFields.length){
+			for(int i=0;i<customFields.length;i++){
+				idsAndCustomFields.put(ids[i], customFields[i]);
+			}
+		}
+		return idsAndCustomFields;
+	}
+	
+		
+	public boolean createMultiplePoolsWithIds(Map<String,String> poolNameIds,String status){
+		return createMultiplePools(poolNameIds,null,null,null,status);
+	}
+	
+	public boolean createMultiplePoolsWithCustom(Map<String,String> poolNameIds, Map<String,String> idsAndCustomVariables ,Map<String, String> customFieldsAndValues, String status){
+		return createMultiplePools(poolNameIds, null, idsAndCustomVariables, customFieldsAndValues, status);
+	}
+	
+	public boolean createMultiplePoolsWithPartition(Map<String, String> poolNameIds, Map<String, String> poolNamesPartitions, String status){
+		return createMultiplePools(poolNameIds, poolNamesPartitions, null, null, status);
+	}
+	
+	public boolean createMultiplePools(Map<String, String> poolNameIds,Map<String, String> poolNamesPartitions,Map<String,String> idsCustomVariables, Map<String,String> customVariablesCustomValues, String status){
+		
+		String[] partitions =null;
+		String[] customVariables = null;
+		String[] customValues = null;
+		
+		boolean resourcePoolFlag=false;
+		boolean partitionFlag =false;
+		boolean customVariableFlag = false;
+		
+		
+		String[] poolNames = poolNameIds.keySet().toArray(new String[poolNameIds.size()]);
+		String[] ids = poolNameIds.values().toArray(new String[poolNameIds.size()]);
+				
+		if(poolNamesPartitions!=null){
+			partitions = (String[])poolNamesPartitions.values().toArray(new String[poolNamesPartitions.size()]);
+			partitionFlag = true;
+		}
+		if(customVariablesCustomValues !=null && idsCustomVariables !=null){
+			customVariables = customVariablesCustomValues.keySet().toArray(new String[customVariablesCustomValues.size()]);
+			customValues = customVariablesCustomValues.values().toArray(new String[customVariablesCustomValues.size()]);
+			customVariableFlag = true;
+		}
+		
+		for(int i=0;i<poolNames.length;i++){
+			
+			if(partitionFlag && customVariableFlag){
+				resourcePoolFlag = NAUtils.createResourceIdentityPools(poolNames[i],null,poolNamesPartitions.get(poolNames[i]),new String[] {idsCustomVariables.get(poolNameIds.get(poolNames[i]))});
+				AssertJUnit.assertTrue("Not able to add resouce Ids",NAUtils.addResourceIDsToPoolCustom(poolNames[i], poolNameIds.get(poolNames[i]), status, customVariablesCustomValues.get(idsCustomVariables.get(poolNameIds.get(poolNames[i]))), null));
+			}else if(partitionFlag && !customVariableFlag){
+				resourcePoolFlag = NAUtils.createResourceIdentityPools(poolNames[i],null,poolNamesPartitions.get(poolNames[i]),null);
+				AssertJUnit.assertTrue("Not able to add resouce Ids",NAUtils.addResourceIDsToPool(poolNames[i], poolNameIds.get(poolNames[i]), status));
+			}else if(customVariableFlag && !partitionFlag){
+				resourcePoolFlag = NAUtils.createResourceIdentityPools(poolNames[i],null,null,new String[]{idsCustomVariables.get(poolNameIds.get(poolNames[i]))});
+				AssertJUnit.assertTrue("Not able to add resouce Ids",NAUtils.addResourceIDsToPoolCustom(poolNames[i], poolNameIds.get(poolNames[i]), status, customVariablesCustomValues.get(idsCustomVariables.get(poolNameIds.get(poolNames[i]))) , null));
+				System.out.println("Value of resourcePoolFlage is "+resourcePoolFlag);
+			}else{
+				resourcePoolFlag = NAUtils.createResourceIdentityPools(poolNames[i], null, null, null);
+				AssertJUnit.assertTrue("Not able to add resouce Ids",NAUtils.addResourceIDsToPool(poolNames[i], poolNameIds.get(poolNames[i]), status));
+			}
+		}
+		
+		if(resourcePoolFlag){
+			return true;
+		}
+		return false;
+	}
+	
+	
+	
+	public void prerequisites(){
+		
+		Navigate.Admin.AdminSettings.userInterface();
+		if(!common.getObjectByName("metadata/enabled").isSelected()){
+			common.getObjectByName("metadata/enabled").click();
+			common.getObjectByXpath("//input[@value='Save' and @class='FormButton']").click();
+			AssertJUnit.assertTrue(common.pageInfoBoxContains("Setting values have been saved."));
+		}
+		NAUtils.deleteAllCustomIDs();
+	}
+	
+	
+	@AfterMethod(enabled = true, groups = {"BAT", "ART"})
+	  public void logout()
+	  {
+	  	try {
+			login.logOut();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	  
+	  	driver.quit();
+	  	driver=null;
+	  	
+	  }
+}
+
+
+

@@ -1,0 +1,10 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+
+public class TaskInformationPage extends Page{
+
+	public String taskStatus = "task_status";
+	public String runAgain = "Run Again";
+	public String cancelTask = "Cancel Task";
+	
+}

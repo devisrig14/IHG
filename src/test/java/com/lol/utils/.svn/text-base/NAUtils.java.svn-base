@@ -1,0 +1,1256 @@
+package test.java.com.hp.fc.usa.nmc.na.utils;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import junit.framework.Assert;
+
+import org.apache.commons.lang3.StringUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.Select;
+import org.testng.Reporter;
+
+import test.java.com.hp.fc.usa.nmc.na.tests.TestExecutor;
+import org.openqa.selenium.interactions.internal.Coordinates;
+import org.openqa.selenium.internal.Locatable;
+
+
+public class NAUtils extends TestExecutor{
+	
+		WebDriver driver = null;
+		WebElement table =null;
+		List<WebElement> rows = null;
+		Select select = null;
+		
+		public NAUtils(WebDriver driver){
+			this.driver = driver;
+		}
+		
+		// ==================================================================
+		
+		/*
+		 *  Add a new Security Partition . Device selection not included. 
+		 *  Admin > Security Partitions > Create "New Partition"
+		 */
+		public String addNewSecurityPartition(){
+			
+			
+			String partitionName = common.generateRandomString();
+			Navigate.Admin.SecurityPartitions();
+			driver.findElement(By.xpath("//a[@href='partition.add.do?deviceViewID=1']")).click();
+			driver.findElement(By.name("deviceGroupName")).sendKeys(partitionName);
+			driver.findElement(By.name("comments")).sendKeys("Created by Automation");
+			//driver.findElement(By.xpath("//*[@id='FlexDeviceSelector']")).sendKeys("126.58.3.78");
+			common.save();
+			if(common.pageInfoBoxContains("Successfully created Partition "+partitionName)){
+				System.out.println("Successfully created partition "+partitionName);
+				Assert.assertTrue("Successfully create Partition "+partitionName, true);
+				
+				return partitionName;
+			}else{
+				System.out.println("Not able to create Security Partition");
+				Assert.assertTrue("Not able to create Partition "+partitionName, false);
+				return null;
+			}
+			
+		}
+		
+		
+		// ==============================================================
+		
+		/*
+		 * New User Group
+		 */
+		
+		public String addnewUserGroup(){
+			String groupName = common.generateRandomString();
+			if(addnewUserGroup(groupName,null,null,null,null,false,null, null, null)){
+				return groupName;
+			}
+			return null;
+		}
+		
+		public String addnewUserGroup(String permission,String role,boolean viewPartitionPermissions, String securityPartitionToSelect){
+			String groupName = common.generateRandomString();
+			if(addnewUserGroup(groupName, null, permission, role, null, viewPartitionPermissions, securityPartitionToSelect, null, null)){
+				return groupName;
+			}
+			return null;
+		}
+		
+		public String addnewUserGroup(String permission,String[] customPermissions,boolean viewPartitionPermissions, String securityPartitionToSelect){
+			String groupName = common.generateRandomString();
+			if(addnewUserGroup(groupName, null, permission, null, customPermissions, viewPartitionPermissions, securityPartitionToSelect, null, null)){
+				return groupName;
+			}
+			return null;
+		}
+		
+		
+		public boolean addnewUserGroup(String groupName, String partition,
+			String permission, String role, String[] customPermissions,
+			boolean viewPartitionPermissions, String securityPartitionToSelect, String modifyDevicePermissions, String deviceGroupIDToSelect) {
+			
+			Navigate.Admin.newUserGroup();
+			
+			if(groupName == null)
+				groupName = common.generateRandomString();
+			
+			common.getObjectByName("userGroupName").sendKeys(groupName);
+			common.getObjectByName("description").sendKeys("Created by Automation");
+			
+			if(partition == null)
+				common.selectOption("deviceGroup1ID", partition);
+			
+			if(permission == "custom"){
+				
+				common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr[7]/td[2]/table/tbody/tr/td/input[2]").click();
+				//common.getObjectByXpath("//input[@name='customCommand' and @type='radio']").click();
+				for(int n=1;n<=2;n++){	
+				table = common.getObjectByXpath("//*[@id='custom_command_permission_table']/tbody/tr/td/table["+n+"]");
+				rows = table.findElements(By.tagName("tr"));
+				System.out.println(rows.size());
+				for(int j=0;j<customPermissions.length;j++){
+					for(int i=3;i<=rows.size();i++){
+						if(n==1)
+						{
+						for(int k=1;k<=5;k++){							
+						if(common.getObjectByXpath("//*[@id='custom_command_permission_table']//table[1]//tr["+i+"]/td["+k+"]").getText().trim().equals(customPermissions[j])){
+							int tdCount = k+1;
+							if(common.getObjectByXpath("//*[@id='custom_command_permission_table']//table[1]//tr["+i+"]/td["+tdCount+"]/input").isSelected()){
+								tdCount = k+2;
+								common.getObjectByXpath("//*[@id='custom_command_permission_table']//table[1]//tr["+i+"]/td["+tdCount+"]/input").click();								
+								break;
+							}
+							}
+								
+						}
+					}else if(n==2)
+					{
+					for(int k=1;k<=1;k++){						
+					if(common.getObjectByXpath("//*[@id='custom_command_permission_table']//table[2]//tr["+i+"]/td["+k+"]").getText().trim().equals(customPermissions[j])){
+						int tdCount = k+1;
+						if(common.getObjectByXpath("//*[@id='custom_command_permission_table']//table[2]//tr["+i+"]/td["+tdCount+"]/input").isSelected()){
+							tdCount = k+2;
+							common.getObjectByXpath("//*[@id='custom_command_permission_table']//table[2]//tr["+i+"]/td["+tdCount+"]/input").click();								
+							break;
+						}
+						}
+							
+					}
+				}
+					}
+				}
+			  }
+			}
+			
+			if(permission == "existing"){
+				
+				if(!common.getObjectByXpath("//input[@id='RADIO-COMMAND']").isSelected()){
+					common.getObjectByXpath("//input[@id='RADIO-COMMAND']").click();
+				}
+				if(role == "Administrator"){
+					common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr[7]/td[2]/table/tbody/tr/td/div/table/tbody/tr/td[1]/input").click();
+				}else if(role =="Power"){
+					common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr[7]/td[2]/table/tbody/tr/td/div/table/tbody/tr/td[2]/input").click();
+				}else if(role == "Full Access"){
+					common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr[7]/td[2]/table/tbody/tr/td/div/table/tbody/tr/td[3]/input").click();
+				}else if(role == "Limited Access"){
+					common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr[7]/td[2]/table/tbody/tr/td/div/table/tbody/tr/td[4]/input").click();
+				}
+			}
+			
+			if(viewPartitionPermissions){
+				common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr[13]/td[2]/table/tbody/tr/td/input[4]").click();
+				common.selectOption("partition1ID", securityPartitionToSelect);
+			}
+			
+			if(modifyDevicePermissions == "ALL")
+			{
+				common.getObjectByXpath("//span[contains(text(), 'All devices')]").click();
+			}else if (modifyDevicePermissions == "None")
+			{
+				common.getObjectById("ModifyDevicePermissionNone").click();
+			}else if (modifyDevicePermissions == "existing")
+			{
+				common.getObjectByXpath("//input[@ title='Existing Modify Device Permission Role']").click();
+			}else if (modifyDevicePermissions == "custom")
+			{
+				common.getObjectById("CustomizedMDP").click();
+				common.selectOption("deviceGroupID", deviceGroupIDToSelect);
+			}					
+			
+			
+			common.save();
+			if(!(role == "Administrator")&& (viewPartitionPermissions == false))
+			common.handleAlert(true);
+			
+			if(common.pageInfoBoxContains("New user group ["+groupName+"] created."))
+			{
+				Reporter.log("Successfully added User Group with the name: "+groupName+"<br>");
+				return true;
+			}
+			
+			return false;
+			
+		}
+		
+		/*
+		 * Edit a user Group and modify it's security Partition
+		 */
+		
+		public void editUserGroup(String groupName,String securityPartition){
+			Navigate.Admin.userGroups();
+			
+			table = common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/table");
+			rows = driver.findElements(By.tagName("tr"));
+			
+			for(int i=3;i<rows.size();i++){
+				if(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/table/tbody/tr["+i+"]/td[1]").getText().equals(groupName)){
+					common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/table/tbody/tr["+i+"]/td[4]/a[1]").click();
+					break;
+				}
+			}
+			
+			common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr[13]/td[2]/table/tbody/tr/td/input[4]").click();
+			
+			common.selectOption("partition1ID", securityPartition);
+			
+			common.save();
+			
+		}
+	
+		// ==================================================================
+		
+		/* 
+		 * Creating ResourceIdentityPools Methods without selecting partition and CustomFields or selecting either partition or CustomFields or both 
+		 */
+		public String createResourceIdentityPools(){
+			return createResourceIdentityPools(null,null,null);
+		}
+		
+		public String createResourceIdentityPools(String customFieldsName){
+			return createResourceIdentityPools(null,null,new String[]{customFieldsName});
+		}
+		
+		public String createResourceIdentityPools(String[] customFieldsName){
+			return createResourceIdentityPools(null,null, customFieldsName);
+		}
+		
+		public boolean createResourceIdentityPools(String newResourceIdentityPoolName,String description, String partition, String[] customFieldsNames){
+			String resoucePool = createResourceIdentityPools(newResourceIdentityPoolName, partition, customFieldsNames);
+			System.out.println("Resouce Ideneity name is "+resoucePool);
+			Navigate.Devices.DeviceTools.resourceIdentityPools();
+			common.pageSizeOption("All");
+			if(driver.findElements(By.linkText(resoucePool)).size()>0){
+				return true;
+			}else{
+				return false;
+			}
+		}
+		
+		public String createResourceIdentityPools(String newResourceIdentityPoolName, String partition, String[] customFieldsNames){
+			
+			if(newResourceIdentityPoolName == null)
+				newResourceIdentityPoolName = common.generateRandomString("AutoRID_");
+			
+			Navigate.Devices.DeviceTools.resourceIdentityPools();
+			
+			common.getObjectByXpath("//a[@href='/resourceIDPool.add.do']").click();
+			common.getObjectByName("resourceIDPoolName").sendKeys(newResourceIdentityPoolName);
+			common.getObjectByName("resourceIDPoolDescription").sendKeys("New Resource Identify Pool Created by Automation");
+			
+			if(partition!=null){
+				common.selectOption("siteID", partition);
+			}
+			
+			if(customFieldsNames!=null){
+				
+				for(String customFieldsName:customFieldsNames){
+					if(!common.selectOption("candidateCustFieldID",customFieldsName))
+						return null;
+					common.getObjectByXpath("//input[@value='<< Add']").click();
+				}
+				
+				for(String customFieldsName:customFieldsNames){
+					select = new Select(common.getObjectByName("chosenCustFieldID"));
+					List<WebElement> options = select.getOptions();		
+					if(options.indexOf(customFieldsName)!=-1){
+						System.out.println("Custom Fields selected");
+						return null;
+					}
+				}
+				
+			}
+			
+			common.save();
+			List<WebElement> infoBoxes = driver.findElements(By.id("InfoBox"));
+		
+			for(WebElement infoBox : infoBoxes){
+				if(infoBox.getText().length() !=0){
+					if(common.pageInfoBoxContains("Created resource identity pool: "+newResourceIdentityPoolName)){
+						System.out.println("Created resource identity pool "+ newResourceIdentityPoolName);
+						Assert.assertTrue(common.pageInfoBoxContains("Created resource identity pool: "+newResourceIdentityPoolName));
+						
+						return newResourceIdentityPoolName;
+					}
+					break;
+				}
+			}
+			
+			
+			return null;
+			
+			
+		}
+		
+		// ==================================================================
+		
+		/* 
+		 * Add Resource ID's to pool and it's methods
+		 */
+		
+		public boolean addResourceIDsToPool(String poolName){
+			return addResourceIDsToPool(poolName,null,null);
+		}
+		
+		public boolean addResourceIDsToPool(String poolName,String idName, String status){
+			
+			Navigate.Devices.DeviceTools.resourceIdentityPools();
+			common.pageSizeOption("All");
+			
+			if(idName ==null){
+				idName = common.generateRandomString();
+			}
+			
+			if(status == null){
+				status = "Available";
+			}
+		
+			System.out.println("Status is : "+status);
+			table = common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table");
+			rows = driver.findElements(By.tagName("tr"));
+			//System.out.println("number of rows "+rows.size());
+			for(int i=2;i<rows.size();i++){
+				if(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[2]/a").getText().equals(poolName)){
+					if(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[8]/a[1]").getText().equals("Add IDs")){
+						common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[8]/a[1]").click();
+					}else{
+						Assert.assertFalse("Not able to find Add ID's", true);
+						return false;
+					}
+					break;
+				}
+			}
+			
+			/*new FluentWait<WebDriver>(driver)
+					.withTimeout(20, TimeUnit.SECONDS)
+					.pollingEvery(5, TimeUnit.SECONDS)
+					.ignoring(NoSuchElementException.class)
+					.until(new Function<WebDriver, WebElement>() {
+						@Override
+						public WebElement apply(WebDriver webDriver){
+							return webDriver.findElement(By.xpath("//input[@value='Save & Add Another']"));
+						}
+			});*/
+			
+			driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+								
+			if(driver.findElements(By.xpath("input[starts-with(@value,'Save & Add Another')]")).size() == 0){
+				common.getObjectByName("resourceIDNameValue(3)").sendKeys(idName);
+				common.getObjectByName("resourceIDDescriptionValue(3)").sendKeys("Resource ID "+idName+ " created by Automation for pool "+poolName);
+				select = new Select(driver.findElement(By.name("resourceIDStatusValue(3)")));
+				select.selectByVisibleText(status);
+				common.getObjectByXpath("//input[@value='Save']").click();
+					
+				if(common.pageInfoBoxContains("1 IDs added.")){
+					System.out.println("ID "+ idName +" added successfully. ");
+					Assert.assertTrue("ID "+ idName +" added successfully. ", true);
+					return true;
+				}else{
+					System.out.println("ID "+ idName +" not added successfully. ");
+					Assert.assertTrue("ID "+ idName +" not added successfully. ", false);
+					return false;
+				}
+			}else{
+				common.getObjectByName("name").sendKeys(idName);
+				common.getObjectByName("description").sendKeys("Resource ID "+idName+ " created by Automation for pool "+poolName);
+				select = new Select(driver.findElement(By.name("status")));
+				select.selectByVisibleText(status);
+				common.getObjectByXpath("//input[@value='Save']").click();
+				
+				if(!common.pageInfoBoxContains("Added ID: "+idName)){
+					Assert.assertTrue("ID not added ", false);
+					return false;
+				}
+				Assert.assertTrue("ID "+ idName+" added Successfully. ", true);
+				System.out.println("ID "+ idName+" added Successfully. ");
+				return true;
+					
+
+			}
+			
+			
+		}
+
+		// Add resource ID's to pool with custom fields. Text box values are random values, for select Box values, first value will be selected.
+		
+		public boolean addResourceIDsToPoolCustom(String poolName){
+			return addResourceIDsToPoolCustom(poolName,null,null,null,null);
+		}
+		
+		public boolean addResourceIDsToPoolCustom(String poolName, String idName){
+			return addResourceIDsToPoolCustom(poolName,idName,null,null,null);
+		}
+		
+		public boolean addResourceIDsToPoolCustom(String poolName,String idName, String status,String textBox, String selectBox){
+			
+			// Get all the customPools and its values in a two dimentional array. If it's a text box, the length of the field is 0
+			
+			String[] customPools = getAllCustomIDsForPool(poolName);
+			String[][] customPoolValues = new String[customPools.length][];
+			
+			for(int i=0;i<customPools.length;i++){
+				customPoolValues[i] = findCustomFieldValues(customPools[i]);
+			}
+			
+			
+			int poolsAvailable=0;
+			Navigate.Devices.DeviceTools.resourceIdentityPools();
+			common.pageSizeOption("All");
+			
+			if(idName ==null){
+				idName = common.generateRandomString();
+			}
+			
+			if(status == null){
+				status = "Available";
+			}
+			
+			if(textBox == null){
+				textBox = common.generateRandomString();
+			}
+			
+			/*(if(selectBox == null){
+				selectBox = 
+			}*/
+			
+			
+		
+			table = common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table");
+			rows = driver.findElements(By.tagName("tr"));
+			//System.out.println("number of rows "+rows.size());
+			for(int i=2;i<rows.size();i++){
+				if(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[2]/a").getText().equals(poolName)){
+					WebElement element = common.getObjectByXpath("//table[@class='TableBorder']/tbody/tr["+i+"]/td[2]/a");
+				    Coordinates coordinate = ((Locatable)element).getCoordinates(); 
+				    coordinate.onPage(); 
+				    coordinate.inViewPort();
+					
+					common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[8]/a[1]").click();
+					poolsAvailable++;
+					break;
+				}
+				if(poolsAvailable==rows.size()){
+					System.out.println("Into pools available");
+					return false;
+				}
+			}
+			
+			if(driver.findElements(By.xpath("//input[@value='Save & Add Another']")).size() != 0){
+				common.getObjectByName("name").sendKeys(idName);
+				common.getObjectByName("description").sendKeys("Resource ID "+idName+ " created by Automation for pool "+poolName);
+				if(customPoolValues.length !=0){
+					for(int i=0;i<customPoolValues.length;i++){
+						if(customPoolValues[i].length!=0){
+							//select
+							for(int j=0;j<customPoolValues[i].length;j++){
+								select = new Select(common.getObjectByName("customFieldValue("+customPools[i]+")"));
+								select.selectByIndex(0);
+							}
+						}else{
+							//text box
+							common.getObjectByName("customFieldValue("+customPools[i]+")").sendKeys(textBox);
+						}
+					}
+				}
+				select = new Select(common.getObjectByName("status"));
+				select.selectByVisibleText(status);
+				common.getObjectByXpath("//input[@value='Save']").click();
+				if(!common.pageInfoBoxContains("Added ID: "+idName))
+					return false;
+			}else{
+				//System.out.println("No custom fields");
+				return false;
+			}
+			
+			return true;
+		}
+		
+		// Returns all the custom IDs for a pool in a string array. Returns a empty string array if there is no custom Fields for the pool
+		
+		public String[] getAllCustomIDsForPool(String poolName){
+			
+			Navigate.Devices.DeviceTools.resourceIdentityPools();
+			common.pageSizeOption("All");
+			
+			String[] values = null;
+			
+			table = driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table"));
+			rows = driver.findElements(By.tagName("tr"));
+			//System.out.println("number of rows "+rows.size());
+			for(int i=2;i<rows.size();i++){
+				if(driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[2]/a")).getText().equals(poolName)){
+					driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[8]/a[4]")).click();
+					break;
+				}
+			}
+			// If there is no custom fields the list is returning 1 as the size, so checking the length of the string instead of the size of list variable.
+			
+			select = new Select(driver.findElement(By.name("chosenCustFieldID")));
+			List<WebElement> options = select.getOptions();	
+			//System.out.println("options size is----" +options.size()+" value is ---"+options.get(0).getText().trim().toString()+"-----"+options.get(0).getText().trim().length());
+			if(options.get(0).getText().trim().length() != 0){
+				values = new String[options.size()];
+				for(int i=0;i<options.size();i++){
+					values[i] = options.get(i).getText().trim();
+				}
+				return values;
+			}
+			values = new String[0];
+			return values;
+		}
+		
+		
+		// Returns the custom field values in a string array. Returns an empty string array if there is no custom values.
+		
+		public String[] findCustomFieldValues(String customFieldName){
+			
+			Navigate.Admin.EnhancedCustomerFieldSetup();
+			String[] values;
+			
+			Select select = new Select(driver.findElement(By.xpath("//select[@id='picktable']")));
+			//List<WebElement> options = select.getOptions();
+			select.selectByVisibleText("Resource Identities");
+
+			table = driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/table[2]/tbody/tr[3]/td/table"));
+			rows = driver.findElements(By.tagName("tr"));
+			//System.out.println("value is +++"+ driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/table[2]/tbody/tr[3]/td/table/tbody/tr[2]/td[2]")).getText());
+			for(int i=2;i<rows.size();i++){
+				if(driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/table[2]/tbody/tr[3]/td/table/tbody/tr["+i+"]/td[2]")).getText().trim().equals(customFieldName)){
+					values = common.splitSting(driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/table[2]/tbody/tr[3]/td/table/tbody/tr["+i+"]/td[3]")).getText().trim());
+					//System.out.println("options size is----" +values[0]+" value is ---"+values[0].trim().toString()+"-----"+values[0].length());
+
+					if(values[0].trim().toString().length() !=0){
+						return values;
+					}
+					break;
+				}
+			}
+			values = new String[0];
+			return values;
+		}
+		
+		// Adding resource ID's to Pool	
+		public String addResourceIDsToPool(String poolName,String status){
+			
+			Navigate.Devices.DeviceTools.resourceIdentityPools();
+			table = driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table"));
+			rows = driver.findElements(By.tagName("tr"));
+			System.out.println("number of rows "+rows.size());
+			for(int i=0;i<rows.size();i++){
+				System.out.println("name is "+driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+(i+2)+"]/td[2]/a")).getText());
+				if(driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+(i+2)+"]/td[2]/a")).getText().equals(poolName)){
+					driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+(i+2)+"]/td[8]/a[1]")).click();
+					driver.findElement(By.name("name")).sendKeys(common.generateRandomString());
+					driver.findElement(By.name("description")).sendKeys("ID's for "+poolName);
+					select = new Select(driver.findElement(By.name("status")));
+					select.selectByVisibleText(status);
+					common.save();
+					break;
+				}
+			}
+			return null;
+		}
+		
+		// Get All the ID's in a pool
+		public String[] getAllIDsInPool(String poolName){
+			
+			WebElement table1 =null;
+			List<WebElement> rows1 = null;
+		
+			Navigate.Devices.DeviceTools.resourceIdentityPools();
+			table = driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table"));
+			rows = table.findElements(By.tagName("tr"));
+			System.out.println("number of rows "+rows.size());
+			for(int i=2;i<=rows.size();i++){
+				if(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[2]/a").getText().trim().equals(poolName)){
+					common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[2]/a").click();
+					System.out.println("size is "+driver.findElements(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table")).size());
+					if(driver.findElements(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table")).size()>0){
+						table1 = driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table"));
+						rows1 = table1.findElements(By.tagName("tr"));
+						System.out.println("Totoal number of ids "+rows1.size());
+						String[] allIDs = new String[rows1.size()-1];
+						for(int j=2;j<=rows1.size();j++){
+							allIDs[j-2] = common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+j+"]/td[2]").getText().trim();
+						}
+						return allIDs;
+					}else{
+						return new String[0];
+					}
+				}
+			}
+			return null;
+		}
+		
+		// Delete All ID's in a pool
+		public boolean deleteIDs(String poolName){
+			
+			Navigate.Devices.DeviceTools.resourceIdentityPools();
+			common.getObjectByLinkText(poolName).click();
+			common.sleepInSeconds(2);
+			common.selectOption("select_aid", "All");
+			common.selectOption("select_options", "Delete");
+			common.handleAlert(true);
+			if(driver.findElement(By.id("InfoBox")).getText().trim().contains("IDs deleted.")){
+				return true;
+			}
+			return false;
+			
+		}
+		
+		
+		
+		/*
+		 * Acquire ID, Release ID and import ID's
+		 * Import ID's is still pending.
+		 */
+		
+		public boolean acquireNextID(String poolName){
+			
+			Navigate.Devices.DeviceTools.resourceIdentityPools();
+			table = driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table"));
+			rows = table.findElements(By.tagName("tr"));
+			System.out.println("number of rows "+rows.size());
+			for(int i=2;i<rows.size();i++){
+				if(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[2]/a").getText().trim().equals(poolName)){
+					if(Integer.parseInt(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[5]").getText().trim()) != 0){
+						common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[8]/a[3]").click();
+						System.out.println(common.getObjectByXpath("//div[@id='InfoBox']").getText());
+						Assert.assertTrue(common.pageInfoBoxContains("You have acquired the following resource identity from the \""+poolName+"\" pool."));
+						return true;
+					}else if(Integer.parseInt(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[6]").getText().trim()) != 0 && (Integer.parseInt(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[7]").getText().trim()) == Integer.parseInt(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[6]").getText().trim()))){
+						System.out.println("All ID's are utilized. Either release the ID's or create more");
+						return false;
+					}else{
+						System.out.println("No ID's are available for the pool "+poolName+". Create IDs before acquiring");
+						return false;
+					}
+				}
+			}
+			System.out.println("Pool mentioned not in the list");
+			return false;
+			
+		}
+		
+		public boolean acquireID(String poolName,String ID){
+			
+			WebElement table1 =null;
+			List<WebElement> rows1 = null;
+			boolean isPresent = true;
+			
+			Navigate.Devices.DeviceTools.resourceIdentityPools();
+			table = driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table"));
+			rows = table.findElements(By.tagName("tr"));
+			System.out.println("number of rows "+rows.size());
+			for(int i=2;i<=rows.size();i++){
+				if(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[2]/a").getText().equals(poolName)){
+					if(Integer.parseInt(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[5]").getText().trim()) != 0){
+						common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[2]/a").click();
+						
+						table1 = driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table"));
+						rows1 = table1.findElements(By.tagName("tr"));
+						System.out.println("Totoal number of ids "+rows1.size());
+						for(int j=2;j<=rows1.size();j++){
+							//System.out.println("value is "+common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+j+"]/td[2]/a").getText().trim());
+							if(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+j+"]/td[2]").getText().trim().equals(ID)){
+								if(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+j+"]/td[7]/a[1]").getText().trim().equals("Acquire ID")){
+									common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+j+"]/td[7]/a[1]").click();
+									Assert.assertTrue(common.pageInfoBoxContains("You have acquired the following resource identity:"));
+									return true;
+								}else if(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+j+"]/td[7]/a[1]").getText().trim().equals("Release ID")){
+									System.out.println("ID already acquired in the pool. Try with someother ID");
+									//Assert.assertTrue("ID already acquired in the pool. Try with someother ID", false);
+									return false;
+								}
+							}else{
+								isPresent = false;
+							}
+						}
+						if(!isPresent){
+							System.out.println("Given ID not present in the pool "+poolName);
+							//Assert.assertTrue("Given ID not present in the pool "+poolName, false);
+							return false;
+						}
+						
+					}else if(Integer.parseInt(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[6]").getText().trim()) != 0 && (Integer.parseInt(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[7]").getText().trim()) == Integer.parseInt(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[6]").getText().trim()))){
+						System.out.println("All ID's are utilized. Either release the ID's or create more");
+						return false;
+					}else{
+						System.out.println("No ID's are available for the pool "+poolName+". Create IDs before acquiring");
+						return false;
+					}
+
+				}
+			}
+			System.out.println("Pool mentioned not in the list");
+			return false;
+		}
+		
+		public boolean releaseID(String poolName,String ID){
+			
+			WebElement table1 =null;
+			List<WebElement> rows1 = null;
+			boolean isPresent = true;
+			
+			Navigate.Devices.DeviceTools.resourceIdentityPools();
+			table = driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table"));
+			rows = table.findElements(By.tagName("tr"));
+			System.out.println("number of rows "+rows.size());
+			for(int i=2;i<=rows.size();i++){
+				if(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[2]/a").getText().equals(poolName)){
+					if(Integer.parseInt(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[6]").getText().trim()) !=0 ){
+						common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[2]/a").click();
+						
+						table1 = driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table"));
+						rows1 = table1.findElements(By.tagName("tr"));
+						System.out.println("Totoal number of ids "+rows1.size());
+						for(int j=2;j<=rows1.size();j++){
+							if(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+j+"]/td[2]").getText().trim().equals(ID)){
+								if(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+j+"]/td[7]/a[1]").getText().trim().equals("Release ID")){
+									common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+j+"]/td[7]/a[1]").click();
+									Assert.assertTrue("Released ID "+ID,common.pageInfoBoxContains("Released ID: "+ID));
+									return true;
+								}else if(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+j+"]/td[7]/a[1]").getText().trim().equals("Acquire ID")){
+									System.out.println("ID already released.");
+									return false;
+								}
+							}else{
+								isPresent = false;
+							}
+						}
+						if(!isPresent){
+							System.out.println("Given ID not present in the pool "+poolName);
+							Assert.assertTrue("Given ID not present in the pool "+poolName, false);
+							return false;
+						}
+					}else if(Integer.parseInt(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[7]").getText().trim()) != 0){
+						System.out.println("No IDs are acquired for pool "+poolName+". Please acquire a pool");
+						Assert.assertTrue("No IDs are acquired for pool "+poolName+". Please acquire a pool",false);
+						return false;
+					}else{
+						System.out.println("No IDs for the pool "+poolName+". Please create a ID for the pool");
+						Assert.assertTrue("No IDs for the pool "+poolName+". Please create a ID for the pool", false);
+						return false;
+					}
+				}
+			}
+			System.out.println("Pool mentioned not in the list");
+			return false;
+		}
+		
+		public boolean importIDs(String poolName,String fileLocation) throws InterruptedException{
+			
+			boolean isPresent = true;
+			Navigate.Devices.DeviceTools.resourceIdentityPools();
+			table = driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table"));
+			rows = table.findElements(By.tagName("tr"));
+			System.out.println("number of rows "+rows.size());
+			for(int i=2;i<=rows.size();i++){
+				if(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[2]/a").getText().trim().equals(poolName)){
+					common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[8]/a[2]").click();
+					isPresent = true;
+					break;
+				}else{
+					isPresent = false;
+				}
+			}
+			if(!isPresent){
+				Assert.assertTrue("Not able to find the resource Identity Pool ", false);
+			}
+			
+			common.selectOption("resourceIdentityPoolID", poolName);			
+			common.getObjectByName("localFile").sendKeys(fileLocation);
+			common.save();
+			
+			//Thread.sleep(5000);
+			//Assert.assertTrue("Message is not saved ", common.pageInfoBoxContains("Successfully saved task"));
+			
+			while(common.getObjectById("task_status").getText().trim().equals("Running") || common.getObjectById("task_status").getText().trim().equals("Pending") || common.getObjectById("task_status").getText().trim().equals("Waiting")) {
+				System.out.println("task status is "+common.getObjectById("task_status").getText());
+				common.sleepInSeconds(5);
+			}
+			System.out.println("task status is ---"+common.getObjectById("task_status").getText()+"----");
+			
+			if(common.getObjectById("task_status").getText().trim().equals("Succeeded")){	
+				return true;
+			}else if(common.getObjectById("task_status").getText().trim().equals("Failed")){
+				return false;
+			}else{
+				return false;
+			}
+		}
+		
+		public boolean deletePoolsWithIDsForImport(boolean deleteCustomIds){
+			
+			int isSelected = 0;
+			
+			if(deleteCustomIds){
+				deleteCustomIDsForImport();
+			}
+			
+			Navigate.Devices.DeviceTools.resourceIdentityPools();
+			common.pageSizeOption("All");
+			
+			table = driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table"));
+			rows = table.findElements(By.tagName("tr"));
+			System.out.println("number of rows "+rows.size());
+			for(int i=2;i<=rows.size();i++){
+				if(Integer.parseInt(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[7]").getText().trim()) > 0){
+					common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/form/table/tbody/tr["+i+"]/td[1]/input").click();
+					isSelected++;
+				}
+			}
+			
+			if(isSelected>0){
+				common.selectOption("select_options", "Delete");
+				common.handleAlert(true);
+				Assert.assertTrue("Pools not deleted ", driver.findElement(By.id("InfoBox")).getText().trim().contains("pools deleted."));
+				return true;
+			}
+			return false;
+					
+			
+		}
+				
+		public boolean deleteCustomIDsForImport(){
+			
+			boolean isPresent = true;
+			String[] fieldName = {"CustomField1","CustomField2"};
+			
+			
+			// Delete Custom fields
+			for(int j=0;j<fieldName.length;j++){
+				Navigate.Admin.EnhancedCustomerFieldSetup();
+				Select select = new Select(common.getObjectByXpath("//select[@id='picktable']"));
+				//List<WebElement> options = select.getOptions();
+				select.selectByVisibleText("Resource Identities");
+				
+				table = driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/table[2]/tbody/tr[3]/td/table"));
+				rows = table.findElements(By.tagName("tr"));
+				for(int i=2;i<=rows.size();i++){
+					if(common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/table[2]/tbody/tr[3]/td/table/tbody/tr["+i+"]/td[2]").getText().trim().equals(fieldName[j])){
+						common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/table[2]/tbody/tr[3]/td/table/tbody/tr["+i+"]/td[5]/a[2]/span").click();
+						Assert.assertTrue("Didnot remove custom field ", common.getObjectById("InfoBox").getText().trim().contains("Removed metadata field:"));
+						isPresent = true;
+						break;
+					}
+				}
+			}
+			if(isPresent){
+				Assert.assertTrue("Deleted all the custom IDs ", true);
+				return true;
+			}
+			Assert.assertTrue("Didnt find Custom IDs", true);
+			return true;
+			
+		}
+		
+		public void deleteAllCustomIDs(){
+			
+			
+			Navigate.Admin.EnhancedCustomerFieldSetup();
+			
+			Select select = new Select(driver.findElement(By.xpath("//select[@id='picktable']")));
+			//List<WebElement> options = select.getOptions();
+			select.selectByVisibleText("Resource Identities");
+
+			table = driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/table[2]/tbody/tr[3]/td/table"));
+			rows = table.findElements(By.tagName("tr"));
+			//System.out.println("value is +++"+ driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/table[2]/tbody/tr[3]/td/table/tbody/tr[2]/td[2]")).getText());
+			System.out.println("number of rows is "+rows.size());
+			
+			for(int i=rows.size();i>1;i--){
+				System.out.println("Into");
+				if(driver.findElement(By.xpath("html/body/table[1]/tbody/tr/td[2]/div[3]/table[2]/tbody/tr[3]/td/table/tbody/tr["+i+"]/td[5]/a[2]/span")).getText().trim().equals("Delete")){
+					common.getObjectByLinkText("Delete").click();
+					System.out.println("Delete presen");
+					common.sleepInSeconds(2);
+					common.handleAlert(true);
+					common.sleepInSeconds(2);
+					Assert.assertTrue("Not able to delete custom Field. ",common.pageInfoBoxContains("Removed metadata field:"));
+				}
+				Navigate.Admin.EnhancedCustomerFieldSetup();
+				select = new Select(driver.findElement(By.xpath("//select[@id='picktable']")));
+				select.selectByVisibleText("Resource Identities");
+				System.out.println("i value is "+i);
+			}
+			
+			
+		}
+		
+		//public void createImportCSV(String fileName,)
+		
+				
+		// =====================================================================
+		/*
+		 *  CreateCustom Fields for ResourceID's
+		 */
+		public boolean createCustomFieldsForResourceIDs(){
+			return createCustomFieldsForResourceIDs(true, null,false, null, false);
+		}
+		
+		public boolean createCustomFieldsForResourceIDs(String FieldName){
+			return createCustomFieldsForResourceIDs(true, FieldName, false, null, false);
+		}
+		
+		public boolean createCustomFieldsForResourceIDs(String FieldName, boolean fieldValues, String values){
+			return createCustomFieldsForResourceIDs(true, FieldName, fieldValues, values, false);
+		}
+		
+		public boolean createCustomFieldsForResourceIDs(boolean fieldValues, String values){
+			return createCustomFieldsForResourceIDs(true, null, fieldValues, values, false);
+		}
+		
+		public boolean createCustomFieldsForResourceIDs(boolean enabled,String FieldName,boolean fieldValues, String values, boolean allowHTML){
+			
+			if(FieldName == null){
+				FieldName = common.generateRandomString();
+			}
+			//Reporter.log("Go to Admin > Enhanced Custom Fields Setup"+"<br>");
+			Navigate.Admin.EnhancedCustomerFieldSetup();
+			
+			//Reporter.log("Change Drop down value of Enhanced Custom Field to Resource Identities"+"<br>");
+			Select select = new Select(common.getObjectByXpath("//select[@id='picktable']"));
+			//List<WebElement> options = select.getOptions();
+			select.selectByVisibleText("Resource Identities");
+			
+			//Reporter.log("Click on the link New Custom resource identities Field"+"<br>");
+			common.getObjectByXpath("//a[contains(@href,'RN_RESOURCE_IDENTITY')]").click();
+			System.out.println("Page title is : "+driver.getTitle()+"<br>");
+			
+			//Reporter.log("Verify if the Page title contains "+"'"+"New Custom Data Field"+"'"+" or not"+"<br>");
+			Assert.assertTrue(driver.getTitle().contains("New Custom Data Field"));
+			
+			if(enabled){
+				System.out.println("Selecting the checkBox with the name Enabled"+"<br>");
+				driver.findElement(By.name("inUse")).click();
+			}
+			
+			//Reporter.log("Entering Field Name"+"<br>");
+			driver.findElement(By.name("fieldName")).sendKeys(FieldName);
+			
+			if(fieldValues & values == null){
+				
+				//Reporter.log("Entering text in to text field Limit Values To"+"<br>");				
+				common.getObjectByName("fieldValues").sendKeys("1,2,3,4,5");
+			}else if(fieldValues & values != null){
+				//Reporter.log("Entering text in to text field Limit Values To"+"<br>");
+				common.getObjectByName("fieldValues").sendKeys(values);
+			}
+			
+			if(allowHTML){
+				//Reporter.log("Selecting the checkBox with the name Allow HTML"+"<br>");
+				common.getObjectByName("flags").click();
+			}
+			common.save();
+			
+			if(common.pageInfoBoxContains("Saved metadata field: "+FieldName)){
+				Assert.assertTrue("Custom Fields Successfully Created", true);
+				Reporter.log("Custom Field Successfully Created with the name "+FieldName+"<br>");
+				return true;
+			}
+			Assert.assertTrue("Not able to create Custom Fields", false);
+			Reporter.log("Not able to create Custom Field"+"<br>");
+			
+			return false;
+		}
+		
+		// =====================================================================
+		
+		/*
+		 * Add User to NA Methods.
+		 */
+		public String addUser(String partition, String[] userGroup) {
+
+			String userName = common.generateRandomString();
+			String password = common.getDefaultPassword();
+			addUser(userName, password, null, null, userGroup, partition);
+			return userName;
+
+		}
+		
+		public String addUser(String[] userGroup){
+			
+			String userName = common.generateRandomString();
+			String password = common.getDefaultPassword();
+			addUser(userName,password,null,null,userGroup,null);
+			return userName;	
+		}
+		
+		public String addUser(String userName, String password, String firstName,
+				String lastName, String[] userGroup, String partition) {
+
+			addUser(userName, password, false, false, false, false, firstName,
+					lastName, userName + "@hpna.com", userGroup, partition, true,
+					false, "", "", false,null);
+			return userName;
+		}
+		
+		public String addUser(String userName, String password,
+				boolean userMustChange, boolean userCannotChange,
+				boolean passwordNever, boolean accountLockedOut, String firstName,
+				String lastName, String email, String[] userGroups,
+				String partition, boolean status, boolean failureOver,
+				String aaaUserName, String aaaPassword, boolean aaaLoginProxy, String comments) {
+
+			Navigate.Admin.newUser();
+
+			common.getObjectByName("userName").sendKeys(userName);
+			common.getObjectByName("userPassword").sendKeys(password);
+			common.getObjectByName("userPassword2").sendKeys(password);
+
+			if (userMustChange)
+				common.getObjectByName("userMustChangePasswordAtNextLogon").click();
+
+			if (userCannotChange)
+				common.getObjectByName("userCannotChangePassword").click();
+
+			if (passwordNever)
+				common.getObjectByName("passwordNeverExpires").click();
+
+			if (accountLockedOut)
+				common.getObjectByName("accountIsLockedOut").click();
+
+			if (!StringUtils.isEmpty(firstName) | !StringUtils.isBlank(firstName))
+				common.getObjectByName("firstName").sendKeys(firstName);
+
+			if (!StringUtils.isEmpty(lastName) | !StringUtils.isBlank(lastName))
+				common.getObjectByName("lastName").sendKeys(lastName);
+
+			if (!StringUtils.isEmpty(email) | !StringUtils.isBlank(email)) {
+				common.getObjectByName("emailAddress").sendKeys(email);
+			} else {
+				common.getObjectByName("emailAddress").sendKeys(userName + "@hpna.com");
+			}
+
+			for (String userGroup : userGroups)
+				common.selectOption("userGroupID", userGroup);
+
+			if (!StringUtils.isEmpty(partition) | !StringUtils.isBlank(partition))
+				common.selectOption("deviceGroup1ID", partition);
+
+			if (!status) {
+				common.getObjectByXpath("//input[@name='status' and @value='1']").click();
+			} else {
+				common.getObjectByXpath("//input[@name='status' and @value='0']").click();
+			}
+
+			if (!StringUtils.isEmpty(comments)
+					| !StringUtils.isBlank(comments))
+				common.getObjectByName("comments").sendKeys(comments);
+			if (failureOver)
+				common.getObjectByName("allowFailover").click();
+
+			if (!StringUtils.isEmpty(aaaUserName)
+					| !StringUtils.isBlank(aaaUserName))
+				common.getObjectByName("aaaUserName").sendKeys(aaaUserName);
+
+			if (!StringUtils.isEmpty(aaaPassword)
+					| !StringUtils.isBlank(aaaPassword)) {
+				common.getObjectByName("aaaPassword").sendKeys(aaaPassword);
+				common.getObjectByName("aaaPassword2").sendKeys(aaaPassword);
+			}
+
+			if (aaaLoginProxy)
+				common.getObjectByName("useAaaLoginForProxy").click();
+			
+			common.getObjectByXpath("//input[@value='Save']").click();
+			
+			try{
+					if(common.pageInfoBoxContains("Successfully added user ["+userName+"]"))
+					{
+					Reporter.log("Successfully added user ["+userName+"]"+"<br>");	
+					return userName;
+				}
+									
+			}catch (NoSuchElementException e){
+				if(common.pageAlert3BoxContains("Unable to save user"))
+				{
+				Reporter.log("Unable to save user"+"<br>");
+				return null;
+				}else{
+					Reporter.log("User did not got created"+"<br>");
+					Assert.fail("");
+					return null;
+				}
+
+			}
+			return userName;
+			
+
+		}
+
+		
+		// ==========================================================================
+		
+		/*
+		 * Advance Search Utilities
+		 */
+		
+		// Enter Advance Search Criteria and Text.
+		
+			
+		public void enterAdvanceSearchCriteriaAndText(boolean enterText, String criteriaName,
+				String valuationCriteria, String value) {
+			common.selectOption("addCriteria", criteriaName);
+			common.sleep(2000);
+			
+			String rowName = common
+					.getObjectByXpath(
+							"(//b[text() = '" + criteriaName
+									+ "']/preceding-sibling::input[1])[last()]")
+					.getAttribute("value").toString();
+			int number = advanceSearchRowNumber(rowName);
+			common.getObjectByName("expressions[" + number + "].operationName")
+					.sendKeys(valuationCriteria);
+			if(enterText){
+				common.getObjectByName("expressions[" + number + "].values").sendKeys(
+					value);
+			}
+					
+		}
+		
+		
+			
+		// Select Advance search list item
+	
+		public void selectAdvanceSearchListItem(String criteriaName,
+				String itemsToSelect) {
+			selectAdvanceSearchListItems(criteriaName,
+					new String[] { itemsToSelect });
+		}
+	
+		// Select Advance search list items
+		public void selectAdvanceSearchListItems(String criteriaName,
+				String[] itemsToSelect) {
+			common.selectOption("addCriteria", criteriaName);
+			common.sleep(2000);
+			System.out.println("value is "+driver.findElements(By.xpath("//b[text() = '"+criteriaName+"']")));
+			String rowName = common
+					.getObjectByXpath(
+							"//b[text() = '" + criteriaName
+									+ "']/preceding-sibling::input[1]")
+					.getAttribute("value").toString();
+			int number = advanceSearchRowNumber(rowName);
+			
+			Assert.assertTrue("Not able to select the options", common
+					.selectOptions("expressions[" + number + "].values",
+							itemsToSelect));
+		}
+		
+		// Select Available or In Use
+		public void selectAvailableOrInUse(String criteriaName, String availableOrInUse){
+			common.selectOption("addCriteria", criteriaName);
+			common.sleep(2000);
+			
+			if(availableOrInUse.equals("Available")){
+				common.getObjectById("Status_0").click();
+			}else{
+				common.getObjectById("Status_1").click();
+			}
+		}
+		
+	
+		// Get the row number from advance search
+		public int advanceSearchRowNumber(String rowName) {
+			return rowName.toLowerCase().charAt(0) - 'a';
+		}
+		
+		// Work Around for changing to does not equal.
+		public void changeResourceIdentityOperationName(String valuationCriteria){
+						
+			int numberOfResourceIdentities = driver.findElements(By.xpath("//b[text() = 'Resource Identity']")).size();
+									
+			System.out.println("Number is "+numberOfResourceIdentities);
+			
+			for(int i=0;i<numberOfResourceIdentities;i++){
+				System.out.println("expressions[" + i + "].operationName");
+				common.getObjectByName("expressions[" + i + "].operationName").sendKeys(valuationCriteria);
+			}
+			
+		}
+		
+		public void changeResourceIdentityOperationNames(String[] valuationCriteria){
+			
+			int numberOfResourceIdentities = driver.findElements(By.xpath("//b[text() = 'Resource Identity']")).size();
+									
+			System.out.println("Number is "+numberOfResourceIdentities);
+			
+			for(int i=0,j=0;i<numberOfResourceIdentities;i++,j++){
+				System.out.println("expressions[" + i + "].operationName");
+				common.getObjectByName("expressions[" + i + "].operationName").sendKeys(valuationCriteria[j]);
+			}
+			
+		}
+		
+		/*
+		 * Default Reboot Settings
+		 */
+		
+		// Enable Reboot Completion setting
+		public void enableVerifyRebootCompletion() {
+			Navigate.Admin.AdminSettings.deviceAccess();
+			if (!common.getObjectById(
+					"DeviceInteraction/Reboot Device/verify_reboot").isSelected()) {
+				common.getObjectById(
+						"DeviceInteraction/Reboot Device/verify_reboot").click();
+				common.getObjectByXpath("//input[@type='submit' and @value='Save']").click();
+				Assert.assertTrue("Not able to save the changes.", common.pageInfoBoxContains("Setting values have been saved."));
+			}
+		}
+	
+		// Disable Reboot Completion setting
+		public void disableVerifyRebootCompletion() {
+			Navigate.Admin.AdminSettings.deviceAccess();
+			if (common.getObjectById(
+					"DeviceInteraction/Reboot Device/verify_reboot").isSelected()) {
+				common.getObjectById(
+						"DeviceInteraction/Reboot Device/verify_reboot").click();
+				common.getObjectByXpath("//input[@type='submit' and @value='Save']").click();
+				Assert.assertTrue("Not able to save the changes.", common.pageInfoBoxContains("Setting values have been saved."));
+			}
+		}
+	
+		// Text box status
+		public boolean getTextBoxStatus(String id) {
+			return common.getObjectById(id).isSelected();
+		}
+		
+		
+		/*
+		 * Help Utilities
+		 */
+		
+		public void checkHelpTitle(String title){
+			
+			
+			
+		}
+		
+		
+}

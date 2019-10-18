@@ -1,0 +1,38 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.testng.Reporter;
+
+public class SearchFor_Users_Listing_Page extends Page{
+	WebElement table=null;
+	List<WebElement> rows = null;
+		
+	public boolean checkForExistanceOfUserInSearchResults(String searchCriteria){
+		boolean ExistanceOfUser = false;		
+		
+		try {
+		common.pageSizeOption("All");
+		table = common.getObjectByXpath("//table[@ class='TableBorder']");
+		rows = driver.findElements(By.tagName("tr"));		
+			for(int i=2;i<rows.size();i++){
+				System.out.println(common.getObjectByXpath("//table[@ class='TableBorder']/tbody/tr["+i+"]/td[1]").getText().trim());
+				if(common.getObjectByXpath("//table[@ class='TableBorder']/tbody/tr["+i+"]/td[1]").getText().trim().contains(searchCriteria)){
+					ExistanceOfUser = true;
+					break;
+				}
+			}
+		} catch (AssertionError e) {
+			
+			System.out.println("User matching with the search Criteria : "+searchCriteria+" is not seen in Search results"+e+"<br>");
+			ExistanceOfUser = false;
+		}
+		return ExistanceOfUser;
+		
+	}
+		
+	
+	
+}

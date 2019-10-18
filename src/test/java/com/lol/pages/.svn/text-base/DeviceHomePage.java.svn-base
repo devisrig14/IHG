@@ -1,0 +1,35 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import org.openqa.selenium.By;
+
+
+public class DeviceHomePage extends Page{
+
+	public String lastSnapshotResult = common.getObjectByXpath("html/body/table[1]/tbody/tr/td[2]/div[3]/div[1]/table/tbody/tr[4]/td[2]/table/tbody/tr/td[1]").getText();
+	public String deviceDescription = "Device Description";
+	public String FQDN = "FQDN";
+	public String vendor = "Vendor";
+	public String model =  "Model";
+	public String deviceFamily = "Device Family";
+	public String  softwareVersion = "Software Version";
+	public String  driverName = "Driver Name";
+	public String deviceType = "Device Type";
+	public String serialNumber = "Serial Number";
+	public String assetTag = "Asset Tag";
+	public String systemMemory = "System Memory";
+	public String location = "Location";
+	public String deviceOrgin = "Device Origin";
+	public String lastSuccessfulSnapshot = "Last Successful Snapshot";
+	public String lastConfigurationChange = "Last Configuration Change";
+	public String lastAccessAttempt = "Last Access Attempt";
+	public String lastAccessSuccess = "Last Access Success";
+	public String changeDetectionAndPolling = "Change Detection and Polling";
+	public String managementStatus = "Management Status";
+	public String passwordRule = "Password Rule";
+	public String deviceIP=common.getObjectByXpath("//div[@class='device_top']/table/tbody/tr[2]/td[2]").getText();
+/*	public String nnmiAssociationsField=common.getObjectByXpath("//*[@id='html/label/NNMiIntegration/NNMi Associations']").getText();
+	public String integrationEnabledValue=common.getObjectByXpath("//table[@class='TableBorder']/tbody/tr[2]/td[1]").getText();
+	public String nnmiServerValue=common.getObjectByXpath("//table[@class='TableBorder']/tbody/tr[2]/td[2]").getText();
+	public String nodeUUIDvalue=common.getObjectByXpath("//table[@class='TableBorder']/tbody/tr[2]/td[3]").getText();
+*/
+}

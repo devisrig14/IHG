@@ -1,0 +1,40 @@
+package test.java.com.hp.fc.usa.nmc.na.pages;
+
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.testng.Assert;
+import org.testng.Reporter;
+
+public class EventsListingPage extends Page
+{
+	WebElement table =null;
+	List<WebElement> rows = null;
+
+	
+	public boolean getLatestLoginTime(String userName)
+	{
+		boolean status = false;
+		table = common.getObjectByXpath("//table[@ class='TableBorder']");
+		rows = driver.findElements(By.tagName("tr"));
+		System.out.println(rows.size());
+		for(int i=3;i<rows.size();i++){
+			System.out.println(common.getObjectByXpath("//table[@ class='TableBorder']//tr["+i+"]/td[1]").getText());
+			if(common.getObjectByXpath("//table[@ class='TableBorder']//tr["+i+"]/td[1]").getText().trim().equals(userName)){
+				if(common.getObjectByXpath("//table[@ class='TableBorder']//tr["+i+"]/td[4]/a[1]").getText().equalsIgnoreCase("Edit"))
+				{
+					status= true;
+					break;
+				}else{
+				status= false;
+				break;
+				}
+			}
+		}
+		
+		return status;
+	}
+	
+}

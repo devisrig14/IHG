@@ -1,0 +1,123 @@
+package test.java.com.hp.fc.usa.nmc.na.utils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+import test.java.com.hp.fc.usa.nmc.na.tests.TestExecutor;
+
+public class Table extends TestExecutor {
+
+	
+	WebElement table =null;
+	List<WebElement> rows = null;
+	WebDriver driver =null;
+	
+	public Table(WebDriver driver){
+		this.driver = driver;
+	}
+	
+	
+	public String getCellElement(String xpath,String valueInARow, String columnName){
+		
+		int rowIndex =-1;
+		List<HashMap<String, WebElement>> userTable = new ArrayList<HashMap<String, WebElement>>();
+				
+		// Get the rows in a list
+		List<WebElement> rowElements = getRows(xpath);
+		
+		
+		// get Column names of table for table headers
+		List<String> columnNames = getColumnTitle(rowElements);
+
+						
+		for(int i =1;i<rowElements.size();i++){
+			HashMap<String, WebElement> row = new HashMap<String, WebElement>();
+			
+			int columnIndex = 0;
+			  List<WebElement> cellElements = rowElements.get(i).findElements(By.xpath(".//td"));
+			  
+			  for (int j=1;j<cellElements.size();j++) {
+				  //System.out.println("cell value is "+cellElements.get(j).getText());
+				  
+				  if(cellElements.get(j).getText().trim().equals(valueInARow)){
+					 // System.out.println("Equal");
+					  rowIndex = i-1;
+					  break;
+				  }
+			  }
+			  
+			  			  
+			  for (WebElement cellElement: cellElements) {
+			    row.put(columnNames.get(columnIndex), cellElement);
+			    columnIndex++;
+			  }
+			  userTable.add(row);
+		}
+		
+		if(rowIndex == -1){
+			return null;
+		}
+		//System.out.println("rowIndex is "+rowIndex+" column name is "+columnName);
+		return userTable.get(rowIndex).get(columnName).getText().trim();
+		
+	}
+	
+	public List<String> getColumnContents(String xpath, String columnName){
+		
+		int columnIndex =-1;
+		List<String> columnContents = new ArrayList<String>();
+		
+		// Get the rows in a list
+		List<WebElement> rowElements = getRows(xpath);
+		
+		// get Column names of table for table headers
+		List<String> columnNames = getColumnTitle(rowElements);
+		
+		List<WebElement> cellElements = rowElements.get(0).findElements(By.xpath(".//td"));
+		
+		
+		columnIndex = columnNames.indexOf(columnName);
+		System.out.println("Column Index is "+columnIndex);
+
+		if(columnIndex !=-1){
+			for(int i=1;i<rowElements.size();i++){
+				cellElements = rowElements.get(i).findElements(By.xpath(".//td"));
+				columnContents.add(cellElements.get(columnIndex).getText().trim());
+				System.out.println("Value is "+cellElements.get(columnIndex).getText().trim());
+			}
+		}
+		
+		return columnContents;
+		
+		
+	}
+	
+		
+	public List<String> getColumnTitle(List<WebElement> rowElements){
+		
+		List<String> columnNames = new ArrayList<String>();
+		List<WebElement> headerElements = rowElements.get(0).findElements(By.tagName("td"));
+		
+		for (WebElement headerElement: headerElements) {
+			  columnNames.add(headerElement.getText());
+		}
+		return columnNames;
+		
+	}
+	
+	public List<WebElement> getRows(String xpath){
+		
+		WebElement tableElement = driver.findElement(By.xpath(xpath));
+		return tableElement.findElements(By.xpath(".//tr"));
+		
+	}
+	
+	
+	
+	
+}

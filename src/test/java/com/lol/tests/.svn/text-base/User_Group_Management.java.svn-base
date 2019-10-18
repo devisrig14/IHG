@@ -1,0 +1,301 @@
+package test.java.com.hp.fc.usa.nmc.na.tests;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.testng.Assert;
+import org.testng.AssertJUnit;
+import org.testng.Reporter;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Listeners;
+import org.testng.annotations.Test;
+
+import test.java.com.hp.fc.usa.nmc.na.listener.GenerateCustomReport;
+import test.java.com.hp.fc.usa.nmc.na.pages.AdminSettings_UserAuthentication;
+import test.java.com.hp.fc.usa.nmc.na.pages.UserGroupsListingPage;
+import test.java.com.hp.fc.usa.nmc.na.pages.UsersListingPage;
+import test.java.com.hp.fc.usa.nmc.na.pages.UsersSearchPage;
+import test.java.com.hp.fc.usa.nmc.na.utils.Common;
+
+@Listeners(GenerateCustomReport.class)
+public class User_Group_Management extends TestExecutor
+{
+	WebElement table=null;
+	List<WebElement> rows = null;
+	
+	@BeforeMethod(enabled = true, groups = {"BAT", "ART"})
+	public void startTest() throws IOException, InterruptedException{
+		initialize();
+		
+		driver.get("http://"+System.getProperty("naIpAddress"));
+		
+		if(common.checkExistenceOfOverridelink())
+		{
+			common.getObjectById("overridelink").click();
+			Thread.sleep(3000);			
+		}
+		//driver.navigate().to("javascript:document.getElementById('overridelink').click();");
+		
+		login.loginAsUser("admin");
+		if(!isLoggedIn){
+			System.out.println("Invalid Username/password");
+			Assert.assertTrue( false,"Not able to login to NA Server");
+			// report error
+		}
+		driver.manage().window().maximize();
+		
+	}
+	
+	//Create User Group('Existing Command Permission Role' as 'Administrator') and Create a User with that User Group
+	@Test(enabled = true, groups= {"ART"})
+	public void Create_Custom_Admin_User_Group() throws InterruptedException 
+	{
+		Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+		Reporter.log("===============Start Create_Custom_Admin_User_Group========================"+"<br>");
+				
+		Reporter.log("Step 1 : Create a User Group upon selecting 'Existing Command Permission Role' as 'Administrator'"+"<br>");
+		String userGroup = NAUtils.addnewUserGroup("existing", "Administrator", false, null);
+		
+		Reporter.log("Step 2 : Add User upon selecting above created User Group"+"<br>");
+		String newUser = NAUtils.addUser(new String[]{userGroup});
+		
+		Reporter.log("Step 3 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newUser);
+				
+		Reporter.log("Step 4 : login As New User"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newUser));
+		
+		Reporter.log("Step 5 : Navigate to > Admin > New User > Verify if Newly created user is having access to 'New User' page or not ? :: Expected: Should have access"+"<br>");
+		Navigate.Admin.newUser();
+				
+		Assert.assertTrue(common.checkTitleContains("New User"),"'New User' page not lacunched");
+		
+		Reporter.log("===============End Create_Custom_Admin_User_Group========================"+"<br>");
+	}
+	
+	
+	//Create User Group('Existing Command Permission Role' as 'Full Access') and Create a User with that User Group
+	@Test(enabled = true, groups= {"ART"})
+	public void Create_Custom_Full_Access_User_Group() throws InterruptedException 
+	{
+		Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+		Reporter.log("===============Start Create_Custom_Full_Access_User_Group========================"+"<br>");
+		
+		Reporter.log("Step 1 : Create a User Group upon selecting 'Existing Command Permission Role' as 'Full Access'"+"<br>");
+		String userGroup = NAUtils.addnewUserGroup("existing", "Full Access", true, null);
+		
+		Reporter.log("Step 2 : Add User upon selecting above created User Group"+"<br>");
+		String newUser = NAUtils.addUser(new String[]{userGroup});
+		
+		Reporter.log("Step 3 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newUser);
+				
+		Reporter.log("Step 4 : login As New User"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newUser));
+		
+		
+		Reporter.log("Step 5 : Navigate to > Devices > DeviceTools > DevicePasswordRules > Verify if Newly created user is having access to 'Device Password Rules' page or not ? :: Expected: Should not have access"+"<br>");
+		Navigate.Devices.DeviceTools.DevicePasswordRules();
+		Assert.assertFalse(common.checkTitleContains("Device Password Rules"),"User having access to 'Device Password Rules' page");
+		
+		Reporter.log("===============End Create_Custom_Full_Access_User_Group========================"+"<br>");
+	}
+	
+	
+	
+	//Create User Group('Existing Command Permission Role' as 'Limited Access') and Create a User with that User Group
+	@Test(enabled = true, groups= {"ART"})
+	public void Create_Custom_Limited_User_Group() throws InterruptedException 
+	{
+		Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+		Reporter.log("===============Start Create_Custom_Limited_User_Group========================"+"<br>");
+		
+		Reporter.log("Step 1 : Create a User Group upon selecting 'Existing Command Permission Role' as 'Limited Access'"+"<br>");
+		String userGroup = NAUtils.addnewUserGroup("existing", "Limited Access", true, null);
+		
+		Reporter.log("Step 2 : Add User upon selecting above created User Group"+"<br>");
+		String newUser = NAUtils.addUser(new String[]{userGroup});
+		
+		Reporter.log("Step 3 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newUser);
+				
+		Reporter.log("Step 4 : login As New User"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newUser));
+		
+		Reporter.log("Step 5 : Navigate to > Admin > Users > Verify if Newly created user is having access to 'Users' page or not ? :: Expected: Should have access"+"<br>");
+		Navigate.Admin.users();
+				
+		Assert.assertTrue(common.checkTitleContains("All Users"),"'All Users' page not lacunched");
+		
+		Reporter.log("Step 6 : Navigate to > Devices > DeviceTools > DevicePasswordRules > Verify if Newly created user is having access to 'Device Password Rules' page or not ? :: Expected: Should not have access"+"<br>");
+		Navigate.Devices.DeviceTools.DevicePasswordRules();
+		Assert.assertFalse(common.checkTitleContains("Device Password Rules"),"User having access to 'Device Password Rules' page");
+		
+		Reporter.log("===============End Create_Custom_Limited_User_Group========================"+"<br>");
+	}
+	
+	
+	//Create User Group('Existing Command Permission Role' as 'Power') and Create a User with that User Group
+	@Test(enabled = true, groups= {"ART"})
+	public void Create_Custom_Power_User_Group() throws InterruptedException 
+	{
+		Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+		Reporter.log("===============Start Create_Custom_Power_User_Group========================"+"<br>");
+		
+		Reporter.log("Step 1 : Create a User Group upon selecting 'Existing Command Permission Role' as 'Limited Access'"+"<br>");
+		String userGroup = NAUtils.addnewUserGroup("existing", "Power", true, null);
+		
+		Reporter.log("Step 2 : Add User upon selecting above created User Group"+"<br>");
+		String newUser = NAUtils.addUser(new String[]{userGroup});
+		
+		Reporter.log("Step 3 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newUser);
+				
+		Reporter.log("Step 4 : login As New User"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newUser));
+		
+		Reporter.log("Step 5 : Navigate to > Devices > DeviceTools > DevicePasswordRules > Verify if Newly created user is having access to 'Device Password Rules' page or not ? :: Expected: Should have access"+"<br>");
+		Navigate.Devices.DeviceTools.DevicePasswordRules();
+		Assert.assertTrue(common.checkTitleContains("Device Password Rules"),"User is not having access to 'Device Password Rules' page");
+		
+		Reporter.log("Step 6 : Navigate to > Admin > New User > Verify if Newly created user is having access to 'New User' page or not ? :: Expected: Should not have access"+"<br>");
+		Navigate.Admin.newUser();
+				
+		Assert.assertFalse(common.checkTitleContains("New User"),"User is having access to 'New User' page");
+		
+		Reporter.log("===============End Create_Custom_Power_User_Group========================"+"<br>");
+	}
+	
+	@Test(enabled = true, groups= {"ART"})
+	public void Custom_User_Group_Manage_Users() throws InterruptedException 
+	{
+		Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+		Reporter.log("===============Start Custom_User_Group_Manage_Users========================"+"<br>");
+		
+		Reporter.log("Step 1 : Add new User Group ('Command Permissions' as 'Add Device','Manage User','Manage User Group','Manage User Role','Edit User' and 'Partition Permission' as 'All' and 'Device Permissions' as 'All' "+"<br>");
+		String userGroup = common.generateRandomString();
+		String[] customPermissions = {"Add Device","Manage User","Manage User Group","Manage User Role","Edit User"};		
+		Assert.assertTrue(NAUtils.addnewUserGroup(userGroup, null, "custom", null, customPermissions, true, null, "ALL", null),"User Group is not created");
+		
+		Reporter.log("Step 2 : Add User upon selecting above created User Group"+"<br>");
+		String newUser = NAUtils.addUser(new String[]{userGroup});
+		
+		Reporter.log("Step 3 : Reset Password for the above created New User"+"<br>");
+		login.resetPassword(newUser);
+				
+		Reporter.log("Step 4 : login As New User"+"<br>");
+		Assert.assertTrue(login.loginAsNewUser(newUser));
+		
+		Reporter.log("Step 5: Navigate to Admin > newUser > Create new user with role as 'Full Access User"+"<br>");
+		Navigate.Admin.newUser();
+		String fullAccessUser = NAUtils.addUser(new String[]{"Full Access User"});
+		
+		Reporter.log("Step 6 : Delete User with the name : "+fullAccessUser+" And verify Success message"+"<br>");
+		UsersListingPage UsersListingPage = new UsersListingPage();		
+		UsersListingPage.deleteUser(fullAccessUser);			
+		Assert.assertTrue(common.pageInfoBoxContains("Successfully deleted 1 user(s)."), "Unable to delete the User : "+fullAccessUser);
+			
+		Reporter.log("===============End Custom_User_Group_Manage_Users========================"+"<br>");
+	}
+	
+	
+	
+	@Test(enabled = true, groups= {"BAT"})
+	public void User_Group_List() 
+	{
+		Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+		Reporter.log("===============Start User_Group_List========================"+"<br>");
+		
+		Reporter.log("Step 1 : Add new User Group ('Command Permissions' as 'Add Device','Delete Device','Delete Device Configuration','Delete Device Group' and 'Partition Permission' as 'All' "+"<br>");
+		String userGroup = common.generateRandomString();
+		String[] customPermissions = {"Add Device","Delete Device","Delete Device Configuration","Delete Device Group"};		
+		Assert.assertTrue(NAUtils.addnewUserGroup(userGroup, null, "custom", null, customPermissions, true, null, "None", null),"User Group is not created");
+		
+		Reporter.log("Step 2 : Verify if 'Edit' link is enable for the user group"+userGroup+" :: Should be enabled"+"<br>");
+		Navigate.Admin.userGroups();
+		UserGroupsListingPage UserGroupsListingPage = new UserGroupsListingPage();
+		Assert.assertTrue(UserGroupsListingPage.checkEditLinkStatus(userGroup),"'Edit link' is not seen for the user group "+userGroup);
+		
+		Reporter.log("Step 3 : Click on 'Edit' link for the user group "+userGroup+"<br>");
+		UserGroupsListingPage.clickEditLink(userGroup);
+		
+		Reporter.log("Step 4 : Click on 'Delete' link for the user group "+userGroup+"<br>");
+		Navigate.Admin.userGroups();
+		UserGroupsListingPage UserGroupsListingPage1 = new UserGroupsListingPage();
+		UserGroupsListingPage1.clickDeleteLink(userGroup);	
+		
+		Reporter.log("===============End User_Group_List========================"+"<br>");
+	}
+	
+	
+	@Test(enabled = true, groups= {"ART"})
+	public void User_Group_List_Links() 
+	{
+		Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+		Reporter.log("===============Start User_Group_List_Links========================"+"<br>");
+		
+		Reporter.log("Step 1 : Navigate > Admin > User Groups > Verify title"+"<br>");
+		Navigate.Admin.userGroups();
+		UserGroupsListingPage UserGroupsListingPage = new UserGroupsListingPage();
+		UserGroupsListingPage.clickNewUserGroup();
+		
+		Reporter.log("Step 2 : Click on Back > Click on 'Users' > Verify title"+"<br>");
+		common.back();		
+		UserGroupsListingPage UserGroupsListingPage1 = new UserGroupsListingPage();
+		UserGroupsListingPage1.clickUsers();
+		
+		Reporter.log("Step 3 : Click on Back > Click on 'User Roles Permissions' > Verify title"+"<br>");
+		common.back();
+		UserGroupsListingPage UserGroupsListingPage2 = new UserGroupsListingPage();
+		UserGroupsListingPage2.clickUserRolesPermissions();
+		
+		Reporter.log("===============End User_Group_List_Links========================"+"<br>");
+	}
+	
+	@Test(enabled = true, groups= {"ART"})
+	public void User_Group_List_Sort() throws InterruptedException 
+	{
+		Reporter.log("ALM Global ID For this test Case:    "+"<br>");
+		Reporter.log("===============Start ========================"+"<br>");
+		
+		Reporter.log("Step 1 : Navigate to >  Admin > User Groups"+"<br>");
+		Navigate.Admin.userGroups();
+		String tableXpath = "//table[@ class='TableBorder']";
+		
+		Reporter.log("Step 2 : Verify sorting order of the column 'Group Name' to be in Assending order"+"<br>");
+		common.verifySortingOrder(tableXpath,"Group Name", false);
+		
+		Reporter.log("Step 3 : Click on the column  name 'Group Name' to sort the values in Decending order "+"<br>");
+		Assert.assertTrue(common.clickOnColumnNameToSort(tableXpath, "Group Name", true), "column with the name 'Group Name' not found");
+
+
+		Reporter.log("Step 4 : Verify sorting order of the column 'Group Name' to be in Decending order"+"<br>");
+		common.verifySortingOrder(tableXpath,"Group Name", true);
+
+		
+		Reporter.log("===============End ========================"+"<br>");
+	}
+	
+
+	
+	@AfterMethod(enabled = true, groups = {"BAT", "ART"})
+	  public void logout()
+	  {
+	  	try {
+			login.logOut();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	  
+	  	driver.quit();
+	  	driver=null;
+	  	
+	  }
+
+	  
+}

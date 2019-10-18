@@ -1,0 +1,4 @@
+hubaddress=http://16.78.60.105:4444/wd/hub
+naIpAddress=16.78.54.83
+browser=Firefox
+UseSeleniumHub=true

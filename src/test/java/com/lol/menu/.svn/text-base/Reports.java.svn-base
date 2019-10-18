@@ -1,0 +1,50 @@
+package test.java.com.hp.fc.usa.nmc.na.menu;
+
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+public class Reports {
+	
+	WebDriver driver = null;
+	WebElement table=null;
+	List<WebElement> rows = null;
+	
+	public SearchFor SearchFor;
+	
+	public Reports(WebDriver driver){
+		this.driver = driver;
+		this.SearchFor = new SearchFor(driver, this);
+	}
+	
+	public void AdvancedSearch(){
+		try{
+			navigateToItem("Advanced Search");
+		}catch(Exception e){
+			navigateToItem("Advanced Search");
+		}
+	}
+	
+	
+	private void navigateToItem(String navigateItem){
+		
+		//System.out.println("Into");
+		driver.findElement(By.id("dijit_PopupMenuBarItem_3_text")).click();
+		table = driver.findElement(By.xpath("html/body/div[3]/table"));
+		rows = table.findElements(By.tagName("tr"));
+		//System.out.println(rows.size());
+		//System.out.println("navigate "+navigateItem);
+		
+		for(int i =0;i<rows.size();i++){
+			//System.out.println("hi : "+i+" -- "+rows.get(i).getText().trim());
+			if(rows.get(i).getText().trim().equals(navigateItem)){
+				//System.out.println("html/body/div[3]/table/tbody/tr["+(i+1)+"]/td[2]");
+					driver.findElement(By.xpath("html/body/div[3]/table/tbody/tr["+(i+1)+"]/td[2]")).click();
+					break;
+				}
+		}
+	}
+
+}
